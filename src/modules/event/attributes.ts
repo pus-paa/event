@@ -20,11 +20,9 @@ const eventAttribute = {
   title: text("title"),
   description: text("description"),
   type: text("type").notNull(),
-  startDate: timestamp("startDate").notNull(),
+  startDateTime: timestamp("startDateTime").notNull(),
   imageUrl: text("imageUrl"),
-  endDate: timestamp("endDate").notNull(),
-  startTime: text("startTime"),
-  endTime: text("endTime"),
+  endDate: timestamp("endDateTime").notNull(),
   location: text("location"),
   organizer: integer("organizer").references(() => user.id, {
     onDelete: "cascade",
