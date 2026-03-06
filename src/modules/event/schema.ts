@@ -1,6 +1,6 @@
 import { pgTable } from "drizzle-orm/pg-core";
 import family from "@/modules/family/schema"
-import { integer, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import user from "@/modules/user/schema"
 import {
   eventAttribute,
@@ -36,7 +36,11 @@ const event_guest_attribute = {
   invited_by: integer("invited_by")
     .references(() => user.id)
     .notNull(),
+  arrival_date_time: timestamp("arrival_date_time"),
+  departure_date_time: timestamp("departure_date_time"),
+  isAccomodation: boolean("is_accomodation"),
   joined_at: text("joined_at"),
+  status: text("status")
 };
 
 const event_vendor_attribute = {

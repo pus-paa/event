@@ -32,6 +32,7 @@ const eventAttribute = {
   rsvp_deadline: text("rsvp_deadline"),
   visiblity: text("visiblity"),
   status: statusEnum("status"),
+  venue: text("venue"),
   theme: text("theme"),
   attire: text("attire"),
   side: text("side"),

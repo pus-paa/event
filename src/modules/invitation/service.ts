@@ -6,9 +6,8 @@ import EventService from "@/modules/event/service"
 import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError } from "@/utils/error";
 import z from "zod";
 import { invitationStatusValidation, validationRSVP } from "./validators";
-import { RsvpColumn } from "./resource";
 import User from "../user/model";
-
+import { EventInvitationColumn } from "./resource";
 
 const create = async (input: any) => {
   try {
@@ -79,7 +78,7 @@ const rejectRSVP = async (rsvpId: number, respondedBy?: number) => {
   return updateInvitationStatus(rsvpId, invitationStatus.rejected, respondedBy);
 };
 
-const getInvitedEvent = async (params: Partial<RsvpColumn>, userId: number) => {
+const getInvitedEvent = async (params: Partial<EventInvitationColumn>, userId: number) => {
   try {
     const invited_event = await Model.findAllInvitation({ ...params, userId });
     return invited_event;
@@ -104,13 +103,13 @@ const setResponce = async (body: {
     if (!userdetail || userdetail == null) {
       return throwNotFoundError("Family was not found ")
     }
-    if (invitation?.invitation.familyId != userdetail?.familyId) {
+    if (invitation?.familyId != userdetail?.familyId) {
       throwForbiddenError("You'r family id and the invitaion family id didn't match ");
     }
     const result = await EventService.makeEventGuest({
       eventId: body.eventId,
       guestId: body.userid,
-      inviterId: invitation?.invitation.invited_by!,
+      inviterId: Number(invitation?.invited_by!),
       familyId: userdetail.familyId,
       params: body
     });

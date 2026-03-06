@@ -2,6 +2,8 @@ import event from "@/modules/event/schema"
 import { eq, and, sql, or } from "drizzle-orm";
 import rsvp from "./schema";
 import db from "@/config/db";
+import repository from "./repository";
+import Resource from "./resource"
 
 export default class Rsvp {
   static async list(page: number, limit: number) {
@@ -30,7 +32,7 @@ export default class Rsvp {
     const conditions = or(eq(rsvp.userId, userId), (rsvp.familyId, familyId));
 
     const result = await db
-      .select()
+      .select(repository.selectInvitationEvent)
       .from(rsvp)
       .innerJoin(event, eq(rsvp.eventId, event.id))
       .where(conditions)
@@ -43,7 +45,7 @@ export default class Rsvp {
       .where(eq(rsvp.userId, userId));
 
     return {
-      items: result,
+      items: Resource.invitationeventCollection(result),
       page,
       totalItems: parseInt(count.toString(), 10),
       totalPages: Math.ceil(count / limit),
