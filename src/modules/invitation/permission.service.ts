@@ -7,8 +7,8 @@ import {
   throwErrorOnValidation,
 } from "@/utils/error";
 
-const canUserModifyInvitation = async (rsvpId: number, actorUserId: number) => {
-  const invitation = await RsvpModel.find({ id: rsvpId });
+const canUserModifyInvitation = async (eventId: number, actorUserId: number) => {
+  const invitation = await RsvpModel.find({ id: eventId  , userId: actorUserId });
 
   if (!invitation) {
     throwNotFoundError("Invitation");
@@ -33,22 +33,25 @@ const canUserModifyInvitation = async (rsvpId: number, actorUserId: number) => {
 
   if (!invitationData.userId && !invitationData.familyId) {
     throwErrorOnValidation("Invalid invitation. Missing invited user/family");
+    return false ; 
   }
 
   if (invitationData.userId && invitationData.userId === actorUserId) {
-    return invitationData;
+    return true;
   }
 
   if (invitationData.familyId) {
     if (!userData.familyId) {
       throwForbiddenError("You are not part of any family for this invitation");
+      return false ; 
     }
 
     if (Number(userData.familyId) !== Number(invitationData.familyId)) {
-      throwForbiddenError("You cannot modify this family invitation");
+        return false ; 
+
     }
 
-    return invitationData;
+    return true;
   }
 
   throwForbiddenError("You cannot modify this invitation");

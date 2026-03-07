@@ -19,6 +19,12 @@ const route = [
     authorization: true,
   },
   {
+    method: "get",
+    controller: Controller.getInvitationResponse,
+    path: "invitation/event-responses/:id",
+    authorization: true,
+  },
+  {
     method: "post",
     controller: Controller.setResponce,
     path: "invitation/responce/:id",

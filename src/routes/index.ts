@@ -9,6 +9,7 @@ export interface IAuthRequest extends Request {
     name: string;
     email: string;
     role: string;
+    familyId?: number | null;
   };
 }
 let routes: any[] = [];

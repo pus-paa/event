@@ -52,6 +52,7 @@ const create = async (input: createUserType) => {
       id: user!.id,
       email: user!.email,
       role: role.user,
+      familyId: user.familyId == 0 ? undefined : user.familyId
     };
     const token = await Token.sign(tokenPayload, "30d");
     const jsonData = Resource.toJson(user);
@@ -92,7 +93,7 @@ const login = async (input: loginType) => {
       id: user!.id,
       role: role.user,
       email: user!.email,
-
+      familyId: user?.familyId == 0 ? undefined : user?.familyId
     };
     const token = await Token.sign(tokenPayload, "30d");
 
