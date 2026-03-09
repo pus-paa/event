@@ -277,7 +277,7 @@ export default class Invitation {
       eventId:eventId, 
       familyId: familyId ?? null, 
       userId: guestId, 
-      invitation_name: params.invitation_name, 
+      invitation_name: params.invitation_name || params.fullName || "Family", 
       notes: normalizeNullable(params.note ?? params.notes), 
       role: normalizeNullable(params.role), 
       arrival_date_time: parseDate(params.arrival_date_time ?? params.arrivalDateTime), 

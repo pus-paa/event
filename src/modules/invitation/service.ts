@@ -85,7 +85,7 @@ const setResponce = async (body: {
       throwForbiddenError("You can only set responce for your family members");
     }
     const result = await Model.makeEventGuest({ 
-      eventId:eventId ,
+       eventId:eventId ,
        guestId: body.userId,
        invited_by: Number(invitations?.invited_by!),
        familyId: familyId,
