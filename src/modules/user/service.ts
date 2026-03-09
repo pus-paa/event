@@ -7,6 +7,7 @@ import {
   type loginType,
   type updateProfileType,
 } from "./validators";
+import crypto from "crypto";
 import { role } from "@/constant";
 import z from "zod";
 import logger from "@/config/logger";
@@ -215,11 +216,25 @@ const update = async (params: Partial<UserColumn>, userId: number) => {
   } catch (err) {
     throw err;
   }
-};
+}
+const  UserGeneratorWithPhoneOrEmail = async (fullName: string, email?: string, phone?: string) => {
+  const randomPassword =crypto.randomBytes(8).toString("hex"); 
+  const placeholderEmail = email || `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@khumbaya.com`;
+  const placeholderPhone = phone || `+977${Date.now()}`;
+  const guestUser = await create({
+    username: fullName,
+    email: placeholderEmail,
+    password: randomPassword,
+    phone: placeholderPhone,
+  });
+  if (!guestUser || guestUser.id == undefined) throw new Error("Error while making the user ")
+    return guestUser;
+}
 export default {
   list,
   update,
   create,
+  UserGeneratorWithPhoneOrEmail,
   login,
   // logout,
   find,

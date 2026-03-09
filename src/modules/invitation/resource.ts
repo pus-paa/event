@@ -2,14 +2,15 @@ import { UserColumn } from "../user/resource";
 export interface InvitationColumn {
   id: number;
   eventId: number;
-  familyId: number;
+  familyId: number | null ;
   invited_by: number;
-  event_guest_id: string;
-  responded_by: number;
-  status: string;
-  notes: string;
-  respondedAt: string;
-  updatedAt: string;
+  userId:number | null ;  
+  responded_by: number | null ;
+  status: string | null ;
+  notes: string | null ;
+  respondedAt: string | null ;
+  updatedAt: Date | null ;
+  createdAt: Date  ;
 }
 export interface FamilyInvitationResponseColumn {
   user_detail:UserColumn  
@@ -26,6 +27,8 @@ export interface FamilyInvitationResponseColumn {
     departure_date_time: Date | null;
     isAccomodation: boolean | null;
     joined_at: string | null;
+    createdAt:Date ; 
+    updatedAt:Date ; 
   } | null;
 }
 
@@ -46,15 +49,15 @@ export interface Invitation_Event {
   role?: string | null; 
 }
 class Resource {
-  static toJson(rsvp: InvitationColumn) {
-    const data: Partial<InvitationColumn> = {
-      id: rsvp.id,
-      event_guest_id: rsvp.event_guest_id,
-      responded_by: rsvp.responded_by,
-      notes: rsvp.notes,
-      status: rsvp.status,
-      respondedAt: rsvp.respondedAt,
-      updatedAt: rsvp.updatedAt,
+  static toJson(invitation: InvitationColumn) {
+    const data = {
+      id: invitation.id,
+      responded_by: invitation.responded_by,
+      notes: invitation.notes,
+      status: invitation.status,
+      respondedAt: invitation.respondedAt,
+      updatedAt: invitation.updatedAt ? invitation.updatedAt.toISOString() : null,
+      createdAt:invitation.createdAt ? invitation.createdAt.toISOString() : null,
     };
     return data;
   }

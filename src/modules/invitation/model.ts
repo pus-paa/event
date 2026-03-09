@@ -1,6 +1,7 @@
 
 import { eq, and, sql, or , isNull } from "drizzle-orm";
 import invitation from "./schema";
+import event from "@/modules/event/schema"
 import db from "@/config/db";
 import repository from "./repository";
 import Resource from "./resource"
@@ -115,6 +116,7 @@ export default class Invitation {
       invitationConditions.push(eq(invitation.eventId, Number(eventId)));
     }
 
+
     const whereCondition = invitationConditions.length
       ? and(...invitationConditions)
       : undefined;
@@ -122,6 +124,7 @@ export default class Invitation {
     let query = db
       .select(repository.selectInvitationEvent)
       .from(invitation)
+      .leftJoin(event, eq(event.id, invitation.eventId))
       .where(whereCondition)
 
     const result = await query;
@@ -234,19 +237,88 @@ export default class Invitation {
       familyId?: number | null
     }
   ) {
-    const event_guest = await db
-      .insert(invitation)
-      .values({
-        invited_by: invited_by,
-        joined_at: new Date().toISOString(),
-        eventId: eventId,
-        familyId: familyId ?? null,
-        userId: guestId,
-        notes: params.note ?? params.notes ?? null,
-        role: params.role ?? null, 
-      } as any)
-      .returning().onConflictDoNothing();
-    return event_guest;
+    console.log('the params i am getting in the make event guest is ', { eventId, guestId, invited_by, familyId, params })
+      const normalizeNullable = (value: any) => { 
+      if (value === undefined) return undefined; 
+      if (value === null) return null; 
+      if (typeof value === "string") { 
+        const trimmed = value.trim().toLowerCase(); 
+        if (trimmed === "null" || trimmed === "") return null; 
+      } 
+      return value; 
+    }; 
+ 
+    const parseDate = (value: any) => { 
+      const normalized = normalizeNullable(value); 
+      if (normalized === undefined) return undefined; 
+      if (normalized === null) return null; 
+      const date = normalized instanceof Date ? normalized : new Date(normalized); 
+      return Number.isNaN(date.getTime()) ? null : date; 
+    };
+ 
+    const parseBoolean = (value: any) => { 
+      const normalized = normalizeNullable(value); 
+      if (normalized === undefined) return undefined; 
+      if (normalized === null) return null; 
+      if (typeof normalized === "boolean") return normalized; 
+      if (typeof normalized === "string") { 
+        const lowered = normalized.toLowerCase(); 
+        if (lowered === "true") return true; 
+        if (lowered === "false") return false; 
+      } 
+      return Boolean(normalized); 
+    }; 
+ 
+    const guestPayload = { 
+      invited_by, 
+      eventId:eventId, 
+      familyId: familyId ?? null, 
+      userId: guestId, 
+      invitation_name: params.invitation_name, 
+      notes: normalizeNullable(params.note ?? params.notes), 
+      role: normalizeNullable(params.role), 
+      arrival_date_time: parseDate(params.arrival_date_time ?? params.arrivalDateTime), 
+      departure_date_time: parseDate(params.departure_date_time ?? params.departureDateTime), 
+      isAccomodation: parseBoolean(params.isAccomodation ?? params.isAccommodation), 
+      status: normalizeNullable(params.status), 
+    }; 
+    console.log("😂😂 the guest payload after parsing is ", guestPayload)
+ 
+    const existingGuest = await db 
+      .select({ id: invitation.id }) 
+      .from(invitation).leftJoin(event , eq(invitation.eventId , eventId))
+      .where( 
+        and( 
+          eq(invitation.eventId, eventId), 
+          eq(invitation.userId, guestId), 
+        ), 
+      ) 
+      .limit(1); 
+ 
+    if (existingGuest[0]?.id) { 
+      const updatePayload = Object.fromEntries( 
+        Object.entries(guestPayload).filter(([, value]) => value !== undefined), 
+      ); 
+      const updated = await db 
+        .update(invitation) 
+        .set(updatePayload ) 
+        .where(eq(invitation.id, existingGuest[0].id)) 
+        .returning(); 
+      return updated[0] ?? null; 
+    } 
+ 
+    const insertPayload = Object.fromEntries( 
+      Object.entries(guestPayload).map(([key, value]) => [key, value === undefined ? null : value]), 
+    ); 
+ 
+    const inserted = await db 
+      .insert(invitation) 
+      .values({ 
+        ...(insertPayload as any), 
+        joined_at: new Date().toISOString(), 
+      }) 
+      .returning(); 
+    return inserted[0] ?? null;
   }
 }
 

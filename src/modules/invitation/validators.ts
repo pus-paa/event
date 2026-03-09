@@ -24,7 +24,7 @@ const EventInvitation = z.object({
   email: z.string().email("Invalid email").optional(),
   phone: z.string().optional(),
   role:z.string().optional(),
-  eventId: z.number().int(),
+  invitation_name:z.string().nonempty("Invitation name is required"),
   isFamily: z.boolean().default(false)
 });
 

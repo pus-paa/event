@@ -1,61 +1,14 @@
 import logger from "@/config/logger";
-import { invitationStatus } from "@/constant";
 import Model from "./model";
-import { Invitation_Event } from "./resource";
+import Resource, { Invitation_Event } from "./resource";
 import EventService from "@/modules/event/service"
-import Service from "./service"
 import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError, throwUnauthorizedError } from "@/utils/error";
-import { invitationStatusValidation } from "./validators";
 import UserService from "@/modules/user/service";
+import FamilyService from "@/modules/family/service"
 import { UserColumn } from "../user/resource";
-import FamilyModel from "@/modules/family/model";
 import Invitation from "./model";
 import { EventInvitationType , EventInvitation } from "./validators";
 
-const updateInvitationStatus = async (rsvpId: number, status: string, respondedBy?: number) => {
-  try {
-    invitationStatusValidation.parse(status);
-    if (respondedBy === undefined || respondedBy === null) {
-      throwErrorOnValidation("User is required to update invitation status");
-    }
-
-    const actorId = Number(respondedBy);
-    if (Number.isNaN(actorId)) {
-      throwErrorOnValidation("Invalid user for invitation status update");
-    }
-
-     logger.info(`Updating RSVP status with id: ${rsvpId} to ${status}`);
-
-    const rsvp = await Model.updateInvitationStatus(rsvpId, status, actorId);
-    if (!rsvp) {
-      throw new Error(`RSVP with id ${rsvpId} not found`);
-    }
-
-    if (status === invitationStatus.accepted && rsvp.eventId && rsvp.userId) {
-      await Service.makeEventGuest({
-        eventId: rsvp.eventId,
-        guestId: rsvp.userId,
-        inviterId: rsvp.invited_by,
-        familyId: rsvp.familyId ?? null,
-        params: rsvp,
-      }
-      );
-    }
-
-    logger.info(`RSVP with id ${rsvpId} updated to ${status}.`);
-    return rsvp;
-  } catch (err: any) {
-    throw err;
-  }
-}
-
-const acceptRSVP = async (rsvpId: number, respondedBy?: number) => {
-  return updateInvitationStatus(rsvpId, invitationStatus.accepted, respondedBy);
-};
-
-const rejectRSVP = async (rsvpId: number, respondedBy?: number) => {
-  return updateInvitationStatus(rsvpId, invitationStatus.rejected, respondedBy);
-};
 //list of the event with the event detail and the user id in the header 
 const getInvitedEvent = async (params: Partial<Invitation_Event>, userId: number , familyId?:number ) => {
   try {
@@ -106,14 +59,12 @@ const listinvitationsResponce = async (
 }
 
 const setResponce = async (body: {
-  eventId: number;
-  userid: number;
-
+  userId: number;
 [key: string]: any;
-}, userId: number, familyId?: number | null) => {
+}, userId: number, familyId: number | null = null  , eventId:number) => {
   try { 
-  
-    const invitations = await Model.findInvitationEvent({ eventId: body.eventId, userId  ,familyId: familyId ?? undefined });
+    
+    const invitations = await Model.findInvitationEvent({ eventId: eventId, userId:body.userId  ,familyId: familyId ?? undefined });
 
     if (!invitations) {
       return throwNotFoundError("Invitation was not found");
@@ -122,28 +73,21 @@ const setResponce = async (body: {
     if (invitations.userId !== userId && (familyId && invitations.familyId !== familyId)) {
       throwForbiddenError("You'r family id and the invitaion family id didn't match ");
     }
-    //invitation duplicate check 
-    const eventGuest = await Model.getEventGuest({eventId: body.eventId, userId: body.userid});
-
-    if (eventGuest) {
-      throwErrorOnValidation("Responce already exist for this user and event");
-    }
-    const result = await Service.inviteGuest({
-      eventId: body.eventId,
-      userId: body.userid,
-      inviterId: Number(invitations?.invited_by!),
-      familyId: familyId,
-      params: body
-    } , userId);
+    const result = await Model.makeEventGuest({ 
+      eventId:eventId ,
+       guestId: body.userId,
+       invited_by: Number(invitations?.invited_by!),
+       familyId: familyId,
+       params: body
+      });
     return result;
-
   } catch (err) {
     throw err;
 
   }
 }
 
-const inviteGuest = async (input: EventInvitationType, userId: number) => {
+const inviteGuest = async (input: EventInvitationType, userId: number , eventId:number ) => {
   try {
     const result = EventInvitation.safeParse(input);
     if (!result.success) {
@@ -151,39 +95,36 @@ const inviteGuest = async (input: EventInvitationType, userId: number) => {
         result.error.issues.map((issue) => issue.message).join(", "),
       );
     }
-    const isValid = await EventService.checkAuthorized(input.eventId, userId);
+    const isValid = await EventService.checkAuthorized(eventId, userId);
     if (!isValid) {
       return throwErrorOnValidation("Unauthorized: You are not allowed to invite guests for this event");
     }
 
-    const { fullName, email, phone, eventId, isFamily } = input;
+    const { fullName, email, phone, isFamily } = input;
     let guestUser: Partial<UserColumn> | undefined;
     if (email || phone) {
       try {
         guestUser = (await UserService.list({ email, phone })).items[0] // get the user with the email and the phone
+        if (!guestUser) { // No user with the email or overall no user found 
+          guestUser = await UserService.UserGeneratorWithPhoneOrEmail(fullName, email, phone);
+        }
       } catch (err) {
         throw err;
       }
     }
-    if (!guestUser) { // No user with the email or overall no user found 
-      guestUser = await UserGeneratorWithPhoneOrEmail(fullName, email, phone);
-    }
     if (!guestUser || guestUser.id == undefined) throw new Error("Error while making the user ")
     if (isFamily && !guestUser.familyId) {
       //Making the family table and then upadaing the guest family id 
-      const userFamily = await FamilyModel.create({
-        createdBy: guestUser.id!,
-        familyName: `${guestUser}'s Family`,
-
-      })
-      guestUser.familyId = userFamily?.id;
-      const updateUser = await UserService.update({ familyId: userFamily?.id }, guestUser.id)
-      guestUser.familyId = updateUser.familyId;
+      guestUser.familyId = await FamilyService.makeFamilyAndAddUserToFamily(guestUser.id, fullName)
     }
-    // 2. Create RSVP (Invitation) entry
+    const invitationexist = await Model.find({ eventId: eventId, userId: guestUser.id });
+    if (invitationexist) {
+      throwErrorOnValidation("This user is already invited to the event");
+    }
     const invitation = await Invitation.create({
       eventId: eventId,
       userId: guestUser.id!,
+      invitation_name: input.invitation_name,
       familyId: isFamily ? guestUser.familyId : undefined,
       invited_by: userId,
       status: "Pending",
@@ -193,11 +134,7 @@ const inviteGuest = async (input: EventInvitationType, userId: number) => {
       throw new Error("Failed to create invitation");
     }
 
-    return {
-      ...guestUser,
-      invitationId: invitation.id,
-     
-    };
+   return  Resource.toJson(invitation as any );
   } catch (err: any) {
     logger.error("Error in inviting guest:", err);
     throw err;
@@ -206,7 +143,7 @@ const inviteGuest = async (input: EventInvitationType, userId: number) => {
 
 const getEventguest = async (eventid: number, userId: number) => {
   try {
-    const isAllowed = await checkAuthorized(eventid, userId);
+    const isAllowed = await EventService.checkAuthorized(eventid, userId);
     if (!isAllowed) {
       return throwUnauthorizedError("User with the details cannot get the information of the guest ");
     }
@@ -217,18 +154,10 @@ const getEventguest = async (eventid: number, userId: number) => {
   }
 };
 
-const makeEventGuest = async ({ eventId, guestId, inviterId, familyId, params }: { eventId: number, guestId: number, inviterId: number, familyId?: number | null, params: any }) => {
-  try {
-    const data = await Model.makeEventGuest({ eventId, guestId, invited_by: inviterId, familyId, params });
-    return data;
-  } catch (error: any) {
-    logger.error("Error in making event guest:", error);
-    throw error;
-  }
-};
+
 const getInvitedGuest = async (eventId: number, userId: number) => {
   try {
-    const isAuthorized = await checkAuthorized(eventId, userId);
+    const isAuthorized = await EventService.checkAuthorized(eventId, userId);
     if (!isAuthorized) {
       return throwForbiddenError("Not allowed to get the guest for this event");
     }
@@ -241,12 +170,10 @@ const getInvitedGuest = async (eventId: number, userId: number) => {
   }
 };
 
+
 export default {
   setResponce,
   inviteGuest,
-  acceptRSVP,
-  rejectRSVP,
-  updateInvitationStatus,
   getInvitedEvent,
   listinvitationsResponce,
 };

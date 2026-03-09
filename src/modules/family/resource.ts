@@ -1,3 +1,5 @@
+import FamilyModel from "./model"
+import UserService from "@/modules/user/service"
 export interface FamilyColumn {
   id: number;
   familyName: string;
@@ -55,5 +57,6 @@ class Resource {
     return members.map(this.toJsonMember);
   }
 }
+
 
 export default Resource;
