@@ -1,6 +1,6 @@
 import db from "@/config/db";
 import { sql, eq, or } from "drizzle-orm";
-import event, { event_guest_schema, event_vendor_schema } from "./schema";
+import event,{ event_vendor_schema } from "./schema";
 import { event_member_schema } from "./schema";
 import repository from "./repository";
 
@@ -103,21 +103,6 @@ class Event {
       totalPages: Math.ceil(count / limit),
     };
   }
-
-  static async getInvitedGuest(eventId: number) {
-    const result = await db
-      .select({
-        user: repository.selectEventGuest.user,
-        status: rsvp.status,
-        familyId: rsvp.familyId,
-        category: rsvp.category,
-        invited_by: rsvp.invited_by,
-      })
-      .from(rsvp)
-      .innerJoin(user, eq(rsvp.userId, user.id))
-      .where(eq(rsvp.eventId, eventId));
-    return result;
-  }
   static async getEventMember(eventId: number) {
     const result = await db
       .select(repository.SelectEventOwners)
@@ -127,18 +112,9 @@ class Event {
     return result;
   }
 
-  static async getEventGuest(eventId: number) {
-    console.log("This is the event id of the event geust ", eventId);
-    const event_guest = await db
-      .select(repository.selectEventGuest)
-      .from(event_guest_schema).leftJoin(
-        user, eq(event_guest_schema.userId, user.id)
-      ).leftJoin(rsvp, eq(rsvp.eventId, eventId))
-      .where(eq(event_guest_schema.eventId, eventId));
-    return event_guest;
-  }
 
-  static async makeeEventOwner(eventId: number, eventMemberId: number) {
+
+  static async makeEventOwner(eventId: number, eventMemberId: number) {
     const event_member_returning = await db
       .insert(event_member_schema)
       .values({
@@ -155,35 +131,7 @@ class Event {
       .where(eq(event_vendor_schema.event_id, eventId));
     return event_vendor;
   }
-  static async makeEventGuest(
-    {
-      eventId,
-      guestId,
-      invited_by,
-      familyId,
-      params
-    }: {
-      eventId: number,
-      guestId: number,
-      invited_by: number,
-      params: any
-      familyId?: number | null
-    }
-  ) {
-    const event_guest = await db
-      .insert(event_guest_schema)
-      .values({
-        invited_by: invited_by,
-        joined_at: new Date().toISOString(),
-        eventId: eventId,
-        familyId: familyId ?? null,
-        userId: guestId,
-        notes: params.note ?? params.notes ?? null,
-        role: params.role
-      })
-      .returning().onConflictDoNothing();
-    return event_guest;
-  }
+ 
 }
 
 export default Event;

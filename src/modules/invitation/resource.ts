@@ -1,43 +1,19 @@
-export interface RsvpColumn {
+import { UserColumn } from "../user/resource";
+export interface InvitationColumn {
   id: number;
   eventId: number;
-  familyId: number;
+  familyId: number | null ;
   invited_by: number;
-  event_guest_id: string;
-  responded_by: number;
-  status: string;
-  notes: string;
-  respondedAt: string;
-  updatedAt: string;
+  userId:number | null ;  
+  responded_by: number | null ;
+  status: string | null ;
+  notes: string | null ;
+  respondedAt: string | null ;
+  updatedAt: Date | null ;
+  createdAt: Date  ;
 }
-
-export interface EventInvitationColumn {
-  id: number;
-  event_detail: {
-    id: number;
-    title: string | null;
-    startDateTime: Date | string;
-    endDateTime: Date | string;
-    location: string | null;
-    venue: string | null;
-    imageUrl: string | null;
-  };
-  invited_by: number;
-  familyId: number | null;
-  invitation_status: string | null;
-  role: string | null;
-}
-
 export interface FamilyInvitationResponseColumn {
-  user_detail: {
-    id: number;
-    username: string | null;
-    email: string;
-    phone: string | null;
-    photo: string | null;
-    familyId: number | null;
-    relation: string | null;
-  };
+  user_detail:UserColumn  
   event_guest: {
     id: number;
     userId: number;
@@ -51,6 +27,8 @@ export interface FamilyInvitationResponseColumn {
     departure_date_time: Date | null;
     isAccomodation: boolean | null;
     joined_at: string | null;
+    createdAt:Date ; 
+    updatedAt:Date ; 
   } | null;
 }
 
@@ -68,18 +46,18 @@ export interface Invitation_Event {
   invitation_status: string | null;
   invited_by: number;
   familyId: number | null;
-  role?: string | null; // temp and only done the filtering inthe bacend 
+  role?: string | null; 
 }
 class Resource {
-  static toJson(rsvp: RsvpColumn) {
-    const data: Partial<RsvpColumn> = {
-      id: rsvp.id,
-      event_guest_id: rsvp.event_guest_id,
-      responded_by: rsvp.responded_by,
-      notes: rsvp.notes,
-      status: rsvp.status,
-      respondedAt: rsvp.respondedAt,
-      updatedAt: rsvp.updatedAt,
+  static toJson(invitation: InvitationColumn) {
+    const data = {
+      id: invitation.id,
+      responded_by: invitation.responded_by,
+      notes: invitation.notes,
+      status: invitation.status,
+      respondedAt: invitation.respondedAt,
+      updatedAt: invitation.updatedAt ? invitation.updatedAt.toISOString() : null,
+      createdAt:invitation.createdAt ? invitation.createdAt.toISOString() : null,
     };
     return data;
   }

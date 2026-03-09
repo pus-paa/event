@@ -5,6 +5,7 @@ import {
   type UpdateMemberValidation,
 } from "./validators";
 import Model from "./model";
+import UserService from "@/modules/user/service"
 import Resource from "./resource";
 import { throwForbiddenError, throwNotFoundError } from "@/utils/error";
 import logger from "@/config/logger";
@@ -280,6 +281,16 @@ const getMyFamily_userId = async (userId: number) => {
     throw error;
   }
 }
+
+const makeFamilyAndAddUserToFamily = async (userId: number, fullName: string) => {
+  const userFamily = await Model.create({
+  createdBy:userId,
+  familyName: `${fullName}'s Family`,
+
+  })
+const updateUser = await UserService.update({ familyId: userFamily?.id }, userId)   
+return updateUser ; 
+}
 export default {
   create,
   get,
@@ -289,6 +300,7 @@ export default {
   listMembers,
   getMemberDetails,
   updateMember,
+  makeFamilyAndAddUserToFamily,
   removeMember,
   getMyFamilies,
 };

@@ -26,15 +26,6 @@ const EventValidationSchema = z.object({
   parentId: z.number().int().optional(),
   location: z.string().optional(),
 });
-const EventInvitation = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email").optional(),
-  phone: z.string().optional(),
-  eventId: z.number().int(),
-  isFamily: z.boolean().default(false)
-});
-
-type EventInvitationType = z.infer<typeof EventInvitation>;
 
 const EventUpdateValidationSchema = EventValidationSchema.partial();
 
@@ -45,8 +36,8 @@ type updateEventType = z.infer<typeof EventUpdateValidationSchema>;
 export {
   EventValidationSchema,
   EventUpdateValidationSchema,
-  EventInvitation,
+  
   type createEventType,
   type updateEventType,
-  type EventInvitationType,
+  
 };

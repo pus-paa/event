@@ -1,86 +1,18 @@
 import logger from "@/config/logger";
-import { invitationStatus } from "@/constant";
 import Model from "./model";
-import PermissionService from "./permission.service";
+import Resource, { Invitation_Event } from "./resource";
 import EventService from "@/modules/event/service"
-import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError } from "@/utils/error";
-import z from "zod";
-import { invitationStatusValidation, validationRSVP } from "./validators";
-import { EventInvitationColumn } from "./resource";
-import permissionService from "./permission.service";
+import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError, throwUnauthorizedError } from "@/utils/error";
+import UserService from "@/modules/user/service";
+import FamilyService from "@/modules/family/service"
+import { UserColumn } from "../user/resource";
+import Invitation from "./model";
+import { EventInvitationType , EventInvitation } from "./validators";
 
-const create = async (input: any) => {
+//list of the event with the event detail and the user id in the header 
+const getInvitedEvent = async (params: Partial<Invitation_Event>, userId: number , familyId?:number ) => {
   try {
-    logger.info(`Creating RSVP with input: ${JSON.stringify(input)}`);
-    const { error, success } = await z.safeParseAsync(validationRSVP, input);
-    if (!success) {
-      throwErrorOnValidation(
-        error.issues.map((issue) => issue.message).join(", "),
-      );
-    }
-    const rsvp = await Model.create({
-      ...input,
-      status: invitationStatus.invited,
-    });
-    if (!rsvp) {
-      throw new Error("Failed to create RSVP");
-    }
-    logger.info(`RSVP created successfully with id: ${rsvp.id}`);
-    return rsvp;
-  } catch (err: any) {
-    throw err;
-  }
-};
-
-const updateInvitationStatus = async (rsvpId: number, status: string, respondedBy?: number) => {
-  try {
-    invitationStatusValidation.parse(status);
-    if (respondedBy === undefined || respondedBy === null) {
-      throwErrorOnValidation("User is required to update invitation status");
-    }
-
-    const actorId = Number(respondedBy);
-    if (Number.isNaN(actorId)) {
-      throwErrorOnValidation("Invalid user for invitation status update");
-    }
-
-    await PermissionService.canUserModifyInvitation(rsvpId, actorId);
-    logger.info(`Updating RSVP status with id: ${rsvpId} to ${status}`);
-
-    const rsvp = await Model.updateInvitationStatus(rsvpId, status, actorId);
-    if (!rsvp) {
-      throw new Error(`RSVP with id ${rsvpId} not found`);
-    }
-
-    if (status === invitationStatus.accepted && rsvp.eventId && rsvp.userId) {
-      await EventService.makeEventGuest({
-        eventId: rsvp.eventId,
-        guestId: rsvp.userId,
-        inviterId: rsvp.invited_by,
-        familyId: rsvp.familyId ?? null,
-        params: rsvp,
-      }
-      );
-    }
-
-    logger.info(`RSVP with id ${rsvpId} updated to ${status}.`);
-    return rsvp;
-  } catch (err: any) {
-    throw err;
-  }
-}
-
-const acceptRSVP = async (rsvpId: number, respondedBy?: number) => {
-  return updateInvitationStatus(rsvpId, invitationStatus.accepted, respondedBy);
-};
-
-const rejectRSVP = async (rsvpId: number, respondedBy?: number) => {
-  return updateInvitationStatus(rsvpId, invitationStatus.rejected, respondedBy);
-};
-
-const getInvitedEvent = async (params: Partial<EventInvitationColumn>, userId: number) => {
-  try {
-    const invited_event = await Model.findAllInvitation({ ...params, userId });
+    const invited_event = await Model.listAllInvitationEvent({ ...params, userId , familyId });
     return invited_event;
   } catch (err: any) {
     logger.error(`Error fetching invitations for user ${userId}: ${err.message}`);
@@ -93,7 +25,6 @@ const listinvitationsResponce = async (
   params: { familyId?: number; userId: number },
 ) => {
   try {
-
     const parsedFamilyId =
       params.familyId !== undefined ? Number(params.familyId) : undefined;
     const parsedUserId =
@@ -116,15 +47,9 @@ const listinvitationsResponce = async (
     if (parsedUserId !== undefined && Number.isNaN(parsedUserId)) {
       throwErrorOnValidation("userId must be a valid number");
     }
-
-    const allowedInvitation = await permissionService.canUserModifyInvitation(eventId, params.userId);
-    if (!allowedInvitation) {
-      throwForbiddenError("You do not have permission to view this invitation response");
-    }
-    return await Model.listInvitationResponse(eventId, {
-      familyId: parsedFamilyId,
-      userId: parsedUserId,
-    });
+    
+    const listEvent =  await Model.getInvitationResponces({ eventId, familyId: parsedFamilyId, userId: parsedUserId });
+    return listEvent;
   } catch (err: any) {
     logger.error(
       `Error fetching invitation response for event ${eventId}: ${err.message}`,
@@ -134,47 +59,133 @@ const listinvitationsResponce = async (
 }
 
 const setResponce = async (body: {
-  eventId: number;
-  userid: number;
+  userId: number;
+[key: string]: any;
+}, userId: number, familyId: number | null = null  , eventId:number) => {
+  try { 
+   const invitations = await Model.findInvitationEvent({ eventId: eventId, userId:userId , familyId:familyId??undefined }); 
 
-  [key: string]: any;
-}, userId: number, familyId?: number | null) => {
-  try {
-    console.log(`This is the ivitation of the userId: ${userId} and the eventid:${body.eventId}`)
-    const invitations = await Model.find({ eventId: body.eventId, userId })
-    console.log(invitations);
     if (!invitations) {
       return throwNotFoundError("Invitation was not found");
     }
-    //Check invitation to the user or the family in the family id 
-    if (invitations.userId !== userId && (familyId && invitations.familyId !== familyId)) {
-      throwForbiddenError("You'r family id and the invitaion family id didn't match ");
-    }
-    //invitdtion duplicate check 
-    const eventGuest = await EventService.getEventguest(body.eventId, body.userid);
-    if (eventGuest) {
-      throwErrorOnValidation("Responce already exist for this user and event");
-    }
-    const result = await EventService.makeEventGuest({
-      eventId: body.eventId,
-      guestId: body.userid,
-      inviterId: Number(invitations?.invited_by!),
-      familyId: familyId,
-      params: body
-    });
-    return result;
+    const canRespondAsSelf = invitations.userId === userId;
+    const canRespondAsFamily =
+      familyId !== null &&
+      invitations.familyId !== null &&
+      invitations.familyId === familyId;
 
-  } catch (err) {
+    if (!canRespondAsSelf && !canRespondAsFamily) {
+      throwForbiddenError("You are not allowed to respond to this invitation");
+    }
+    if(body.userId !== userId){
+  
+      const members = await FamilyService.listMembers(familyId??0);
+     if (members.some(member => member?.id === userId)) {
+    }else{
+      throwForbiddenError("You can only set responce for your family members");
+    }
+    const result = await Model.makeEventGuest({ 
+      eventId:eventId ,
+       guestId: body.userId,
+       invited_by: Number(invitations?.invited_by!),
+       familyId: familyId,
+       params: body
+      });
+    return result;
+  }
+} catch (err) {
     throw err;
 
   }
 }
+
+const inviteGuest = async (input: EventInvitationType, userId: number , eventId:number ) => {
+  try {
+    const result = EventInvitation.safeParse(input);
+    if (!result.success) {
+      throw new Error(
+        result.error.issues.map((issue) => issue.message).join(", "),
+      );
+    }
+    const isValid = await EventService.checkAuthorized(eventId, userId);
+    if (!isValid) {
+      return throwErrorOnValidation("Unauthorized: You are not allowed to invite guests for this event");
+    }
+
+    const { fullName, email, phone, isFamily } = input;
+    let guestUser: Partial<UserColumn> | undefined;
+    if (email || phone) {
+      try {
+        guestUser = (await UserService.list({ email, phone })).items[0] // get the user with the email and the phone
+        if (!guestUser) { // No user with the email or overall no user found 
+          guestUser = await UserService.UserGeneratorWithPhoneOrEmail(fullName, email, phone);
+        }
+      } catch (err) {
+        throw err;
+      }
+    }
+    if (!guestUser || guestUser.id == undefined) throw new Error("Error while making the user ")
+    if (isFamily && !guestUser.familyId) {
+      //Making the family table and then upadaing the guest family id 
+      guestUser.familyId = await FamilyService.makeFamilyAndAddUserToFamily(guestUser.id, fullName)
+    }
+    const invitationexist = await Model.find({ eventId: eventId, userId: guestUser.id });
+    if (invitationexist) {
+      throwErrorOnValidation("This user is already invited to the event");
+    }
+    const invitation = await Invitation.create({
+      eventId: eventId,
+      userId: guestUser.id!,
+      invitation_name: input.invitation_name,
+      familyId: isFamily ? guestUser.familyId : undefined,
+      invited_by: userId,
+      status: "Pending",
+    });
+
+    if (!invitation) {
+      throw new Error("Failed to create invitation");
+    }
+
+   return  Resource.toJson(invitation as any );
+  } catch (err: any) {
+    logger.error("Error in inviting guest:", err);
+    throw err;
+  }
+};
+
+const getEventguest = async (eventid: number, userId: number) => {
+  try {
+    const isAllowed = await EventService.checkAuthorized(eventid, userId);
+    if (!isAllowed) {
+      return throwUnauthorizedError("User with the details cannot get the information of the guest ");
+    }
+    const event_guest = Model.getEventGuest(eventid);
+    return event_guest;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+const getInvitedGuest = async (eventId: number, userId: number) => {
+  try {
+    const isAuthorized = await EventService.checkAuthorized(eventId, userId);
+    if (!isAuthorized) {
+      return throwForbiddenError("Not allowed to get the guest for this event");
+    }
+
+    const invitedGuest = await Model.getInvitedGuest(eventId);
+    return invitedGuest;
+  } catch (err: any) {
+    logger.error(err, "Error in getInvitedGuest service");
+    throw err;
+  }
+};
+
+
 export default {
   setResponce,
-  create,
-  acceptRSVP,
-  rejectRSVP,
-  updateInvitationStatus,
+  inviteGuest,
   getInvitedEvent,
   listinvitationsResponce,
 };

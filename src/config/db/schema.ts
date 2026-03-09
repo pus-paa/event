@@ -1,9 +1,9 @@
 import buisness from "@/modules/businesses/schema";
+import invitation from "@/modules/invitation/schema"
 import category from "@/modules/category/schema";
 import user from "@/modules/user/schema";
 import admin from "@/modules/admin/schema";
 import {
-  event_guest_schema,
   event_member_schema,
   event_vendor_schema,
 } from "../../modules/event/schema";
@@ -16,9 +16,9 @@ export {
   statusEnum,
   buisness,
   category,
+  invitation,
   event,
   user,
-  event_guest_schema,
   event_member_schema,
   event_vendor_schema,
   rsvp,

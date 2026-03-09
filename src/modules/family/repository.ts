@@ -21,6 +21,7 @@ const selectMemersQuery = {
   updatedAt: users.updatedAt,
 };
 
+
 export default {
   selectQuery,
   selectMemersQuery,
