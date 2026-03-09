@@ -1,5 +1,4 @@
-import event, { event_guest_schema, event_member_schema } from "./schema";
-import RSVP from "@/modules/invitation/repository"
+import event, {  event_member_schema } from "./schema";
 import User from "@/modules/user/repository"
 
 const selectQuery = {
@@ -25,18 +24,9 @@ const SelectEventOwners = {
   userPhone: User.selectQuery.phone,
 };
 
-const selectEventGuest = {
-  user: User.selectQuery,
-  notes: event_guest_schema.notes,
-  rsvp_status: RSVP.select.status,
-  status: RSVP.select.status,
-  familyId: RSVP.select.familyId,
-  category: RSVP.select.category,
-  invited_by: RSVP.select.invited_by
-};
+
 
 export default {
   selectQuery,
-  selectEventGuest,
   SelectEventOwners,
 };

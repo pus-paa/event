@@ -1,4 +1,5 @@
-export interface RsvpColumn {
+import { UserColumn } from "../user/resource";
+export interface InvitationColumn {
   id: number;
   eventId: number;
   familyId: number;
@@ -10,34 +11,8 @@ export interface RsvpColumn {
   respondedAt: string;
   updatedAt: string;
 }
-
-export interface EventInvitationColumn {
-  id: number;
-  event_detail: {
-    id: number;
-    title: string | null;
-    startDateTime: Date | string;
-    endDateTime: Date | string;
-    location: string | null;
-    venue: string | null;
-    imageUrl: string | null;
-  };
-  invited_by: number;
-  familyId: number | null;
-  invitation_status: string | null;
-  role: string | null;
-}
-
 export interface FamilyInvitationResponseColumn {
-  user_detail: {
-    id: number;
-    username: string | null;
-    email: string;
-    phone: string | null;
-    photo: string | null;
-    familyId: number | null;
-    relation: string | null;
-  };
+  user_detail:UserColumn  
   event_guest: {
     id: number;
     userId: number;
@@ -68,11 +43,11 @@ export interface Invitation_Event {
   invitation_status: string | null;
   invited_by: number;
   familyId: number | null;
-  role?: string | null; // temp and only done the filtering inthe bacend 
+  role?: string | null; 
 }
 class Resource {
-  static toJson(rsvp: RsvpColumn) {
-    const data: Partial<RsvpColumn> = {
+  static toJson(rsvp: InvitationColumn) {
+    const data: Partial<InvitationColumn> = {
       id: rsvp.id,
       event_guest_id: rsvp.event_guest_id,
       responded_by: rsvp.responded_by,

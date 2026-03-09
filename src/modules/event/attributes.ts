@@ -2,8 +2,6 @@ import { integer, pgEnum, serial, text, timestamp } from "drizzle-orm/pg-core";
 const tableName = "event";
 import user from "@/modules/user/schema";
 
-//status
-const eventType = pgEnum("event_type", ["wedding"]); // might have multiple type of event so not including this for now
 const statusEnum = pgEnum("status", [
   "draft",
   "published",
@@ -12,7 +10,6 @@ const statusEnum = pgEnum("status", [
 ]);
 
 const eventMemberTableName = "user_event";
-const eventGuestTableName = "event_guest";
 const eventVendorTableName = "event_vendor";
 
 const eventAttribute = {
@@ -43,9 +40,7 @@ const eventAttribute = {
 export {
   tableName,
   eventAttribute,
-  eventType,
   eventMemberTableName,
-  eventGuestTableName,
   statusEnum,
   eventVendorTableName,
 };

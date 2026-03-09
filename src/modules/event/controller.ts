@@ -106,60 +106,12 @@ const getUserRelatedToEvent = async (req: IAuthRequest) => {
     throw error;
   }
 };
-const sendEventinvitaion = async (req: IAuthRequest) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      throwErrorOnValidation("User not authenticated");
-    }
-    const data = await Service.inviteGuest(req.body, userId);
-    return data;
-  } catch (error: any) {
-    throw error;
-  }
-};
-
-const getEventInvitation = async (req: IAuthRequest) => {
-  try {
-    const eventId = Number(req.params.id);
-    const userId = req.user.id;
-    if (isNaN(eventId)) {
-      throwErrorOnValidation("Invalid Event ID");
-    }
-    const eventInformation = await Service.getInvitedGuest(eventId, userId);
-    return eventInformation;
-  } catch (err: any) {
-    logger.error(err, "Error in getEventInvitation controller");
-    throw err;
-  }
-};
-
-const getEventGuest = async (req: IAuthRequest) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id
-    if (!id) {
-      throwErrorOnValidation(
-        "Event id was not found in the params"
-      )
-    }
-    const data = await Service.getEventguest(Number(id), userId);
-    return data;
-  }
-  catch (err) {
-    throw err;
-  }
-}
-
 export default {
   get,
   create,
   findOne,
-  getEventGuest,
   update,
   deleteModule,
   listMyEvents,
   getUserRelatedToEvent,
-  sendEventinvitaion,
-  getEventInvitation
 };

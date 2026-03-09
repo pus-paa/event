@@ -30,20 +30,7 @@ const routes = [
     authorization: true,
     authCheckType: [role.user],
   },
-  {
-    method: "get",
-    controller: Controller.getEventGuest, // get the guest of the event in the id
-    path: "event/guest/:id",
-    authorization: true,
-    authCheckType: [role.user],
-  },
-  {
-    method: "get",
-    controller: Controller.getEventInvitation,
-    path: "event/event/:id/invitation",
-    authorization: true,
-    authCheckType: [role.user]
-  },
+ 
   {
     method: "get",
     controller: Controller.getUserRelatedToEvent, // get the SelectEventOwners[]
@@ -58,13 +45,7 @@ const routes = [
     authorization: true,
     authCheckType: [role.user],
   },
-  {
-    method: "post",
-    controller: Controller.sendEventinvitaion, // send the invitation to the guest in the evnt 
-    path: "event/:eventId/invite",
-    authorization: true,
-    authCheckType: [role.user],
-  },
+
 
   // ─── Bare :id routes (always last) ───────────────────────
   {
