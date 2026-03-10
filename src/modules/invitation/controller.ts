@@ -43,7 +43,6 @@ const getInvitationResponse = async (req: IAuthRequest) => {
     if (!familyId && !userId) {
       throwErrorOnValidation("Either familyId or userId is required");
     }
-    console.debug(`The event id in the service is ${eventId}`)
     return await Service.listinvitationsResponce(Number(eventId), {
       familyId: familyId !== undefined ? Number(familyId) : undefined,
       userId: Number(userId),

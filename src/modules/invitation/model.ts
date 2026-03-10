@@ -195,7 +195,9 @@ export default class Invitation {
           : eq(user.id, invite[0]?.userId!)
       );
 
-    return data;
+    return {
+      ...data, isFamily: isFamilyInvite ? true : false
+    }
   }
 
   static async find(params: {
