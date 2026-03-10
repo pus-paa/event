@@ -33,6 +33,7 @@ export default class Invitation {
     const event_guest = await db
       .select(repository.selectEventGuest)
       .from(invitation)
+      .leftJoin(user, eq(invitation.userId, user.id))
       .where(eq(invitation.eventId, eventId));
     return event_guest;
   }
