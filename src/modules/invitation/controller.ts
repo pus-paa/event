@@ -3,16 +3,16 @@ import Service from "./service";
 import { throwErrorOnValidation } from "@/utils/error";
 
 const sendInvitation = async (req: IAuthRequest) => {
- try {
+  try {
     const userId = req.user?.id;
     const eventId = req.params.eventId;
-     if (!eventId || isNaN(Number(req.params.eventId))) {
+    if (!eventId || isNaN(Number(req.params.eventId))) {
       throwErrorOnValidation(" Valid Event id is required in the params");
     }
     if (!userId) {
       throwErrorOnValidation("User not authenticated");
     }
-    const data = await Service.inviteGuest(req.body, userId , eventId);
+    const data = await Service.inviteGuest(req.body, userId, eventId);
     return data;
   } catch (error: any) {
     throw error;
@@ -20,8 +20,8 @@ const sendInvitation = async (req: IAuthRequest) => {
 }
 const getInvitations = async (req: IAuthRequest) => {
   try {
-    const userId:number  = req.user?.id;
-    const familyId =req.user?.familyId ? Number(req.user.familyId) : undefined;
+    const userId: number = req.user?.id;
+    const familyId = req.user?.familyId ? Number(req.user.familyId) : undefined;
     if (!userId) {
       throwErrorOnValidation("User not authenticated");
     }
@@ -58,7 +58,7 @@ const setResponce = async (req: IAuthRequest) => {
     const userId = req.user.id;
     const eventId = Number(req.params.id);
     const familyId = req.user.familyId;
-    const service = await Service.setResponce(req.body, userId, familyId , eventId); // TODO:update the validaion in this line of the code 
+    const service = await Service.setResponce(req.body, userId, familyId, eventId); // TODO:update the validaion in this line of the code 
     return service;
   } catch (err) {
     throw err;
@@ -66,22 +66,22 @@ const setResponce = async (req: IAuthRequest) => {
   }
 }
 
-// const getEventGuest = async (req: IAuthRequest) => {
-//   try {
-//     const { id } = req.params;
-//     const userId = req.user.id
-//     if (!id) {
-//       throwErrorOnValidation(
-//         "Event id was not found in the params"
-//       )
-//     }
-//     const data = await Service.getEventGuest(Number(id), userId);
-//     return data;
-//   }
-//   catch (err) {
-//     throw err;
-//   }
-// }
+const getEventGuest = async (req: IAuthRequest) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id
+    if (!id) {
+      throwErrorOnValidation(
+        "Event id was not found in the params"
+      )
+    }
+    const data = await Service.getEventguest(Number(id), userId);
+    return data;
+  }
+  catch (err) {
+    throw err;
+  }
+}
 
 //updateresponce  ( individual )
 export default {
@@ -89,5 +89,6 @@ export default {
   sendInvitation,
   getInvitations,
   getInvitationResponse,
+  getEventGuest
 
 };

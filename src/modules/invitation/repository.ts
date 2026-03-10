@@ -2,20 +2,21 @@
 import event from "@/modules/event/schema"
 import invitation from "./schema"
 import user from "@/modules/user/schema";
+import Userrepo from "@/modules/user/repository"
 const select = {
   id: invitation.id,
-    userId: invitation.userId,
-    eventId: invitation.eventId,
-    familyId: invitation.familyId,
-    invited_by: invitation.invited_by,
-    role: invitation.role,
-    status: invitation.status,
-    notes: invitation.notes,
-    category: invitation.category,
-    arrival_date_time: invitation.arrival_date_time,
-    departure_date_time: invitation.departure_date_time,
-    isAccomodation: invitation.isAccomodation,
-    joined_at: invitation.joined_at,
+  userId: invitation.userId,
+  eventId: invitation.eventId,
+  familyId: invitation.familyId,
+  invited_by: invitation.invited_by,
+  role: invitation.role,
+  status: invitation.status,
+  notes: invitation.notes,
+  category: invitation.category,
+  arrival_date_time: invitation.arrival_date_time,
+  departure_date_time: invitation.departure_date_time,
+  isAccomodation: invitation.isAccomodation,
+  joined_at: invitation.joined_at,
 };
 const selectInvitationEvent = {
   id: invitation.id,
@@ -30,7 +31,7 @@ const selectInvitationEvent = {
   },
   invited_by: invitation.invited_by,
   familyId: invitation.familyId,
-  userId:invitation.userId,
+  userId: invitation.userId,
   invitation_status: invitation.status,
   role: invitation.category
 }
@@ -61,9 +62,18 @@ const selectInvitationResponse = {
     joined_at: invitation.joined_at,
   },
 };
-
+const selectEventGuest = {
+  user: Userrepo.selectQuery,
+  notes: invitation.notes,
+  rsvp_status: invitation.status,
+  status: invitation.status,
+  familyId: invitation.familyId,
+  category: invitation.category,
+  invited_by: invitation.invited_by
+};
 export default {
   select,
+  selectEventGuest,
   selectInvitationEvent,
   selectInvitationResponse
 };

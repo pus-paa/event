@@ -78,10 +78,10 @@ const setResponce = async (body: {
       throwForbiddenError("You are not allowed to respond to this invitation");
     }
     if (body.userId !== userId) {
-      console.log('This is the member id ',familyId);
+      console.log('This is the member id ', familyId);
 
       const members = await FamilyService.listMembers(familyId ?? 0);
-            console.log(members)
+      console.log(members)
       // if (members.some(member => member?.id === userId)) {
       // } else {
       //   throwForbiddenError("You can only set responce for your family members");
@@ -189,5 +189,6 @@ export default {
   setResponce,
   inviteGuest,
   getInvitedEvent,
+  getEventguest,
   listinvitationsResponce,
 };

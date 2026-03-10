@@ -31,7 +31,7 @@ export default class Invitation {
   }
   static async getEventGuest(eventId: number) {
     const event_guest = await db
-      .select(repository.selectInvitationResponse)
+      .select(repository.selectEventGuest)
       .from(invitation)
       .where(eq(invitation.eventId, eventId));
     return event_guest;
