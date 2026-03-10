@@ -31,7 +31,7 @@ export default class Invitation {
   }
   static async getEventGuest(eventId: number) {
     const event_guest = await db
-      .select(repository.selectEventGuest)
+      .select(repository.selectInvitationResponse)
       .from(invitation)
       .leftJoin(user, eq(invitation.userId, user.id))
       .where(eq(invitation.eventId, eventId));
@@ -71,7 +71,7 @@ export default class Invitation {
     const whereCondition = invitationConditions.length
       ? and(...invitationConditions)
       : undefined;
-//Yesma eventId ko max id bhako invitation ra event euta row banera CTE banxa
+    //Yesma eventId ko max id bhako invitation ra event euta row banera CTE banxa
     const distinctEventInvitations = db
       .select({
         eventId: invitation.eventId,
@@ -81,7 +81,7 @@ export default class Invitation {
       .where(whereCondition)
       .groupBy(invitation.eventId)
       .as("distinct_event_invitations");
-//Tyo pako CTE table bata eventId ani , invitation ko detail hamlai tannera chaini kura linxa 
+    //Tyo pako CTE table bata eventId ani , invitation ko detail hamlai tannera chaini kura linxa 
     const result = await db
       .select(repository.selectInvitationEvent)
       .from(distinctEventInvitations)
