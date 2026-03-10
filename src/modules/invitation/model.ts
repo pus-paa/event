@@ -196,8 +196,8 @@ export default class Invitation {
       );
 
     return {
-       responses: data ,
-        isFamily: isFamilyInvite ? true : false
+      responses: data,
+      isFamily: isFamilyInvite ? true : false
     }
   }
 
@@ -300,7 +300,7 @@ export default class Invitation {
     console.log("😂😂 the guest payload after parsing is ", guestPayload)
 
     const existingGuest = await db
-      .select({ id: invitation.id })
+      .select({ id: invitation.id, isFamily: invitation.familyId })
       .from(invitation).leftJoin(event, eq(invitation.eventId, eventId))
       .where(
         and(
@@ -314,6 +314,7 @@ export default class Invitation {
       const updatePayload = Object.fromEntries(
         Object.entries(guestPayload).filter(([, value]) => value !== undefined),
       );
+      guestPayload.familyId = existingGuest[0].isFamily
       const updated = await db
         .update(invitation)
         .set(updatePayload)
