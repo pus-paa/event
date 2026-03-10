@@ -46,6 +46,7 @@ export default class Invitation {
         invited_by: invitation.invited_by,
       })
       .from(invitation)
+      .leftJoin(user, eq(user.id, invitation.userId))
       .where(eq(invitation.eventId, eventId));
     return result;
   }
@@ -271,9 +272,9 @@ export default class Invitation {
       }
       return Boolean(normalized);
     };
-     const rawName = params?.invitation_name ?? params?.invitationName;
-    
-const invitationName =
+    const rawName = params?.invitation_name ?? params?.invitationName;
+
+    const invitationName =
       typeof rawName === "string" && rawName.trim().length > 0
         ? rawName.trim()
         : (params?.familyId ?? params?.family_id) != null
