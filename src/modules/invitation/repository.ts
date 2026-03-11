@@ -62,18 +62,8 @@ const selectInvitationResponse = {
     joined_at: invitation.joined_at,
   },
 };
-const selectEventGuest = {
-  user: Userrepo.selectQuery,
-  notes: invitation.notes,
-  rsvp_status: invitation.status,
-  status: invitation.status,
-  familyId: invitation.familyId,
-  category: invitation.category,
-  invited_by: invitation.invited_by
-};
 export default {
   select,
-  selectEventGuest,
   selectInvitationEvent,
   selectInvitationResponse
 };
