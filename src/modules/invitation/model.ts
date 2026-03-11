@@ -1,10 +1,9 @@
-
 import { eq, and, sql, or, isNull } from "drizzle-orm";
 import invitation from "./schema";
-import event from "@/modules/event/schema"
+import event from "@/modules/event/schema";
 import db from "@/config/db";
 import repository from "./repository";
-import Resource from "./resource"
+import Resource from "./resource";
 import { InvitationColumn } from "./resource";
 import user from "@/modules/user/schema";
 
@@ -29,6 +28,7 @@ export default class Invitation {
       totalPages: Math.ceil(count / limit),
     };
   }
+
   static async getEventGuest(eventId: number) {
     const event_guest = await db
       .select(repository.selectInvitationResponse)
@@ -37,6 +37,7 @@ export default class Invitation {
       .where(eq(invitation.eventId, eventId));
     return event_guest;
   }
+
   static async getInvitedGuest(eventId: number) {
     const result = await db
       .select({
@@ -51,6 +52,7 @@ export default class Invitation {
       .where(eq(invitation.eventId, eventId));
     return result;
   }
+
   //get the family event or the user event based on the user id and family id
   static async listAllInvitationEvent(params: any) {
     const { page = 1, limit = 10, userId, familyId, eventId } = params;
@@ -58,7 +60,9 @@ export default class Invitation {
 
     const invitationConditions = [];
     if (userId !== undefined && familyId !== undefined) {
-      invitationConditions.push(or(eq(invitation.userId, userId), eq(invitation.familyId, familyId)));
+      invitationConditions.push(
+        or(eq(invitation.userId, userId), eq(invitation.familyId, familyId)),
+      );
     } else if (userId !== undefined) {
       invitationConditions.push(eq(invitation.userId, userId));
     } else if (familyId !== undefined) {
@@ -75,7 +79,9 @@ export default class Invitation {
     const distinctEventInvitations = db
       .select({
         eventId: invitation.eventId,
-        latestInvitationId: sql<number>`max(${invitation.id})`.as("latestInvitationId"),
+        latestInvitationId: sql<number>`max(${invitation.id})`.as(
+          "latestInvitationId",
+        ),
       })
       .from(invitation)
       .where(whereCondition)
@@ -85,7 +91,10 @@ export default class Invitation {
     const result = await db
       .select(repository.selectInvitationEvent)
       .from(distinctEventInvitations)
-      .leftJoin(invitation, eq(invitation.id, distinctEventInvitations.latestInvitationId))
+      .leftJoin(
+        invitation,
+        eq(invitation.id, distinctEventInvitations.latestInvitationId),
+      )
       .leftJoin(event, eq(event.id, distinctEventInvitations.eventId))
       .limit(limit)
       .offset(offset);
@@ -119,7 +128,9 @@ export default class Invitation {
   }) {
     const invitationConditions = [];
     if (userId !== undefined && familyId !== undefined) {
-      invitationConditions.push(or(eq(invitation.userId, userId), eq(invitation.familyId, familyId)));
+      invitationConditions.push(
+        or(eq(invitation.userId, userId), eq(invitation.familyId, familyId)),
+      );
     } else if (userId !== undefined) {
       invitationConditions.push(eq(invitation.userId, userId));
     } else if (familyId !== undefined) {
@@ -129,7 +140,6 @@ export default class Invitation {
       invitationConditions.push(eq(invitation.eventId, Number(eventId)));
     }
 
-
     const whereCondition = invitationConditions.length
       ? and(...invitationConditions)
       : undefined;
@@ -138,17 +148,14 @@ export default class Invitation {
       .select(repository.selectInvitationEvent)
       .from(invitation)
       .leftJoin(event, eq(event.id, invitation.eventId))
-      .where(whereCondition)
+      .where(whereCondition);
 
     const result = await query;
     return result[0] || null;
   }
 
   static async create(params: any) {
-    const result = await db
-      .insert(invitation)
-      .values(params)
-      .returning();
+    const result = await db.insert(invitation).values(params).returning();
     return result[0];
   }
 
@@ -161,9 +168,15 @@ export default class Invitation {
     return result[0];
   }
 
-
-  static async getInvitationResponces({ eventId, userId, familyId }: { eventId: number, userId?: number, familyId?: number }) {
-
+  static async getInvitationResponces({
+    eventId,
+    userId,
+    familyId,
+  }: {
+    eventId: number;
+    userId?: number;
+    familyId?: number;
+  }) {
     if (!userId && !familyId) return [];
 
     const invite = await db
@@ -173,14 +186,12 @@ export default class Invitation {
         and(
           eq(invitation.eventId, eventId),
           or(
-            userId ? and(
-              eq(invitation.userId, userId),
-              isNull(invitation.familyId)
-            ) : undefined
-            ,
-            familyId ? eq(invitation.familyId, familyId) : undefined
-          )
-        )
+            userId
+              ? and(eq(invitation.userId, userId), isNull(invitation.familyId))
+              : undefined,
+            familyId ? eq(invitation.familyId, familyId) : undefined,
+          ),
+        ),
       )
       .limit(1);
     if (!invite.length) return [];
@@ -192,28 +203,25 @@ export default class Invitation {
       .from(user)
       .leftJoin(
         invitation,
-        and(
-          eq(invitation.eventId, eventId),
-          eq(invitation.userId, user.id)
-        )
+        and(eq(invitation.eventId, eventId), eq(invitation.userId, user.id)),
       )
       .where(
         isFamilyInvite
           ? eq(user.familyId, targetFamilyId!)
-          : eq(user.id, invite[0]?.userId!)
+          : eq(user.id, invite[0]?.userId!),
       );
 
     return {
       responses: data,
-      isFamily: isFamilyInvite ? true : false
-    }
+      isFamily: isFamilyInvite ? true : false,
+    };
   }
 
   static async find(params: {
-    id?: number,
-    eventId?: number,
-    userId?: number,
-    familyId?: number
+    id?: number;
+    eventId?: number;
+    userId?: number;
+    familyId?: number;
   }) {
     const { id, eventId, userId, familyId } = params;
     const conditions = [];
@@ -238,22 +246,26 @@ export default class Invitation {
       .where(and(...conditions));
     return result[0] || null;
   }
-  static async makeEventGuest(
-    {
+  static async makeEventGuest({
+    eventId,
+    guestId,
+    invited_by,
+    familyId,
+    params,
+  }: {
+    eventId: number;
+    guestId: number;
+    invited_by: number;
+    params: any;
+    familyId?: number | null;
+  }) {
+    console.log("the params i am getting in the make event guest is ", {
       eventId,
       guestId,
       invited_by,
       familyId,
-      params
-    }: {
-      eventId: number,
-      guestId: number,
-      invited_by: number,
-      params: any
-      familyId?: number | null
-    }
-  ) {
-    console.log('the params i am getting in the make event guest is ', { eventId, guestId, invited_by, familyId, params })
+      params,
+    });
     const normalizeNullable = (value: any) => {
       if (value === undefined) return undefined;
       if (value === null) return null;
@@ -268,7 +280,8 @@ export default class Invitation {
       const normalized = normalizeNullable(value);
       if (normalized === undefined) return undefined;
       if (normalized === null) return null;
-      const date = normalized instanceof Date ? normalized : new Date(normalized);
+      const date =
+        normalized instanceof Date ? normalized : new Date(normalized);
       return Number.isNaN(date.getTime()) ? null : date;
     };
 
@@ -300,24 +313,28 @@ export default class Invitation {
       invitation_name: invitationName,
       notes: normalizeNullable(params.note ?? params.notes),
       role: normalizeNullable(params.role),
-      arrival_date_time: parseDate(params.arrival_date_time ?? params.arrivalDateTime),
-      departure_date_time: parseDate(params.departure_date_time ?? params.departureDateTime),
-      isAccomodation: parseBoolean(params.isAccomodation ?? params.isAccommodation),
+      arrival_date_time: parseDate(
+        params.arrival_date_time ?? params.arrivalDateTime,
+      ),
+      departure_date_time: parseDate(
+        params.departure_date_time ?? params.departureDateTime,
+      ),
+      isAccomodation: parseBoolean(
+        params.isAccomodation ?? params.isAccommodation,
+      ),
       status: normalizeNullable(params.status),
     };
     const existingGuest = await db
       .select({ id: invitation.id, isFamily: invitation.familyId })
-      .from(invitation).leftJoin(event, eq(invitation.eventId, eventId))
+      .from(invitation)
+      .leftJoin(event, eq(invitation.eventId, eventId))
       .where(
-        and(
-          eq(invitation.eventId, eventId),
-          eq(invitation.userId, guestId),
-        ),
+        and(eq(invitation.eventId, eventId), eq(invitation.userId, guestId)),
       )
       .limit(1);
 
     if (existingGuest[0]?.id) {
-      guestPayload.familyId = undefined
+      guestPayload.familyId = undefined;
       const updatePayload = Object.fromEntries(
         Object.entries(guestPayload).filter(([, value]) => value !== undefined),
       );
@@ -331,7 +348,10 @@ export default class Invitation {
     }
 
     const insertPayload = Object.fromEntries(
-      Object.entries(guestPayload).map(([key, value]) => [key, value === undefined ? null : value]),
+      Object.entries(guestPayload).map(([key, value]) => [
+        key,
+        value === undefined ? null : value,
+      ]),
     );
 
     const inserted = await db
@@ -343,7 +363,18 @@ export default class Invitation {
       .returning();
     return inserted[0] ?? null;
   }
+
+  static async removeEventGuestWhileRemovingFamilyMember(
+    familyId: number,
+    userId: number,
+  ) {
+    const deleted = await db
+      .delete(invitation)
+      .where(
+        and(eq(invitation.familyId, familyId), eq(invitation.userId, userId)),
+      )
+      .returning();
+
+    return deleted;
+  }
 }
-
-
-

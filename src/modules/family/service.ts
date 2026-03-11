@@ -5,11 +5,12 @@ import {
   type UpdateMemberValidation,
 } from "./validators";
 import Model from "./model";
-import UserService from "@/modules/user/service"
+import UserService from "@/modules/user/service";
 import Resource from "./resource";
 import { throwForbiddenError, throwNotFoundError } from "@/utils/error";
 import logger from "@/config/logger";
 import userModel from "@/modules/user/model";
+import InvitationModel from "@/modules/invitation/model";
 
 const checkAuthorization = async (
   familyId: number,
@@ -267,7 +268,19 @@ const removeMember = async (
       return throwNotFoundError("Family member");
     }
 
-    return await Model.removeMember(familyId, memberId);
+    const [removedMember, removedEventOfMemberInFamily] = await Promise.all([
+      Model.removeMember(familyId, memberId),
+      InvitationModel.removeEventGuestWhileRemovingFamilyMember(
+        familyId,
+        memberId,
+      ),
+    ]);
+
+    if (removedMember && removedEventOfMemberInFamily) {
+      return "Member removed successfully";
+    } else {
+      throw new Error("Failed to remove family member");
+    }
   } catch (error) {
     throw error;
   }
@@ -280,17 +293,22 @@ const getMyFamily_userId = async (userId: number) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-const makeFamilyAndAddUserToFamily = async (userId: number, fullName: string) => {
+const makeFamilyAndAddUserToFamily = async (
+  userId: number,
+  fullName: string,
+) => {
   const userFamily = await Model.create({
-  createdBy:userId,
-  familyName: `${fullName}'s Family`,
-
-  })
-const updateUser = await UserService.update({ familyId: userFamily?.id }, userId)   
-return updateUser ; 
-}
+    createdBy: userId,
+    familyName: `${fullName}'s Family`,
+  });
+  const updateUser = await UserService.update(
+    { familyId: userFamily?.id },
+    userId,
+  );
+  return updateUser;
+};
 export default {
   create,
   get,
