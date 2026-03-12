@@ -11,7 +11,8 @@ const EventValidationSchema = z.object({
   type: z.string().default("WEDDING"),
   startDateTime: z
     .string()
-    .refine((date) => !isNaN(Date.parse(date)), { // if this is not the valid date fformat then 
+    .refine((date) => !isNaN(Date.parse(date)), {
+      // if this is not the valid date fformat then
       message: "Invalid date format",
     })
     .optional(),
@@ -27,6 +28,14 @@ const EventValidationSchema = z.object({
   location: z.string().optional(),
 });
 
+const getSubEVenntOfEventValidationSchema = z.object({
+  params: z.object({
+    id: z.string().refine((id) => !isNaN(Number(id)), {
+      message: "Invalid event ID",
+    }),
+  }),
+});
+
 const EventUpdateValidationSchema = EventValidationSchema.partial();
 
 //Type extraction from the zod
@@ -36,8 +45,7 @@ type updateEventType = z.infer<typeof EventUpdateValidationSchema>;
 export {
   EventValidationSchema,
   EventUpdateValidationSchema,
-  
+  getSubEVenntOfEventValidationSchema,
   type createEventType,
   type updateEventType,
-  
 };

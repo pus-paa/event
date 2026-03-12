@@ -92,7 +92,7 @@ const getUserRelatedToEvent = async (req: IAuthRequest) => {
     const { eventId } = req.params;
     const userId = req.user?.id;
 
-    logger.debug("This is the getEvent guest in the controller")
+    logger.debug("This is the getEvent guest in the controller");
     if (!eventId || isNaN(Number(eventId))) {
       throwErrorOnValidation("Invalid Event ID");
     }
@@ -106,6 +106,13 @@ const getUserRelatedToEvent = async (req: IAuthRequest) => {
     throw error;
   }
 };
+
+const getSubEventOfEvent = async (req: IAuthRequest) => {
+  const { params } = req;
+
+  const subEvents = await Service.getSubEventOfEvent(Number(params.id));
+  return subEvents;
+};
 export default {
   get,
   create,
@@ -114,4 +121,5 @@ export default {
   deleteModule,
   listMyEvents,
   getUserRelatedToEvent,
+  getSubEventOfEvent,
 };

@@ -1,5 +1,7 @@
 import { role } from "@/constant";
 import Controller from "./controller";
+import { getSubEVenntOfEventValidationSchema } from "./validators";
+import { validate } from "@/middlewares/zodValidation";
 
 const routes = [
   {
@@ -25,12 +27,12 @@ const routes = [
   },
   {
     method: "get",
-    controller: Controller.get, // will update this to have the only the famliy get request 
+    controller: Controller.get, // will update this to have the only the famliy get request
     path: "event/my-family",
     authorization: true,
     authCheckType: [role.user],
   },
- 
+
   {
     method: "get",
     controller: Controller.getUserRelatedToEvent, // get the SelectEventOwners[]
@@ -45,7 +47,6 @@ const routes = [
     authorization: true,
     authCheckType: [role.user],
   },
-
 
   // ─── Bare :id routes (always last) ───────────────────────
   {
@@ -66,6 +67,13 @@ const routes = [
     path: "event/:id",
     authorization: true,
     authCheckType: [role.user],
+  },
+  {
+    method: "get",
+    controller: Controller.getSubEventOfEvent,
+    path: "event/:id/sub-events",
+    authorization: true,
+    validation: validate(getSubEVenntOfEventValidationSchema),
   },
 ];
 

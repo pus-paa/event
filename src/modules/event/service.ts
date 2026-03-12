@@ -7,7 +7,11 @@ import {
   type updateEventType,
 } from "./validators";
 
-import {  throwNotFoundError, throwUnauthorizedError, throwForbiddenError } from "@/utils/error";
+import {
+  throwNotFoundError,
+  throwUnauthorizedError,
+  throwForbiddenError,
+} from "@/utils/error";
 
 const list = async (params: any) => {
   try {
@@ -15,9 +19,9 @@ const list = async (params: any) => {
     const mapped_data = data.items.map((event) => {
       return {
         ...event,
-        role: event.organizer == params.userId ? "Organizer" : "Guest"
-      }
-    })
+        role: event.organizer == params.userId ? "Organizer" : "Guest",
+      };
+    });
     return {
       items: Resource.collection(mapped_data),
     };
@@ -27,13 +31,13 @@ const list = async (params: any) => {
   }
 };
 
-
-
 const getEventVendor = async (eventid: number) => {
   try {
     const event_information = find(eventid);
     if (!event_information) {
-      return throwNotFoundError("Event with the event id was not found in the db ");
+      return throwNotFoundError(
+        "Event with the event id was not found in the db ",
+      );
     }
     const eventVendor = await Model.getEventVendor(eventid);
     return eventVendor;
@@ -42,11 +46,10 @@ const getEventVendor = async (eventid: number) => {
   }
 };
 
-
-
 const create = async (input: any, userId: number) => {
   try {
     // eventValidation.parse(input);
+    console.log(input);
     const result = EventValidationSchema.safeParse(input);
     if (!result.success) {
       throw new Error(
@@ -75,7 +78,7 @@ const create = async (input: any, userId: number) => {
 
 const find = async (id: number) => {
   try {
-    console.log('finding the event with the id', id);
+    console.log("finding the event with the id", id);
     const data = await Model.find({ id });
     if (!data) throw new Error("Event not found");
     return Resource.toJson(data);
@@ -85,15 +88,13 @@ const find = async (id: number) => {
   }
 };
 
-
 const checkAuthorized = async (id: number, userId?: number) => {
   if (!userId) {
     throw new Error("Unauthorized: User not authenticated");
   }
   const event = await find(id);
   if (!event) return throwNotFoundError("Event not found");
-  //if the event organizer is not the person also check the organizer family and then also 
-
+  //if the event organizer is not the person also check the organizer family and then also
 
   const eventMember = await Model.getEventMember(id);
   if (!event.organizer) {
@@ -101,7 +102,10 @@ const checkAuthorized = async (id: number, userId?: number) => {
   }
 
   // Organizer is always authorized.
-  if (event.organizer === userId || eventMember.some((member: any) => member.userId === userId)) {
+  if (
+    event.organizer === userId ||
+    eventMember.some((member: any) => member.userId === userId)
+  ) {
     return event;
   }
   if (event.organizer !== userId) {
@@ -124,7 +128,9 @@ const update = async (id: number, input: updateEventType, userId?: number) => {
 
     const eventData = {
       ...input,
-      ...(input.startDateTime && { startDateTime: new Date(input.startDateTime) }),
+      ...(input.startDateTime && {
+        startDateTime: new Date(input.startDateTime),
+      }),
       ...(input.endDateTime && { endDateTime: new Date(input.endDateTime) }),
     };
 
@@ -190,6 +196,21 @@ const getUserRelatedToEvent = async (eventId: number, userId: number) => {
   }
 };
 
+const getSubEventOfEvent = async (eventId: number) => {
+  try {
+    await find(eventId);
+    const data = await Model.getSubEventOfEvent(eventId);
+
+    if (data.length === 0) {
+      return [];
+    }
+
+    return Resource.collection(data);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   list,
   create,
@@ -200,4 +221,5 @@ export default {
   checkAuthorized,
   getUserRelatedToEvent,
   getEventVendor,
+  getSubEventOfEvent,
 };

@@ -1,6 +1,6 @@
 import db from "@/config/db";
-import { sql, eq, or } from "drizzle-orm";
-import event,{ event_vendor_schema } from "./schema";
+import { sql, eq, or, and, isNull, isNotNull } from "drizzle-orm";
+import event, { event_vendor_schema } from "./schema";
 import { event_member_schema } from "./schema";
 import repository from "./repository";
 
@@ -12,8 +12,9 @@ class Event {
     const { page = 1, limit = 10, userId } = params;
     const offset = (page - 1) * limit;
 
-    const whereClause = or(
-      eq(event.organizer, userId), // TODO: update the check to also include the event member 
+    const whereClause = and(
+      eq(event.organizer, userId),
+      isNull(event.parentId), // TODO: update the check to also include the event member
     );
 
     const result = await db
@@ -86,7 +87,9 @@ class Event {
     const result = await db
       .select(repository.selectQuery)
       .from(event_member_schema)
-      .where(eq(event_member_schema.userId, userId))
+      .where(
+        and(eq(event_member_schema.userId, userId), isNull(event.parentId)),
+      )
       .leftJoin(event, eq(event.id, event_member_schema.eventId))
       .limit(limit)
       .offset(offset);
@@ -112,8 +115,6 @@ class Event {
     return result;
   }
 
-
-
   static async makeEventOwner(eventId: number, eventMemberId: number) {
     const event_member_returning = await db
       .insert(event_member_schema)
@@ -131,7 +132,14 @@ class Event {
       .where(eq(event_vendor_schema.event_id, eventId));
     return event_vendor;
   }
- 
+
+  static async getSubEventOfEvent(eventId: number) {
+    const subEvents = await db
+      .select()
+      .from(event)
+      .where(eq(event.parentId, eventId));
+    return subEvents;
+  }
 }
 
 export default Event;
