@@ -1,5 +1,5 @@
 import { pgTable } from "drizzle-orm/pg-core";
-import { integer, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 import user from "@/modules/user/schema"
 import {
   eventAttribute,
@@ -16,7 +16,7 @@ const event_member_attribute = {
     .references(() => user.id, { onDelete: "cascade" }),
   eventId: integer("event_id")
     .references(() => schema.id, { onDelete: "cascade" }),
-  role: text("role"),
+  role: varchar("role", { length: 20 }),
 };
 
 const event_vendor_attribute = {
@@ -26,9 +26,10 @@ const event_vendor_attribute = {
     .references(() => schema.id),
   vendor_buisness_id: text("vendor_buisness_id").notNull(),
   acquired_by: integer("acquired_by"),
-  status: text("status"), // Accepted , Enquiring
-  notes: text("notes"),
-  created_at: timestamp().defaultNow(),
+  status: varchar("status", { length: 15 }), // Accepted , Enquiring
+  notes: varchar("notes", { length: 200 }),
+  createdAt: timestamp("create_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow()
 };
 
 const event_member_schema = pgTable(

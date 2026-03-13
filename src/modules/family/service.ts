@@ -172,11 +172,12 @@ const addMember = async (
         input.name = user.username;
       }
     } else {
-      const newUser = await userModel.create({
-        username: input.name || null,
+      const newUser = await UserService.create({
+        username: input.name ?? "Member",
+        password: `${new Date()}_User`,
         email: input.email,
-      } as any);
-      if (!newUser) {
+      });
+      if (!newUser || !newUser.id) {
         throw new Error("Failed to create user for family member");
       }
       userId = newUser.id;
@@ -299,15 +300,16 @@ const makeFamilyAndAddUserToFamily = async (
   userId: number,
   fullName: string,
 ) => {
+  console.log('making the family with the userId', userId, fullName)
   const userFamily = await Model.create({
     createdBy: userId,
     familyName: `${fullName}'s Family`,
   });
-  const updateUser = await UserService.update(
+  await UserService.update(
     { familyId: userFamily?.id },
     userId,
-  );
-  return updateUser;
+  )
+  return userFamily?.id || null;
 };
 export default {
   create,

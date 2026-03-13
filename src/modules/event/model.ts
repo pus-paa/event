@@ -20,7 +20,13 @@ class Event {
     const result = await db
       .selectDistinct(repository.selectQuery)
       .from(event)
-      .leftJoin(event_member_schema, eq(event_member_schema.eventId, event.id))
+      .leftJoin(
+        event_member_schema,
+        and(
+          eq(event_member_schema.eventId, event.id),
+          eq(event_member_schema.userId, userId)
+        )
+      )
       .where(whereClause)
       .orderBy(event.startDateTime)
       .limit(limit)

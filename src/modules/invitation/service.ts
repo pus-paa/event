@@ -5,9 +5,8 @@ import EventService from "@/modules/event/service"
 import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError, throwUnauthorizedError } from "@/utils/error";
 import UserService from "@/modules/user/service";
 import FamilyService from "@/modules/family/service"
-import { UserColumn } from "../user/resource";
 import Invitation from "./model";
-import { EventInvitationType, EventInvitation } from "./validators";
+import { EventInvitationType, EventInvitation, setResponcevalidationType, setResponcevalidation } from "./validators";
 
 //list of the event with the event detail and the user id in the header 
 const getInvitedEvent = async (params: Partial<Invitation_Event>, userId: number, familyId?: number) => {
@@ -58,11 +57,12 @@ const listinvitationsResponce = async (
   }
 }
 
-const setResponce = async (body: {
-  userId: number;
-  [key: string]: any;
-}, userId: number, familyId: number | null = null, eventId: number) => {
+const setResponce = async (body: setResponcevalidationType, userId: number, familyId: number | null = null, eventId: number) => {
   try {
+    const { error, data } = setResponcevalidation.safeParse(body)
+    if (error) {
+      throw error;
+    }
     const invitations = await Model.findInvitationEvent({ eventId: eventId, userId: userId, familyId: familyId ?? undefined });
 
     if (!invitations) {
@@ -88,7 +88,7 @@ const setResponce = async (body: {
       // }
       const result = await Model.makeEventGuest({
         eventId: eventId,
-        guestId: body.userId,
+        guestId: data?.userId!,
         invited_by: Number(invitations?.invited_by!),
         familyId: familyId,
         params: body
@@ -115,20 +115,21 @@ const inviteGuest = async (input: EventInvitationType, userId: number, eventId: 
     }
 
     const { fullName, email, phone, isFamily } = input;
-    let guestUser: Partial<UserColumn> | undefined;
+    let guestUser = undefined;
     if (email || phone) {
       try {
-        guestUser = (await UserService.list({ email, phone })).items[0] // get the user with the email and the phone
-        if (!guestUser) { // No user with the email or overall no user found 
+        guestUser = (await UserService.list({ email: input.email, phone: input.phone })).items[0] // get the user with the email and the phone
+        if (!guestUser?.id) { // No user with the email or overall no user found 
           guestUser = await UserService.UserGeneratorWithPhoneOrEmail(fullName, email, phone);
         }
       } catch (err) {
         throw err;
       }
     }
-    if (!guestUser || guestUser.id == undefined) throw new Error("Error while making the user ")
+    if (!guestUser || guestUser.id == undefined) {
+      throw new Error("Error while making the user ")
+    }
     if (isFamily && !guestUser.familyId) {
-      //Making the family table and then upadaing the guest family id 
       guestUser.familyId = await FamilyService.makeFamilyAndAddUserToFamily(guestUser.id, fullName)
     }
     const invitationexist = await Model.find({ eventId: eventId, userId: guestUser.id });
@@ -167,7 +168,6 @@ const getEventguest = async (eventid: number, userId: number) => {
     throw err;
   }
 };
-
 
 export default {
   setResponce,

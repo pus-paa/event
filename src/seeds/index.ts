@@ -18,5 +18,5 @@ const seed = async () => {
     .onConflictDoNothing();
   console.log(data);
 };
-seed();
+//seed();
 export default seed;

@@ -7,6 +7,7 @@ import repository from "./repository";
 import Resource from "./resource";
 import { InvitationColumn } from "./resource";
 import user from "@/modules/user/schema";
+import { setResponcevalidationType } from "./validators";
 
 export default class Invitation {
   static async list(params: any) {
@@ -243,7 +244,7 @@ export default class Invitation {
     eventId: number;
     guestId: number;
     invited_by: number;
-    params: any;
+    params: setResponcevalidationType
     familyId?: number | null;
   }) {
     console.log("the params i am getting in the make event guest is ", {
@@ -253,56 +254,6 @@ export default class Invitation {
       familyId,
       params,
     });
-    const normalizeNullable = (value: any) => {
-      if (value === undefined) return undefined;
-      if (value === null) return null;
-      if (typeof value === "string") {
-        const trimmed = value.trim().toLowerCase();
-        if (trimmed === "null" || trimmed === "") return null;
-      }
-      return value;
-    };
-
-    const parseDate = (value: any) => {
-      const normalized = normalizeNullable(value);
-      if (normalized === undefined) return undefined;
-      if (normalized === null) return null;
-      const date =
-        normalized instanceof Date ? normalized : new Date(normalized);
-      return Number.isNaN(date.getTime()) ? null : date;
-    };
-
-    const parseBoolean = (value: any) => {
-      const normalized = normalizeNullable(value);
-      if (normalized === undefined) return undefined;
-      if (normalized === null) return null;
-      if (typeof normalized === "boolean") return normalized;
-      if (typeof normalized === "string") {
-        const lowered = normalized.toLowerCase();
-        if (lowered === "true") return true;
-        if (lowered === "false") return false;
-      }
-      return Boolean(normalized);
-    };
-    const guestPayload = {
-      invited_by,
-      eventId: eventId,
-      familyId: familyId ?? undefined,
-      userId: guestId,
-      invitation_name: params.GuestName || "Inviting name ",
-      notes: normalizeNullable(params.note ?? params.notes),
-      role: normalizeNullable(params.role),
-      arrival_date_time: parseDate(
-        params.arrival_date_time ?? params.arrivalDateTime,
-      ),
-      departure_date_time: parseDate(
-        params.departure_date_time ?? params.departureDateTime,
-      ),
-      isAccomodation: parseBoolean(
-        params.isAccomodation ?? params.isAccommodation,
-      ),
-      status: normalizeNullable(params.status),
-    };
     const existingGuest = await db
       .select({ id: invitation.id, isFamily: invitation.familyId })
       .from(invitation)
@@ -313,34 +264,28 @@ export default class Invitation {
       .limit(1);
 
     if (existingGuest[0]?.id) {
-      guestPayload.familyId = undefined;
-      const updatePayload = Object.fromEntries(
-        Object.entries(guestPayload).filter(([, value]) => value !== undefined),
-      );
 
       const updated = await db
         .update(invitation)
-        .set(updatePayload)
+        .set({
+          ...params,
+          updatedAt: new Date()
+        }
+        )
         .where(eq(invitation.id, existingGuest[0].id))
         .returning();
       return updated[0] ?? null;
     }
 
-    const insertPayload = Object.fromEntries(
-      Object.entries(guestPayload).map(([key, value]) => [
-        key,
-        value === undefined ? null : value,
-      ]),
-    );
-
     const inserted = await db
       .insert(invitation)
       .values({
-        ...(insertPayload as any),
-        joined_at: new Date().toISOString(),
+        ...params,
+        joined_at: new Date(),
+        invited_by: invited_by
       })
       .returning();
-    return inserted[0] ?? null;
+    return inserted;
   }
 
   static async removeEventGuestWhileRemovingFamilyMember(

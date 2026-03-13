@@ -1,6 +1,6 @@
 export interface UserColumn {
   id: number;
-  username: string | null;
+  username: string;
   info: any | null;
   dob: Date | null;
   email: string;
@@ -15,7 +15,7 @@ export interface UserColumn {
   country: string | null;
   bio: string | null;
   location: string | null;
-  phone: string | null;
+  phone: string;
   accountStatus: boolean | null;
   createdAt: Date | null;
   updatedAt: Date | null;

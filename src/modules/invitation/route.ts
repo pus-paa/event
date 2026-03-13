@@ -26,13 +26,6 @@ const route = [
     authorization: true,
     authCheckType: [role.user],
   },
-  // {
-  //   method: "get",
-  //   controller: Controller.getEventInvitation,
-  //   path: "event/event/:id/invitation",
-  //   authorization: true,
-  //   authCheckType: [role.user]
-  // },
   {
     method: "post",
     controller: Controller.sendInvitation, // send the invitation to the guest in the evnt 

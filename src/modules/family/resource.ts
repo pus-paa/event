@@ -10,8 +10,7 @@ export interface FamilyMemberColumn {
   familyId: number | null;
   id: number;
   relation: string | null;
-
-  username?: string | null;
+  username: string;
   email: string;
   foodPreference?: string | null;
   dob?: Date | null;

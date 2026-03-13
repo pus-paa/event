@@ -1,13 +1,13 @@
-import { serial, text, json, timestamp } from "drizzle-orm/pg-core";
+import { serial, json, timestamp, varchar } from "drizzle-orm/pg-core";
 const tableName = "admins";
 const attributes = {
   id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  email: varchar("email").notNull().unique(),
+  password: varchar("password", { length: 20 }).notNull(),
   info: json("info"),
   // modules:,
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 };
 
 export { tableName, attributes };

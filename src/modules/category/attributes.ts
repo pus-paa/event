@@ -1,4 +1,4 @@
-import { serial, json, timestamp, text, integer } from "drizzle-orm/pg-core";
+import { serial, json, timestamp, varchar, integer } from "drizzle-orm/pg-core";
 const tableName = "category";
 type QuestionType = {
   question: string;
@@ -6,11 +6,10 @@ type QuestionType = {
 const attributes = {
   id: serial("id").primaryKey(),
   parentId: integer("parentId"),
-  title: text("title"),
+  title: varchar("title", { length: 30 }),
   question: json("question").$type<QuestionType>(), // This will be dedkkk
-  createdAt: timestamp("createdAt").defaultNow(),
   infos: json("infos"),
-  updatedAt: timestamp("updatedAt").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 };
-
 export { tableName, attributes };
