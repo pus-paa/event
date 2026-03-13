@@ -5,6 +5,7 @@ const selectQuery = {
   email: users.email,
   password: users.password,
   phone: users.phone,
+  dob: users.dob,
   location: users.location,
   bio: users.bio,
   photo: users.photo,

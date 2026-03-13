@@ -1,7 +1,9 @@
 import Model from "./model";
+import UserService from "@/modules/user/service"
 import Resource from "./resource";
 import logger from "@/config/logger";
 import {
+  AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
   EventValidationSchema,
   type updateEventType,
@@ -10,6 +12,7 @@ import {
 import {
   throwNotFoundError,
   throwUnauthorizedError,
+  throwForbiddenError
 
 } from "@/utils/error";
 
@@ -195,9 +198,20 @@ const getUserRelatedToEvent = async (eventId: number, userId: number) => {
     throw error;
   }
 };
-const makeEventMember = async (eventId: number, userId: number, params: any) => {
+const makeEventMember = async (eventId: number, userId: number, params: AddEventMemberValidationSchemaType) => {
   try {
     await checkAuthorized(eventId, userId);
+    const eventMembers = await getUserRelatedToEvent(eventId, userId);
+    const userInfo = await UserService.find({ phone: params.newAssignedMemberPhone });
+    if (!userInfo || !userInfo.id) {
+      return throwNotFoundError("User with the phone was not found")
+    }
+    const eventIsOwner = eventMembers.users.find((user) => user.userId == userInfo.id);
+    if (!eventIsOwner) {
+      return throwForbiddenError("Already event member")
+    }
+    const data = await Model.makeEventOwner(eventId, userInfo.id);
+    return data;
 
   } catch (err: any) {
     logger.error("Error in getting the user with the info")

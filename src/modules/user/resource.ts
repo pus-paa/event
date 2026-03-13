@@ -3,6 +3,7 @@ export interface UserColumn {
   username: string | null;
   info: any | null;
   password: string | null;
+  dob: Date | null;
   email: string;
   city: string | null;
   zip: string | null;
@@ -39,6 +40,7 @@ class Resource {
       foodPreference: user.foodPreference,
       coverPhoto: user.coverPhoto,
       info: user.info,
+      dob: user.dob,
       accountStatus: user.accountStatus,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

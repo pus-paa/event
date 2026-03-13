@@ -20,8 +20,8 @@ const routes = [
   },
   {
     method: "post",
-    controller: Controller.
-      path: "event/:eventId/member",
+    controller: Controller.makeUserRelatedToEvent,
+    path: "event/:eventId/member",
     authorization: true,
     authCheckType: [role.user],
   },

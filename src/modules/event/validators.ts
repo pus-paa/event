@@ -35,7 +35,11 @@ const getSubEVenntOfEventValidationSchema = z.object({
     }),
   }),
 });
-
+const AddEventMemberValidationSchema = z.object({
+  newAssignedMemberPhone: z.string(),
+  assignedMemberRole: z.string(),
+})
+type AddEventMemberValidationSchemaType = z.infer<typeof AddEventMemberValidationSchema>
 const EventUpdateValidationSchema = EventValidationSchema.partial();
 
 //Type extraction from the zod
@@ -43,7 +47,9 @@ type createEventType = z.infer<typeof EventValidationSchema>;
 type updateEventType = z.infer<typeof EventUpdateValidationSchema>;
 
 export {
+  AddEventMemberValidationSchema,
   EventValidationSchema,
+  AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
   getSubEVenntOfEventValidationSchema,
   type createEventType,

@@ -37,5 +37,5 @@ const event_member_schema = pgTable(
 const event_vendor_schema = pgTable(
   eventVendorTableName, event_vendor_attribute
 );
-export {  event_member_schema, event_vendor_schema };
+export { event_member_schema, event_vendor_schema };
 export default schema;

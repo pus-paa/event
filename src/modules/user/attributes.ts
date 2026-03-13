@@ -22,6 +22,7 @@ const attributes = {
   country: text("country"),
   city: text("city"),
   address: text("address"),
+  dob: timestamp("date_of_birth"),
   zip: text("zip"),
   familyId: integer("family_id"),
   relation: text("relation"),
