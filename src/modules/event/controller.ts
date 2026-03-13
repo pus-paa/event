@@ -115,9 +115,11 @@ const getSubEventOfEvent = async (req: IAuthRequest) => {
 };
 const makeUserRelatedToEvent = async (req: IAuthRequest) => {
   try {
-    const eventId = Number(req.params.id);
+    const eventId = Number(req.params.eventId);
+    console.log('eventId', eventId);
     const userId = req.user.id;
     const service = await Service.makeEventMember(eventId, userId, req.body)
+    console.log('the service in the evemt mking jobis', service)
     return service;
   } catch (err) {
     throw err;

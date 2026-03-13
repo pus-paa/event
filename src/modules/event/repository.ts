@@ -1,4 +1,4 @@
-import event, {  event_member_schema } from "./schema";
+import event, { event_member_schema } from "./schema";
 import User from "@/modules/user/repository"
 
 const selectQuery = {
@@ -14,6 +14,8 @@ const selectQuery = {
   location: event.location,
   organizer: event.organizer,
   createdAt: event.createdAt,
+  role: event_member_schema.role,
+  event_member_userId: event_member_schema.userId,
   updatedAt: event.updatedAt,
 };
 

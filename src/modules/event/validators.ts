@@ -36,8 +36,8 @@ const getSubEVenntOfEventValidationSchema = z.object({
   }),
 });
 const AddEventMemberValidationSchema = z.object({
-  newAssignedMemberPhone: z.string(),
-  assignedMemberRole: z.string(),
+  userId: z.number(),
+  role: z.string(),
 })
 type AddEventMemberValidationSchemaType = z.infer<typeof AddEventMemberValidationSchema>
 const EventUpdateValidationSchema = EventValidationSchema.partial();

@@ -7,6 +7,13 @@ const routes = [
   },
   {
     method: "get",
+    controller: Controller.findUserByPhone,
+    path: "user/phone",
+    authorization: true,
+    authCheckType: ["user"]
+  },
+  {
+    method: "get",
     controller: Controller.profile,
     path: "user/me",
     authorization: true,

@@ -20,6 +20,15 @@ const profile = async (req: IAuthRequest) => {
     throw err;
   }
 };
+const findUserByPhone = async (req: IAuthRequest) => {
+  try {
+    const userDetail = await Service.find(req.body)
+    return userDetail;
+  }
+  catch (err) {
+    throw err;
+  }
+}
 
 const create = async (req: IAuthRequest) => {
   try {
@@ -79,4 +88,5 @@ export default {
   updateProfile,
   profile,
   deleteModule,
+  findUserByPhone
 };

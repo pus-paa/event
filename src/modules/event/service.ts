@@ -3,6 +3,7 @@ import UserService from "@/modules/user/service"
 import Resource from "./resource";
 import logger from "@/config/logger";
 import {
+  AddEventMemberValidationSchema,
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
   EventValidationSchema,
@@ -12,6 +13,7 @@ import {
 import {
   throwNotFoundError,
   throwUnauthorizedError,
+  throwErrorOnValidation,
   throwForbiddenError
 
 } from "@/utils/error";
@@ -22,7 +24,7 @@ const list = async (params: any) => {
     const mapped_data = data.items.map((event) => {
       return {
         ...event,
-        role: event.organizer == params.userId ? "Organizer" : "Guest",
+        role: event.organizer && event.event_member_userId == params.userId ? event.role || "Organizer" : "Guest",
       };
     });
     return {
@@ -68,7 +70,7 @@ const create = async (input: any, userId: number) => {
     if (!data || !data.organizer) {
       throw new Error("Event creation failed");
     }
-    const eventMember = await Model.makeEventOwner(data.id, userId);
+    const eventMember = await Model.makeEventOwner(data.id, userId, "Organizer");
     if (data == undefined || eventMember == undefined) {
       throw new Error("Something went wrong ");
     }
@@ -200,21 +202,25 @@ const getUserRelatedToEvent = async (eventId: number, userId: number) => {
 };
 const makeEventMember = async (eventId: number, userId: number, params: AddEventMemberValidationSchemaType) => {
   try {
+    const { error, data } = AddEventMemberValidationSchema.safeParse(params);
+    if (error) {
+      throwErrorOnValidation(error.message);
+    }
     await checkAuthorized(eventId, userId);
     const eventMembers = await getUserRelatedToEvent(eventId, userId);
-    const userInfo = await UserService.find({ phone: params.newAssignedMemberPhone });
+    const userInfo = await UserService.find({ id: params.userId });
     if (!userInfo || !userInfo.id) {
       return throwNotFoundError("User with the phone was not found")
     }
     const eventIsOwner = eventMembers.users.find((user) => user.userId == userInfo.id);
-    if (!eventIsOwner) {
+    if (eventIsOwner?.userId || eventIsOwner) {
       return throwForbiddenError("Already event member")
     }
-    const data = await Model.makeEventOwner(eventId, userInfo.id);
-    return data;
-
+    const event_owner_data = await Model.makeEventOwner(eventId, userInfo.id, data?.role ?? "Host");
+    return event_owner_data;
   } catch (err: any) {
     logger.error("Error in getting the user with the info")
+    throw err;
   }
 
 }
