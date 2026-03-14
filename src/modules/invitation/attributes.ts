@@ -11,7 +11,7 @@ const attributes = {
     "Family name"
   ),
   status: varchar("status", { length: 10 }), // accepted, declined, pending
-  notes: varchar("notes", { length: 40 }),
+  notes: varchar("notes", { length: 150 }),
   role: varchar("role", { length: 16 }).notNull().default("Guest"), // Guest , Singer and maybe more role in the future 
   category: varchar("category", { length: 10 }).notNull().default("Friend"), //  friend  , colleague , VVIP, family  
   eventId: integer("event_id").notNull().references(() => event.id, { onDelete: "cascade" }),
