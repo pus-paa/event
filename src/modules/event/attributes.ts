@@ -14,7 +14,7 @@ const eventVendorTableName = "event_vendor";
 
 const eventAttribute = {
   id: serial("id").primaryKey(),
-  title: varchar("title", { length: 23 }),
+  title: varchar("title", { length: 50 }),
   description: varchar("description", { length: 200 }),
   type: varchar("type", { length: 100 }).notNull(),
   startDateTime: timestamp("startDateTime", { withTimezone: true }).notNull(),
