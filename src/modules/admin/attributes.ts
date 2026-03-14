@@ -3,7 +3,7 @@ const tableName = "admins";
 const attributes = {
   id: serial("id").primaryKey(),
   email: varchar("email").notNull().unique(),
-  password: varchar("password", { length: 20 }).notNull(),
+  password: varchar("password", { length: 60 }).notNull(),
   info: json("info"),
   // modules:,
   createdAt: timestamp("created_at").defaultNow(),

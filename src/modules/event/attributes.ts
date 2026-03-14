@@ -16,7 +16,7 @@ const eventAttribute = {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 23 }),
   description: varchar("description", { length: 200 }),
-  type: varchar("type", { length: 20 }).notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
   startDateTime: timestamp("startDateTime", { withTimezone: true }).notNull(),
   imageUrl: varchar("imageUrl", { length: 500 }), // For the longer folder and image url 
   endDateTime: timestamp("endDateTime", { withTimezone: true }).notNull(),
