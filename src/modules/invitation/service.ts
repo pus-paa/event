@@ -89,25 +89,29 @@ const setResponce = async (
     if (error) {
       return throwErrorOnValidation(error.message);
     }
-
-    const eventMembers = await EventService.getUserRelatedToEvent(
-      eventId,
-      userId,
-    );
-
-    console.log("eventMembers", eventMembers);
-
-    const isOrganizer = eventMembers.users.some(
-      (user) => user.userId === userId,
-    );
-
-    console.log("isOrganizer", isOrganizer);
-
-    const invitations = await Model.findInvitationEvent({
+    let invitations;
+    invitations = await Model.findInvitationEvent({
       eventId: eventId,
-      userId: isOrganizer ? body.userId : userId,
+      userId: userId,
       familyId: familyId ?? undefined,
     });
+
+    if (!invitations) {
+      const eventMembers = await EventService.getUserRelatedToEvent(
+        eventId,
+        userId,
+      );
+
+      const isOrganizer = eventMembers.users.some(
+        (user) => user.userId === userId,
+      );
+
+      invitations = await Model.findInvitationEvent({
+        eventId: eventId,
+        userId: isOrganizer ? body.userId : userId,
+        familyId: familyId ?? undefined,
+      });
+    }
 
     if (!invitations) {
       return throwNotFoundError("Invitation was not found");
