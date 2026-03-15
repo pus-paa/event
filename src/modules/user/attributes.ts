@@ -14,7 +14,7 @@ const attributes = {
   // Much more practical lengths
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 50 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 50 }).notNull().unique(),
   password: varchar("password", { length: 60 }).notNull(),
   phone: varchar("phone", { length: 20 }).notNull().unique(),
   accountStatus: boolean("accountStatus").default(true),

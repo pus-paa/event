@@ -28,18 +28,14 @@ const list = async (params: any) => {
 
 const create = async (input: createUserType) => {
   try {
-    logger.info(`Creating user with input: ${JSON.stringify(input)}`);
     const { error, success } = await z.safeParseAsync(validationSchema, input);
     if (!success) {
       throwErrorOnValidation(
         error.issues.map((issue) => issue.message).join(", "),
       );
     }
-
     const { email, password } = input;
-
-    const duplicateUser = await Model.find({ email });
-
+    const duplicateUser = await Model.find({ email, phone: input.phone });
     if (duplicateUser?.id) {
       throwErrorOnValidation("User with this email already exists");
     }
@@ -76,6 +72,7 @@ const create = async (input: createUserType) => {
 const login = async (input: loginType) => {
   try {
     const result = loginValidationSchema.safeParse(input);
+    console.log(result);
 
     if (!result.success) {
       throwErrorOnValidation(
@@ -83,8 +80,7 @@ const login = async (input: loginType) => {
       );
     }
 
-    const user = await Model.find({ email: input.email });
-
+    const user = await Model.find({ phone: input.phone });
     if (!user || !user.id) {
       throwErrorOnValidation("Invalid credentials");
     }

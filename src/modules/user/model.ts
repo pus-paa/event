@@ -91,13 +91,17 @@ class User {
   }
 
   static async find(params: Partial<UserColumn>) {
-    const { id, email } = params;
+    const { id, email, phone } = params;
     const conditions = [];
     if (id !== undefined) {
       conditions.push(eq(users.id, id));
     }
     if (email !== undefined) {
       conditions.push(eq(users.email, email));
+    }
+
+    if (phone !== undefined) {
+      conditions.push(eq(users.phone, phone));
     }
 
     if (conditions.length === 0) {

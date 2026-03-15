@@ -1,6 +1,6 @@
 import z from "zod";
 const loginValidationSchema = z.object({
-  email: z.string().nonempty(),
+  phone: z.string().nonempty(),
   password: z.string().nonempty(),
   // deviceToken: z.string().nonempty(),
 });
@@ -34,7 +34,7 @@ const updateProfileValidationSchema = z
 const validationSchema = z.object({
   username: z.string(),
   password: z.string().min(8).optional(),
-  email: z.string(),
+  email: z.string().optional().default(`${Date.now()}_${(Math.random() * 1000) % 100}guest@email.com`),
   relation: z.string().optional().default("User"),
   phone: z.string().min(10).max(15).default(`${Date.now()}`),
   dob: z.string().optional()
@@ -44,11 +44,7 @@ type createUserType = z.infer<typeof validationSchema>;
 type loginType = z.infer<typeof loginValidationSchema>;
 type updateProfileType = z.infer<typeof updateProfileValidationSchema>;
 export {
-  loginValidationSchema,
-  changePasswordValidationSchema,
-  validationSchema,
-  updateProfileValidationSchema,
-  type createUserType,
+  changePasswordValidationSchema, loginValidationSchema, updateProfileValidationSchema, validationSchema, type createUserType,
   type loginType,
-  type updateProfileType,
+  type updateProfileType
 };
