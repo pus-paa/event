@@ -11,12 +11,14 @@ import { family } from "@/modules/family/schema";
 import { statusEnum } from "@/modules/event/attributes";
 import event from "@/modules/event/schema";
 import rsvp from "@/modules/invitation/schema";
+import { vwEventDetails } from "./view";
 export {
   admin,
   statusEnum,
   buisness,
   category,
   invitation,
+  vwEventDetails,
   event,
   user,
   event_member_schema,
