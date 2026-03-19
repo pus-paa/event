@@ -2,7 +2,7 @@ import { pgView } from "drizzle-orm/pg-core";
 import { eq, sql } from "drizzle-orm";
 import { event, invitation, user } from "./schema"
 
-export const vwEventDetails = pgView("vw_event_details").as((qb) => 
+export const vwEventDetails = pgView("vw_event_details").as((qb) =>
   qb
     .select({
       eventId: sql`${event.id}`.as("eventId"),
@@ -35,7 +35,7 @@ export const vwEventDetails = pgView("vw_event_details").as((qb) =>
       relation: sql`${user.relation}`.as("relation"),
     })
     .from(event)
-    .leftJoin(invitation, eq(event.id, invitation.eventId))  
-    .leftJoin(user, eq(invitation.userId, user.id)) 
+    .leftJoin(invitation, eq(event.id, invitation.eventId))
+    .leftJoin(user, eq(invitation.userId, user.id))
     .orderBy(event.id)
 );

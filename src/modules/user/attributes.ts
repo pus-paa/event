@@ -18,7 +18,7 @@ const attributes = {
   password: varchar("password", { length: 60 }).notNull(),
   phone: varchar("phone", { length: 20 }).notNull().unique(),
   accountStatus: boolean("accountStatus").default(true),
-  isActicated: boolean("isActivated").default(false), // when the user is signed up set this to true if is guest then set this to the false
+  isActivated: boolean("isActivated").default(false).notNull(), // when the user is signed up set this to true if is guest then set this to the false
   location: varchar("location", { length: 255 }),
   bio: text("bio"),
   photo: text("photo"),

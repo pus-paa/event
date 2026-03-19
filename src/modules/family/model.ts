@@ -70,10 +70,6 @@ class Family {
       updatedAt: new Date(),
     };
 
-    if (params.name) {
-      payload.username = params.name;
-    }
-
     const result = await db
       .update(users)
       .set(payload)

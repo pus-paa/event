@@ -1,5 +1,5 @@
-import users from "@/modules/user/schema";
 import { family } from "./schema";
+import UserRepository from "@/modules/user/repository"
 const selectQuery = {
   id: family.id,
   familyName: family.familyName,
@@ -8,18 +8,7 @@ const selectQuery = {
   updatedAt: family.updatedAt,
 };
 
-const selectMemersQuery = {
-  familyId: users.familyId,
-  id: users.id,
-  username: users.username,
-  phone: users.phone,
-  relation: users.relation,
-  name: users.username,
-  email: users.email,
-  foodPreference: users.foodPreference,
-  createdAt: users.createdAt,
-  updatedAt: users.updatedAt,
-};
+const selectMemersQuery = UserRepository.selectQuery;
 
 export default {
   selectQuery,

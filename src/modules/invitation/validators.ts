@@ -20,9 +20,10 @@ const EventInvitation = z.object({
     .max(100)
     .default("Family Default"),
   email: z.string().email("Invalid email").max(255).optional(),
-  phone: z.string().max(20).optional(),
+  phone: z.string().max(15),
   role: z.string().max(16).optional(),
   invitation_name: z.string().min(1, "Invitation name is required").max(50),
+  relation: z.string().optional(),
   isFamily: z.boolean().default(false),
 });
 const setResponcevalidation = z.object({

@@ -13,6 +13,7 @@ const selectQuery = {
   city: users.city,
   address: users.address,
   zip: users.zip,
+  isActivated: users.isActivated,
   familyId: users.familyId,
   relation: users.relation,
   foodPreference: users.foodPreference,

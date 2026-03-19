@@ -63,6 +63,7 @@ const create = async (input: CreateFamilyValidation["body"], user: number) => {
 
     await Model.addMemberIfUser(result.id, user, {
       username: userDetail.username || userDetail.email,
+      dob: userDetail?.dob ?? undefined,
       email: userDetail.email,
       phone: userDetail.phone,
       relation: "self",
@@ -180,6 +181,7 @@ const addMember = async (
         username: input.username ?? "Member",
         password: `${new Date()}_User`,
         email: input.email,
+        dob: input.dob ?? null,
         phone: input.phone,
         relation: input.relation ?? "Family member"
       });

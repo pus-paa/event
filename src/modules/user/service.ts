@@ -17,6 +17,7 @@ import { throwErrorOnValidation, throwNotFoundError } from "@/utils/error";
 import { comparePassword, hashPassword } from "@/utils/hashPassword";
 import Resource from "./resource";
 import Token from "@/utils/token";
+
 const list = async (params: any) => {
   try {
     const data = await Model.findAllAndCount(params);
@@ -39,18 +40,11 @@ const create = async (input: createUserType) => {
     if (duplicateUser?.id) {
       throwErrorOnValidation("User with this email already exists");
     }
-    const dob = input.dob ? input.dob : new Date().toISOString().split("T")[0];
     const hashedPw = await hashPassword(password ?? `${Date.now()}`);
-    const user = await Model.create({
-      ...input,
-      dob,
-      phone: `+977${input.phone}`
-
-    }, hashedPw);
+    const user = await Model.create(input, hashedPw);
     if (!user) {
       throw Error("Failed to create user");
     }
-    logger.info(`User created successfully with email: ${email}`);
     const tokenPayload = {
       id: user!.id,
       email: user!.email,
@@ -58,7 +52,7 @@ const create = async (input: createUserType) => {
       familyId: user.familyId == 0 ? undefined : user.familyId,
     };
     const token = await Token.sign(tokenPayload, "30d");
-    const jsonData = Resource.toJson(user);
+    const jsonData = Resource.toJson(user as any);
     //include the token in the responce whi!evele making the user in the system
     return {
       ...jsonData,
@@ -71,6 +65,7 @@ const create = async (input: createUserType) => {
 
 const login = async (input: loginType) => {
   try {
+    console.log(input);
     const result = loginValidationSchema.safeParse(input);
 
     if (!result.success) {
@@ -79,7 +74,7 @@ const login = async (input: loginType) => {
       );
     }
 
-    const user = await Model.find({ phone: input.phone });
+    const user = await Model.find({ phone: input.phone })
     if (!user || !user.id) {
       throwErrorOnValidation("Invalid credentials");
     }
@@ -112,14 +107,14 @@ const find = async (data: Partial<UserColumn>) => {
       if (!user || user == null) {
         return throwNotFoundError("User with the email was not found ");
       }
-      return Resource.toJson(user);
+      return Resource.toJson(user as any);
     }
     if (!!data.phone) {
       const user = await Model.find({ phone: data.phone });
       if (!user || user == null) {
         return throwNotFoundError("User with the phone was not found ");
       }
-      return Resource.toJson(user);
+      return Resource.toJson(user as any);
 
     }
     if (!!data.id) {
@@ -135,7 +130,7 @@ const find = async (data: Partial<UserColumn>) => {
   }
 };
 
-const changePassword = async (input: any, id: number) => {
+const changePassword = async (input: { currentPassword: string, newPassword: string }, id: number) => {
   try {
     const result = changePasswordValidationSchema.safeParse(input);
     if (!result.success) {
@@ -166,6 +161,27 @@ const changePassword = async (input: any, id: number) => {
     throw error;
   }
 };
+const resetPassword = async (input: { newPassword: string }, userId: number) => {
+  try {
+    const user = await Model.update({
+      password: await hashPassword(input.newPassword),
+      isActivated: true
+    }, userId)
+    const tokenPayload = {
+      id: user!.id,
+      role: role.user,
+      email: user!.email,
+      familyId: user?.familyId == 0 ? undefined : user?.familyId,
+    };
+    const token = await Token.sign(tokenPayload, "30d");
+    console.log("the user with the information was", user);
+    return { token, user: Resource.toJson(user as any) };
+
+
+  } catch (err) {
+    throw err;
+  }
+}
 
 const updateProfile = async (input: updateProfileType, id: number) => {
   try {
@@ -227,15 +243,26 @@ const update = async (params: Partial<UserColumn>, userId: number) => {
     throw err;
   }
 }
-const UserGeneratorWithPhoneOrEmail = async (fullName: string, email?: string, phone?: string) => {
+const UserGeneratorWithPhoneOrEmail = async ({
+  fullName,
+  email,
+  phone,
+  relation
+}: {
+  fullName: string,
+  email: string | undefined,
+  phone: string,
+  relation: string
+}) => {
   const randomPassword = crypto.randomBytes(8).toString("hex");
   const placeholderEmail = email || `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@khumbaya.com`;
   const placeholderPhone = phone || `+977${Date.now()}`;
   const user = await create({
+    dob: new Date(),
     username: fullName,
     email: placeholderEmail,
     password: randomPassword,
-    relation: "Friend",
+    relation: relation,
     phone: placeholderPhone,
   });
   if (!user || user.id == undefined) throw new Error("Error while making the user ")
@@ -252,4 +279,5 @@ export default {
   changePassword,
   updateProfile,
   remove,
+  resetPassword
 };

@@ -2,7 +2,7 @@ export interface UserColumn {
   id: number;
   username: string;
   info: any | null;
-  dob: string | null ;
+  dob: string | null | Date | undefined;
   email: string;
   city: string | null;
   zip: string | null;
@@ -17,6 +17,7 @@ export interface UserColumn {
   location: string | null;
   phone: string;
   accountStatus: boolean | null;
+  isActivated: boolean;
   createdAt: Date | null;
   updatedAt: Date | null;
 }
@@ -30,6 +31,7 @@ class Resource {
       location: user.location,
       bio: user.bio,
       photo: user.photo,
+      isActivated: user.isActivated,
       country: user.country,
       city: user.city,
       address: user.address,

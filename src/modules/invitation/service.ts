@@ -168,7 +168,7 @@ const inviteGuest = async (
       );
     }
 
-    const { fullName, email, phone, isFamily } = input;
+    const { fullName, email, phone, isFamily, relation } = input;
     let guestUser = undefined;
     if (email || phone) {
       try {
@@ -177,10 +177,12 @@ const inviteGuest = async (
         ).items[0]; // get the user with the email and the phone
         if (!guestUser?.id) {
           // No user with the email or overall no user found
-          guestUser = await UserService.UserGeneratorWithPhoneOrEmail(
+          guestUser = await UserService.UserGeneratorWithPhoneOrEmail({
             fullName,
             email,
             phone,
+            relation: relation ? relation : `${isFamily ? "Family" : "Friend"}`
+          }
           );
         }
       } catch (err) {

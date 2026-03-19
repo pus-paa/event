@@ -4,6 +4,7 @@ import type { UserColumn } from "./resource";
 import Repository from "./repository";
 import { sql, not, eq, or } from "drizzle-orm";
 import { user } from "@/config/db/schema";
+import Resource from "./resource";
 
 class User {
 
@@ -107,9 +108,8 @@ class User {
     if (conditions.length === 0) {
       return null;
     }
-
     const result = await db
-      .select()
+      .select(Repository.selectQuery)
       .from(users)
       .where(conditions.length === 1 ? conditions[0] : or(...conditions));
     return result[0] || null;

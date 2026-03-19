@@ -1,3 +1,4 @@
+import { dateSchema } from "@/utils/baseValidation";
 import { generateRandomNumber } from "@/utils/helper";
 import z from "zod";
 
@@ -50,13 +51,10 @@ const addMemberValidation = z.object({
       (val) => val || `${generateRandomNumber(5)}@gmail.com`,
       z.string().email("Invalid email address")
     ),
-
     username: z.string().min(2, "Name must be at least 2 characters long").optional(),
-
     relation: z.string().min(2).nullable().optional(),
-
+    dob: dateSchema.nonoptional(),
     foodPreference: z.string().min(2).nullable().optional(),
-
     phone: z.preprocess(
       (val) => val || generateRandomNumber(10).toString(),
       z.string().length(10)
@@ -85,6 +83,7 @@ const updateMemberValidation = z.object({
         .optional(),
       foodPreference: z.string().min(2).nullable().optional(),
       email: z.string().optional(),
+      dob: dateSchema.optional(),
       phone: z.string().optional(),
     })
     .refine((body) => Object.keys(body).length > 0, {

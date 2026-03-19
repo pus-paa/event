@@ -20,9 +20,20 @@ const routes = [
     authCheckType: ["user"],
   },
   {
+    method: "get",
+    controller: Controller.findUserByPhone,
+    path: "user/find",
+  }
+  ,
+  {
     method: "post",
     controller: Controller.create,
     path: "user",
+  },
+  {
+    method: "post",
+    controller: Controller.resetPassword,
+    path: "user/resetPassword",
   },
   {
     method: "patch",

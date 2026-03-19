@@ -28,16 +28,7 @@ class Resource {
     member: FamilyMemberColumn,
   ): Partial<FamilyMemberColumn> | null {
     if (!member) return null;
-    const data: Partial<FamilyMemberColumn> = {
-      familyId: member.familyId || null,
-      id: member.id,
-      relation: member.relation,
-      username: member.username,
-      email: member.email,
-      foodPreference: member.foodPreference || null,
-      dob: member.dob || undefined,
-      phone: member.phone,
-    };
+    const data: Partial<FamilyMemberColumn> = member; // all the data are the users data that are selected fromt he table 
     return data;
   }
 

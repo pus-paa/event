@@ -4,6 +4,9 @@ import logger from "@/config/logger";
 
 const get = async (req: IAuthRequest) => {
   try {
+    if (!!req?.query?.phone) {
+      req.query.phone = `+` + req.query.phone.trim();
+    }
     const data = await Service.list(req?.query);
     return data;
   } catch (err: any) {
@@ -22,8 +25,24 @@ const profile = async (req: IAuthRequest) => {
 };
 const findUserByPhone = async (req: IAuthRequest) => {
   try {
-    const userDetail = await Service.find(req.body)
+    const phone = `+` + req.query.phone.trim();// This is due to the issue in the ui 
+    console.log(phone)
+    const userDetail = await Service.find({
+      phone: phone.trim()
+    })
+
+    console.log('User witht he info', userDetail);
     return userDetail;
+  }
+  catch (err) {
+    throw err;
+  }
+}
+const resetPassword = async (req: IAuthRequest) => {
+  try {
+    const { userId, newPassword } = req.body
+    const updatedUser = Service.resetPassword({ newPassword: newPassword }, userId)
+    return updatedUser;
   }
   catch (err) {
     throw err;
@@ -33,6 +52,7 @@ const findUserByPhone = async (req: IAuthRequest) => {
 const create = async (req: IAuthRequest) => {
   try {
     const { body } = req;
+    body.isActivated = true;
     const data = await Service.create(body);
     return data;
   } catch (err: any) {
@@ -41,12 +61,8 @@ const create = async (req: IAuthRequest) => {
 };
 const login = async (req: Request) => {
   try {
-    const { body, headers }: any = req;
-    const data = await Service.login({
-      ...body,
-      host: headers?.host,
-      userAgent: headers["user-agent"],
-    });
+    const { body }: any = req;
+    const data = await Service.login(body);
     return data;
   } catch (err: any) {
     throw err;
@@ -88,5 +104,6 @@ export default {
   updateProfile,
   profile,
   deleteModule,
+  resetPassword,
   findUserByPhone
 };

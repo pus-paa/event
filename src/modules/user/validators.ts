@@ -1,3 +1,4 @@
+import { dateSchema } from "@/utils/baseValidation";
 import z from "zod";
 const loginValidationSchema = z.object({
   phone: z.string().nonempty(),
@@ -16,6 +17,7 @@ const updateProfileValidationSchema = z
     email: z.string().email().optional(),
     phone: z.string().min(1).optional(),
     location: z.string().optional(),
+    dob: dateSchema,
     bio: z.string().optional(),
     photo: z.string().optional(),
     country: z.string().optional(),
@@ -37,7 +39,7 @@ const validationSchema = z.object({
   email: z.string().optional().default(`${Date.now()}_${(Math.random() * 1000) % 100}guest@email.com`),
   relation: z.string().optional().default("User"),
   phone: z.string().min(10).max(15).default(`${Date.now()}`),
-  dob: z.string().optional()
+  dob: dateSchema.optional(),
 });
 
 type createUserType = z.infer<typeof validationSchema>;
