@@ -6,7 +6,15 @@ interface RouteModule {
   name: string;
   routes: any[];
 }
-export const routeConfig = ["admin", "category", "user", "event", "family", "invitation"];
+export const routeConfig = [
+  "admin",
+  "category",
+  "user",
+  "event",
+  "family",
+  "invitation",
+  "todo",
+];
 class RouteLoader {
   private loadedRoutes: RouteModule[] = [];
   private modulesPath: string;
