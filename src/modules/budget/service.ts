@@ -175,7 +175,32 @@ const getBudgetSummary = async (eventId: number, userId: number) => {
       "You do not have permission to view this event's budget.",
     );
 
-  return await Budget.getBudgetSummary(eventId);
+  const categories = await Budget.getBudgetSummary(eventId);
+
+  const budgetInfo = await Budget.totalAllocatedAndRemainingBudget(eventId);
+
+  let totalEstimated = 0;
+  let totalSpent = 0;
+  let totalPending = 0;
+
+  categories.forEach((cat: any) => {
+    totalEstimated += cat.estimated;
+    totalSpent += cat.spend;
+    totalPending += cat.estimated - cat.spend;
+  });
+
+  return {
+    summary: {
+      totalEstimated,
+      totalSpent,
+      totalPending,
+      totalBudget:
+        budgetInfo.remainingBudgetToAllocate + budgetInfo.totalAllocated,
+      totalAllocated: budgetInfo.totalAllocated,
+      totalRemaining: budgetInfo.remainingBudgetToAllocate,
+    },
+    categories,
+  };
 };
 
 const addExpenseToCategory = async (
