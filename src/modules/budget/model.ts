@@ -45,11 +45,72 @@ class Budget {
   }
 
   static async getBudgetCategoryById(categoryId: number) {
-    const result = await db
-      .select(Repository.budgetCategorySelectQuery)
+    const rows = await db
+      .select({
+        categoryId: budget_category.id,
+        categoryName: budget_category.name,
+        eventId: budget_category.eventId,
+        allocatedBudget: budget_category.allocatedBudget,
+        categoryCreatedAt: budget_category.createdAt,
+        categoryUpdatedAt: budget_category.updatedAt,
+
+        expenseId: expense.id,
+        expenseName: expense.name,
+        businessId: expense.businessId,
+        estimatedCost: expense.estimatedCost,
+        contractAmount: expense.contractAmount,
+        nextDueDate: expense.nextDueDate,
+        expenseNotes: expense.notes,
+        expenseCreatedAt: expense.createdAt,
+        expenseUpdatedAt: expense.updatedAt,
+      })
       .from(budget_category)
+      .leftJoin(expense, eq(expense.categoryId, budget_category.id))
       .where(eq(budget_category.id, categoryId));
-    return result[0] || null;
+
+    console.log(rows);
+
+    if (rows.length === 0) return null;
+
+    const category = {
+      id: rows[0]?.categoryId,
+      name: rows[0]?.categoryName,
+      eventId: rows[0]?.eventId,
+      allocatedBudget: Number(rows[0]?.allocatedBudget),
+      createdAt: rows[0]?.categoryCreatedAt,
+      updatedAt: rows[0]?.categoryUpdatedAt,
+      expenses: [] as any[],
+    };
+
+    const expenseMap = new Map<number, any>();
+
+    for (const row of rows) {
+      if (row.expenseId) {
+        if (!expenseMap.has(row.expenseId)) {
+          const expenseObj = {
+            id: row.expenseId,
+            categoryId: row.categoryId,
+            name: row.expenseName,
+            businessId: row.businessId,
+            estimatedCost: Number(row.estimatedCost),
+            contractAmount: row.contractAmount
+              ? Number(row.contractAmount)
+              : null,
+            nextDueDate: row.nextDueDate,
+            notes: row.expenseNotes,
+            createdAt: row.expenseCreatedAt,
+            updatedAt: row.expenseUpdatedAt,
+          };
+
+          expenseMap.set(row.expenseId, expenseObj);
+          category.expenses.push(expenseObj);
+        }
+      }
+    }
+
+    console.log(category);
+
+    return category;
   }
 
   static async getAllBudgetCategories(eventId: number) {

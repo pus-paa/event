@@ -12,6 +12,7 @@ export interface BudgetCategoryWithComputed extends BudgetCategoryColumn {
   spend?: number;
   pending?: number;
   budgetBalance?: number;
+  expenses?: Partial<ExpenseColumn>[];
 }
 
 class BudgetCategoryResource {
@@ -32,6 +33,7 @@ class BudgetCategoryResource {
       ...(category.budgetBalance !== undefined && {
         budgetBalance: category.budgetBalance,
       }),
+      ...(category.expenses !== undefined && { expenses: category.expenses }),
       createdAt: category.createdAt,
       updatedAt: category.updatedAt,
     };

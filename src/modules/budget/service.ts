@@ -52,7 +52,7 @@ const getBudgetCategory = async (categoryId: number, userId: number) => {
   if (!category) throwNotFoundError("Budget Category");
 
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -118,7 +118,7 @@ const updateBudgetCategory = async (
   if (!category) throwNotFoundError("Budget Category");
 
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -131,7 +131,7 @@ const updateBudgetCategory = async (
     input.allocatedBudget !== Number(category!.allocatedBudget)
   ) {
     const info = await Budget.totalAllocatedAndRemainingBudget(
-      category!.eventId,
+      category?.eventId as number,
     );
     const difference =
       input.allocatedBudget - Number(category!.allocatedBudget);
@@ -157,7 +157,7 @@ const deleteBudgetCategory = async (categoryId: number, userId: number) => {
   if (!category) throwNotFoundError("Budget Category");
 
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -212,16 +212,13 @@ const addExpenseToCategory = async (
   if (!category) throwNotFoundError("Budget Category");
 
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
     throwForbiddenError(
       "You do not have permission to add an expense to this category.",
     );
-
-  if (input.contractAmount && input.contractAmount < input.estimatedCost)
-    throwForbiddenError("Contract amount cannot be less than estimated cost.");
 
   const totalEstimated =
     await Budget.getTotalEstimatedCostByCategory(categoryId);
@@ -247,7 +244,7 @@ const getExpense = async (expenseId: number, userId: number) => {
 
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -261,7 +258,7 @@ const getAllExpensesByCategory = async (categoryId: number, userId: number) => {
   if (!category) throwNotFoundError("Budget Category");
 
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -283,7 +280,7 @@ const updateExpense = async (
 
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -307,7 +304,7 @@ const deleteExpense = async (expenseId: number, userId: number) => {
 
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -326,7 +323,7 @@ const addPaymentToExpense = async (
 
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -361,7 +358,7 @@ const getPayment = async (paymentId: number, userId: number) => {
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -376,7 +373,7 @@ const getAllPaymentsByExpense = async (expenseId: number, userId: number) => {
 
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -399,7 +396,7 @@ const updatePayment = async (
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
@@ -434,7 +431,7 @@ const deletePayment = async (paymentId: number, userId: number) => {
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
   const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
   const isAuthorized = await EventModel.isUserEventAdmin(
-    category!.eventId,
+    category?.eventId as number,
     userId,
   );
   if (!isAuthorized)
