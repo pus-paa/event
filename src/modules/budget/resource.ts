@@ -55,6 +55,7 @@ export interface ExpenseColumn {
   notes: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+  payments: Partial<PaymentColumn>[];
 }
 
 export interface ExpenseWithComputed extends ExpenseColumn {
@@ -83,6 +84,9 @@ class ExpenseResource {
       ...(expenseData.spend !== undefined && { spend: expenseData.spend }),
       ...(expenseData.pending !== undefined && {
         pending: expenseData.pending,
+      }),
+      ...(expenseData.payments !== undefined && {
+        payments: expenseData.payments,
       }),
       createdAt: expenseData.createdAt,
       updatedAt: expenseData.updatedAt,

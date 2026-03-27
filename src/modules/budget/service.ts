@@ -14,7 +14,6 @@ import {
   PaymentResource,
 } from "./resource";
 
-// attaches spend + remaining to an expense row
 const withExpenseComputed = async (expenseData: any) => {
   const spend = await Budget.getTotalClearedPayments(expenseData.id);
   const contractAmount = expenseData.contractAmount
@@ -242,7 +241,9 @@ const getExpense = async (expenseId: number, userId: number) => {
   const expenseData = await Budget.getExpenseById(expenseId);
   if (!expenseData) throwNotFoundError("Expense");
 
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -278,7 +279,9 @@ const updateExpense = async (
   const expenseData = await Budget.getExpenseById(expenseId);
   if (!expenseData) throwNotFoundError("Expense");
 
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -302,7 +305,9 @@ const deleteExpense = async (expenseId: number, userId: number) => {
   const expenseData = await Budget.getExpenseById(expenseId);
   if (!expenseData) throwNotFoundError("Expense");
 
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -321,7 +326,9 @@ const addPaymentToExpense = async (
   const expenseData = await Budget.getExpenseById(expenseId);
   if (!expenseData) throwNotFoundError("Expense");
 
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -356,7 +363,9 @@ const getPayment = async (paymentId: number, userId: number) => {
   if (!paymentData) throwNotFoundError("Payment");
 
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -371,7 +380,9 @@ const getAllPaymentsByExpense = async (expenseId: number, userId: number) => {
   const expenseData = await Budget.getExpenseById(expenseId);
   if (!expenseData) throwNotFoundError("Expense");
 
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -394,7 +405,9 @@ const updatePayment = async (
   if (!paymentData) throwNotFoundError("Payment");
 
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,
@@ -429,7 +442,9 @@ const deletePayment = async (paymentId: number, userId: number) => {
   if (!paymentData) throwNotFoundError("Payment");
 
   const expenseData = await Budget.getExpenseById(paymentData!.expenseId);
-  const category = await Budget.getBudgetCategoryById(expenseData!.categoryId);
+  const category = await Budget.getBudgetCategoryById(
+    expenseData?.categoryId as number,
+  );
   const isAuthorized = await EventModel.isUserEventAdmin(
     category?.eventId as number,
     userId,

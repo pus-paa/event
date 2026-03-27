@@ -35,8 +35,28 @@ const paymentSelectQuery = {
   updatedAt: payment.updatedAt,
 };
 
+const expenseWithCategorySelectQuery = {
+  categoryId: budget_category.id,
+  categoryName: budget_category.name,
+  eventId: budget_category.eventId,
+  allocatedBudget: budget_category.allocatedBudget,
+  categoryCreatedAt: budget_category.createdAt,
+  categoryUpdatedAt: budget_category.updatedAt,
+
+  expenseId: expense.id,
+  expenseName: expense.name,
+  businessId: expense.businessId,
+  estimatedCost: expense.estimatedCost,
+  contractAmount: expense.contractAmount,
+  nextDueDate: expense.nextDueDate,
+  expenseNotes: expense.notes,
+  expenseCreatedAt: expense.createdAt,
+  expenseUpdatedAt: expense.updatedAt,
+};
+
 export default {
   budgetCategorySelectQuery,
   expenseSelectQuery,
   paymentSelectQuery,
+  expenseWithCategorySelectQuery,
 };
