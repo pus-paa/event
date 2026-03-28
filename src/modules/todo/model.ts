@@ -6,9 +6,9 @@ import type { TodoColumn } from "./resource";
 
 class Todo {
   static async findAllAndCount(params: any) {
-    const page = Math.max(1, Number(params?.page) || 1);
-    const limit = Math.max(1, Number(params?.limit) || 20);
-    const offset = (page - 1) * limit;
+    //    const page = Math.max(1, Number(params?.page) || 1);
+    //   const limit = Math.max(1, Number(params?.limit) || 20);
+    //  const offset = (page - 1) * limit;
 
     const conditions = [] as any[];
     if (params?.eventId !== undefined) {
@@ -36,8 +36,8 @@ class Todo {
 
     const baseQuery = db.select(repository.selectQuery).from(todo);
     const result = whereClause
-      ? await baseQuery.where(whereClause).orderBy(asc(todo.id)).limit(limit).offset(offset)
-      : await baseQuery.orderBy(asc(todo.id)).limit(limit).offset(offset);
+      ? await baseQuery.where(whereClause).orderBy(asc(todo.id))
+      : await baseQuery.orderBy(asc(todo.id))
 
     const baseCountQuery = db
       .select({ count: sql<number>`count(*)` })
@@ -48,9 +48,7 @@ class Todo {
 
     return {
       items: result,
-      page,
       totalItems: parseInt(count.toString(), 10),
-      totalPages: Math.ceil(count / limit),
     };
   }
 

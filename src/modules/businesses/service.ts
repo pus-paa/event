@@ -1,193 +1,225 @@
+import { throwErrorOnValidation, throwForbiddenError, throwNotFoundError } from "@/utils/error";
 import Model from "./model";
-import Resource from "./resource";
-import logger from "@/config/logger";
-import { throwNotFoundError, throwUnauthorizedError } from "@/utils/error";
-import {
-    CreateFullBusinessSchema,
-    type CreateFullBusinessType,
-} from "./validators";
-import { isVenueType } from "./model";
+import { CreateBusinessSchema, CreateBusinessType, CreateVendorServiceDetailSchema, CreateVendorServiceDetailType, CreateVenueDetailSchema, CreateVenueDetailType } from "./validators";
+import { VendorBusinessCategoryTypes } from "@/constant";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/**
- * Reshape the flat joined row from `Model.findById` into the
- * `{ business, business_info: { type, business_detail } }` structure.
- */
-function reshapeRow(row: Record<string, any>) {
-    const {
-        // venue-specific columns
-        venue_id,
-        venue_type,
-        capacity,
-        area_sqft,
-        min_booking_hours,
-        max_booking_hours,
-        has_catering,
-        has_av_equipment,
-        is_outDoor,
-        price_per_hour,
-        parking,
-        rooms_available,
-        valet_available,
-        alcohol_allowed,
-        sound_limit_db,
-        // artist-specific columns
-        artist_id,
-        artist_type,
-        styles_specialized,
-        max_bookings_per_day,
-        advance_amount,
-        uses_own_material,
-        travel_charges,
-        portfolio_link,
-        available_for_destination,
-        // everything else is the common business object
-        ...business
-    } = row;
-
-    let business_detail: Record<string, any> | null = null;
-
-    if (isVenueType(business.type)) {
-        if (venue_id !== null && venue_id !== undefined) {
-            business_detail = {
-                venue_id, venue_type, capacity, area_sqft,
-                min_booking_hours, max_booking_hours,
-                has_catering, has_av_equipment, is_outDoor,
-                price_per_hour, parking, rooms_available,
-                valet_available, alcohol_allowed, sound_limit_db,
-            };
-        }
-    } else {
-        if (artist_id !== null && artist_id !== undefined) {
-            business_detail = {
-                artist_id, artist_type, styles_specialized,
-                max_bookings_per_day, advance_amount,
-                uses_own_material, travel_charges,
-                portfolio_link, available_for_destination,
-            };
-        }
+const create = async (params: CreateBusinessType, ownerId: number) => {
+  try {
+    const { error, data } = CreateBusinessSchema.safeParse(params);
+    if (error || data == undefined) {
+      return throwErrorOnValidation(error.message);
     }
+    const result = await Model.create({ ...data, owner_id: ownerId });
+    if (!result) {
+      return throwErrorOnValidation("Failed to create business");
+    }
+    if (result.type == VendorBusinessCategoryTypes.Venue) {
+      const venueResult = await Model.createVenueDetail({ ...data, business_id: result.id });
+      if (!venueResult) {
+        return throwErrorOnValidation("Failed to create venue details");
+      }
+    } else {
+      const vendorServiceResult = await Model.createvendorServices({ ...data, business_id: result.id });
+      if (!vendorServiceResult) {
+        return throwErrorOnValidation("Failed to create vendor service details");
+      }
+    }
+    return result;
 
-    return {
-        business,
-        business_info: {
-            type: business.type,
-            business_detail,
-        },
-    };
+  } catch (err) {
+    throw err;
+  }
 }
 
-// ─── Service methods ──────────────────────────────────────────────────────────
-
-const list = async (params: any) => {
-    try {
-        const data = await Model.findAll(params);
-        return {
-            ...data,
-            items: Resource.collection(data.items),
-        };
-    } catch (err) {
-        logger.error(err, "Error listing businesses");
-        throw err;
+const udpateVendorServiceDetail = async (params: CreateVendorServiceDetailType, vendorId: number, ownerId: number) => {
+  try {
+    const venue_service_data = await Model.listBusinessVendorService(vendorId);
+    if (venue_service_data.length == 0 || venue_service_data == undefined) {
+      return throwErrorOnValidation("Vendor attribute with the table was not found");
     }
-};
+    if (venue_service_data[0]?.owner_id != ownerId) {
+      return throwForbiddenError("You are not authorized to update the business detail");
+    }
+    const result = await Model.udpatevendorService(params, vendorId);
+    return result;
+  }
+  catch (err) {
+    throw err;
+  }
+}
+
+const updateVendorVenueDetail = async (params: Partial<CreateVenueDetailType>, venueId: number, ownerId: number) => {
+  try {
+    const venue_service_data = await Model.listBusinessVenueDetail(venueId);
+    if (venue_service_data.length == 0 || venue_service_data == undefined) {
+      return throwErrorOnValidation("Venue details not found");
+    }
+    if (venue_service_data[0]?.owner_id != ownerId) {
+      return throwForbiddenError("You are not authorized to update the business detail");
+    }
+    const result = await Model.updatevenueservice(venueId, params);
+    return result;
+  } catch (err) {
+    throw err;
+
+  }
+}
+
+const createVendorDetail = async (params: CreateVendorServiceDetailType, userId: number) => {
+  try {
+    const { error, data } = CreateVendorServiceDetailSchema.safeParse(params);
+    if (error || data == undefined) {
+      return throwErrorOnValidation(error.message);
+    }
+    const business_detail = await find(params.businessesId);
+
+    if (business_detail.business_information.type == VendorBusinessCategoryTypes.Venue) {
+      return throwErrorOnValidation("Business is of type venue");
+    }
+    if (business_detail.business_information.owner_id != userId) {
+      return throwForbiddenError("You are not authorized to add the business detail");
+    }
+    const result = await Model.createvendorServices(data);
+    if (!result) {
+      return throwErrorOnValidation("Failed to create vendor service details");
+    }
+    return result;
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+const addVenueDetail = async (params: CreateVenueDetailType & { business_id: number }, userId: number) => {
+  try {
+    const { error, data } = CreateVenueDetailSchema.safeParse(params);
+    if (error || data == undefined) {
+      return throwErrorOnValidation(error.message);
+    }
+    const business_detail = await find(params.business_id);
+    if (business_detail.business_information.type !== VendorBusinessCategoryTypes.Venue) {
+      return throwErrorOnValidation("Business is not of type venue");
+    }
+    if (business_detail.business_information.owner_id != userId) {
+      return throwForbiddenError("You are not authorized to add the venue detail");
+    }
+    const result = await Model.createVenueDetail({ ...data, business_id: params.business_id });
+    if (!result) {
+      return throwErrorOnValidation("Failed to create venue details");
+    }
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
 
 const find = async (id: number) => {
-    try {
-        const row = await Model.findById(id);
-        if (!row) return throwNotFoundError("Business not found");
-
-        const shaped = reshapeRow(row as Record<string, any>);
-        return {
-            business: Resource.toJson(shaped.business as any),
-            business_info: shaped.business_info,
-        };
-    } catch (err) {
-        logger.error(err, "Error fetching business");
-        throw err;
+  try {
+    const result = await Model.findById(id);
+    if (!result) {
+      return throwErrorOnValidation("Business not found");
     }
-};
+    return result;
+  } catch (err) {
+    throw err;
+  }
+}
 
-const create = async (input: CreateFullBusinessType, ownerId: number) => {
-    try {
-        const result = CreateFullBusinessSchema.safeParse(input);
-        if (!result.success) {
-            throw new Error(result.error.issues.map((i) => i.message).join(", "));
-        }
-
-        const { venue_detail, artist_detail, ...businessData } = result.data;
-
-        // 1) Insert the base business row
-        const business = await Model.create({ ...businessData, owner_id: ownerId });
-        if (!business) throw new Error("Business creation failed");
-
-        let business_detail: Record<string, any> | null = null;
-
-        // 2) Insert the type-specific detail row
-        if (isVenueType(business.type) && venue_detail) {
-            business_detail = await Model.createVenueDetail({
-                ...venue_detail,
-                business_id: business.id,
-            });
-        } else if (!isVenueType(business.type) && artist_detail) {
-            business_detail = await Model.createArtistDetail({
-                ...artist_detail,
-                business_id: business.id,
-            });
-        }
-
-        return {
-            business: Resource.toJson(business),
-            business_info: {
-                type: business.type,
-                business_detail,
-            },
-        };
-    } catch (err) {
-        logger.error(err, "Error creating business");
-        throw err;
+const update = async (id: number, params: any, ownerId: number) => {
+  try {
+    const { error, data } = CreateBusinessSchema.safeParse(params);
+    if (error || data == undefined) {
+      return throwErrorOnValidation(error.message);
     }
-};
+    const business_data = await find(id);
 
-const update = async (id: number, input: any, ownerId: number) => {
-    try {
-        const row = await Model.findById(id);
-        if (!row) return throwNotFoundError("Business not found");
-
-        const shaped = reshapeRow(row as Record<string, any>);
-        if (shaped.business.owner_id !== ownerId) {
-            return throwUnauthorizedError("You are not the owner of this business");
-        }
-
-        const updated = await Model.update(id, input);
-        return Resource.toJson(updated as any);
-    } catch (err) {
-        logger.error(err, "Error updating business");
-        throw err;
+    if (business_data.business_information.owner_id != ownerId) {
+      return throwForbiddenError("User cannot update the business");
     }
-};
+    const result = await Model.update(id, data);
+    if (!result) {
+      return throwErrorOnValidation("Failed to update business");
+    }
+    return result;
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+const updatebusinessInformation = async (id: number, params: any, ownerId: number) => {
+  try {
+    const business_data = await find(id);
+    if (business_data.business_information.owner_id != ownerId) {
+      return throwForbiddenError("User cannot update the business");
+    }
+    if (business_data.business_information.type == VendorBusinessCategoryTypes.Venue) {
+      const result = await Model.updatevenueservice(id, params);
+      if (!result) {
+        return throwErrorOnValidation("Failed to update business");
+      }
+      return result;
+    } else {
+      const result = await Model.udpatevendorService(params, id);
+      if (!result) {
+        return throwErrorOnValidation("Failed to update business");
+      }
+      return result;
+    }
+
+  } catch (err) {
+    throw err;
+  }
+}
+
 
 const remove = async (id: number, ownerId: number) => {
-    try {
-        const row = await Model.findById(id);
-        if (!row) return throwNotFoundError("Business not found");
-
-        const shaped = reshapeRow(row as Record<string, any>);
-        if (shaped.business.owner_id !== ownerId) {
-            return throwUnauthorizedError("You are not the owner of this business");
-        }
-
-        const deleted = await Model.destroy(id);
-        return {
-            success: true,
-            message: "Business deleted successfully",
-            deletedBusiness: Resource.toJson(deleted[0] as any),
-        };
-    } catch (err) {
-        logger.error(err, "Error deleting business");
-        throw err;
+  try {
+    const existingData = await find(id);
+    if (!existingData) {
+      return throwNotFoundError('Business with the information was not found');
     }
-};
+    if (existingData.business_information.owner_id != ownerId) {
+      return throwForbiddenError("User cannot delete the business");
+    }
+    const remove_business = await Model.destroy(id);
+    return remove_business;
 
-export default { list, find, create, update, remove };
+  } catch (err) {
+    throw err;
+  }
+}
+
+const findOne = async (id: number) => {
+  try {
+    const business = await Model.findById(id);
+    return business;
+  } catch (err) {
+    throw err;
+  }
+}
+
+const list = async (query: any) => {
+  try {
+    const business = await Model.findAll(query);
+    return business;
+
+  } catch (err) {
+    throw err;
+  }
+}
+
+export default {
+  create,
+  createVendorDetail,
+  addVenueDetail,
+  udpateVendorServiceDetail,
+  updateVendorVenueDetail,
+  update,
+  find,
+  updatebusinessInformation,
+  remove,
+  findOne,
+  list
+};

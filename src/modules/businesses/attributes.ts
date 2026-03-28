@@ -7,59 +7,9 @@ import {
   boolean,
 } from "drizzle-orm/pg-core";
 export const tableName = "businesses";
-export const vendorVenueTableName = "vendor_venues";
-export const vendorArtistTableName = "vendor_personal_services";
-
-export const vendorBusinessTypes = [
-  "Venues",
-  "Banquet Halls",
-  "Marriage Garden / Lawns",
-  "Wedding Resorts",
-  "Small Function / Party Halls",
-  "Destination Wedding Venues",
-  "Kalyana Mandapams",
-  "4 Star & Above Wedding Hotels",
-  "Wedding Farmhouses",
-  "Photographers",
-  "Makeup / Bridal Makeup Artists",
-  "Wedding Planners",
-  "Decorators",
-  "Mehendi Artists",
-  "DJs",
-  "Wedding Entertainment",
-  "Invitations",
-  "Favors",
-  "Invitation Gifts",
-  "Mehndi Favors",
-  "Catering Services",
-  "Cake",
-  "Chaat & Food Stalls",
-  "Pre Wedding Shoot",
-  "Bridal Lehengas",
-  "Kanjeevaram / Silk Sarees",
-  "Cocktail Gowns",
-  "Trousseau Sarees",
-  "Bridal Lehenga on Rent",
-  "Jewelry",
-  "Flower Jewelry",
-  "Bridal Jewelry on Rent",
-  "Accessories",
-  "Security Guard",
-] as const;
-
-// Subset used to branch venue vs artist logic
-export const VENUE_TYPES = [
-  "Venues",
-  "Banquet Halls",
-  "Marriage Garden / Lawns",
-  "Wedding Resorts",
-  "Small Function / Party Halls",
-  "Destination Wedding Venues",
-  "Kalyana Mandapams",
-  "4 Star & Above Wedding Hotels",
-  "Wedding Farmhouses",
-] as const;
-
+export const vendorVenueTableName = "vendor_venues_table";
+export const vendorServiceTableName = "vendor_services_table";
+import schema from "./schema"
 
 export const businessesAttribute = {
   id: serial("id").primaryKey(),
@@ -92,10 +42,9 @@ export const businessesAttribute = {
 
 };
 
-// Venue-only attributes
 export const venueAttribute = {
   id: serial("id").primaryKey(),
-  business_id: integer("business_id").notNull(),
+  business_id: integer("business_id").notNull().references(() => schema.id),
   venue_type: varchar("venue_type", { length: 100 }),
   capacity: integer("capacity"),
   area_sqft: varchar("area_sqft", { length: 40 }),
@@ -114,18 +63,20 @@ export const venueAttribute = {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 };
 
-// Artist-like vendor attributes (makeup, mehendi, photography, decorators, etc.)
-export const PersonVendorAttribute = {
+export const vendorServicesAttribute = {
   id: serial("id").primaryKey(),
-  business_id: integer("business_id").notNull(),
+  business_id: integer("business_id").notNull().references(() => schema.id),
   artist_type: varchar("artist_type", { length: 100 }),
-  styles_specialized: text("styles_specialized"),
+  styles_specialized: varchar("styles_specialized", { length: 255 }),
   max_bookings_per_day: integer("max_bookings_per_day"),
   advance_amount: integer("advance_amount"),
   uses_own_material: boolean("uses_own_material").default(true),
   travel_charges: integer("travel_charges"),
-  portfolio_link: text("portfolio_link"),
+  portfolio_link: varchar("portfolio_link", { length: 255 }),
   available_for_destination: boolean("available_for_destination").default(false),
+  customization_available: boolean("customization_available"),   // jewelry, dress rent, invitations
+  serves_veg: boolean("serves_veg"),                            // catering, cake, chaat
+  min_order: integer("min_order"),                             // replaces min_plates, min_order_qty
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 };

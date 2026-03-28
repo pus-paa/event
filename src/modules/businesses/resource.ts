@@ -1,4 +1,3 @@
-// ─── Business resource/response shaper ──────────────────────────────────────
 
 export interface BusinessColumn {
 	id: number;

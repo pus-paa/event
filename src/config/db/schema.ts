@@ -1,6 +1,6 @@
 import buisness, {
   vendor_venue_schema,
-  vendor_artist_schema,
+  vendor_services_schema
 } from "@/modules/businesses/schema";
 import invitation from "@/modules/invitation/schema"
 import category from "@/modules/category/schema";
@@ -29,9 +29,9 @@ export {
   statusEnum,
   buisness,
   vendor_venue_schema,
-  vendor_artist_schema,
   category,
   todo,
+  vendor_services_schema,
   invitation,
   vwEventDetails,
   event,
