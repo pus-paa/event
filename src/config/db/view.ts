@@ -1,4 +1,6 @@
 import { pgView } from "drizzle-orm/pg-core";
+
+import { event_member_schema } from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { event, invitation, user } from "./schema"
 
@@ -38,4 +40,17 @@ export const vwEventDetails = pgView("vw_event_details").as((qb) =>
     .leftJoin(invitation, eq(event.id, invitation.eventId))
     .leftJoin(user, eq(invitation.userId, user.id))
     .orderBy(event.id)
+);
+export const vw_event_user = pgView("vw_eventuser_admins").as((qb) =>
+  qb
+    .select({
+      username: sql`${user.username}`.as("username"),
+      email: sql`${user.email}`.as("email"),
+      role: sql`${event_member_schema.role}`.as("role"),
+      title: sql`${event.title}`.as("title"),
+    })
+    .from(event_member_schema)
+    .leftJoin(user, eq(event_member_schema.userId, user.id))
+    .leftJoin(event, eq(event_member_schema.eventId, event.id))
+    .orderBy(event.title, user.username)
 );

@@ -94,9 +94,22 @@ const populateDefaultChecklist = async (req: IAuthRequest) => {
     throw err;
   }
 };
+const deleteTodo = async (req: IAuthRequest) => {
+  try {
+    const { id } = req.params;
+    if (!id || isNaN(Number(id))) {
+      throwErrorOnValidation("invalid task id");
+    }
+    const deleteTodo = await Service.deleteTodo(Number(id));
+    return deleteTodo;
+  } catch (err) {
+    throw err;
+  }
+}
 
 export default {
   get,
+  deleteTodo,
   getByEventId,
   create,
   findOne,

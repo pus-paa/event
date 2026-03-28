@@ -7,7 +7,8 @@ import {
   todoUpdateValidationSchema,
 } from "./validators";
 import { DEFAULT_WEDDING_TODO_TEMPLATE } from "./constants";
-import { throwErrorOnValidation } from "@/utils/error";
+import { throwErrorOnValidation, throwNotFoundError } from "@/utils/error";
+import { IAuthRequest } from "@/routes";
 
 const list = async (params: any) => {
   try {
@@ -171,9 +172,25 @@ const populateDefaultChecklist = async (eventId: number, input: any, userId?: nu
     throw err;
   }
 };
+const deleteTodo = async (id: number) => {
+  try {
+    const exist = find(id);
+    if (!exist) {
+      throwNotFoundError("Todo with the id was not found ")
+
+    }
+    const deleted_data = await Model.delete(id);
+    return deleted_data;
+  }
+  catch (err) {
+    throw err;
+
+  }
+}
 
 export default {
   list,
+  deleteTodo,
   findByEventId,
   create,
   find,

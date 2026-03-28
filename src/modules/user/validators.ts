@@ -17,7 +17,7 @@ const updateProfileValidationSchema = z
     email: z.string().email().optional(),
     phone: z.string().min(1).optional(),
     location: z.string().optional(),
-    dob: dateSchema,
+    dob: dateSchema.optional(),
     bio: z.string().optional(),
     photo: z.string().optional(),
     country: z.string().optional(),

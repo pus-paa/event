@@ -16,7 +16,7 @@ const event_member_attribute = {
     .references(() => user.id, { onDelete: "cascade" }),
   eventId: integer("event_id")
     .references(() => schema.id, { onDelete: "cascade" }),
-  role: varchar("role", { length: 20 }),
+  role: varchar("role", { length: 50 }),
 };
 
 const event_vendor_attribute = {
