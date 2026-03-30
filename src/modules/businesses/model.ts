@@ -35,7 +35,7 @@ class BusinessModel {
     const result = await db.update(vendor_venue_schema).set(params).where(eq(vendor_venue_schema.id, id)).returning();
     return result;
   }
-  static async findAll(params: any) {
+  static async findAll(params: any, userId: number) {
     const { page = 1, limit = 10 } = params;
     const offset = (Number(page) - 1) * Number(limit);
 
@@ -43,6 +43,7 @@ class BusinessModel {
       .select(repository.businessSelectQuery)
       .from(schema)
       .limit(Number(limit))
+      .where(eq(schema.owner_id, userId))
       .offset(offset);
 
     const [{ count }]: any = await db

@@ -6,6 +6,7 @@ const routes = [
     method: "get",
     controller: Controller.list,
     path: "business",
+    authorization: true,
   },
   {
     method: "post",

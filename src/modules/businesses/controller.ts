@@ -4,7 +4,8 @@ import { throwErrorOnValidation } from "@/utils/error";
 
 const list = async (req: IAuthRequest) => {
   try {
-    return await Service.list(req.query);
+    const userId = req.user.id;
+    return await Service.list(req.query, userId);
   } catch (err) {
     throw err;
   }

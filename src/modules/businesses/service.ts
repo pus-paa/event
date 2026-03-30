@@ -200,9 +200,9 @@ const findOne = async (id: number) => {
   }
 }
 
-const list = async (query: any) => {
+const list = async (query: any, userId: number) => {
   try {
-    const business = await Model.findAll(query);
+    const business = await Model.findAll(query, userId);
     return business;
 
   } catch (err) {
