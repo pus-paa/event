@@ -10,11 +10,13 @@ const create = async (params: CreateBusinessType, ownerId: number) => {
     if (error || data == undefined) {
       return throwErrorOnValidation(error.message);
     }
+    console.log('This is the dat in the business creation on the module ', data);
     const result = await Model.create({ ...data, owner_id: ownerId });
     if (!result) {
       return throwErrorOnValidation("Failed to create business");
     }
-    if (result.type == VendorBusinessCategoryTypes.Venue) {
+    if (result.category == VendorBusinessCategoryTypes.Venue) {
+      console.log('this ios the rtye kajsd ');
       const venueResult = await Model.createVenueDetail({ ...data, business_id: result.id });
       if (!venueResult) {
         return throwErrorOnValidation("Failed to create venue details");
@@ -200,9 +202,9 @@ const findOne = async (id: number) => {
   }
 }
 
-const list = async (query: any, userId: number) => {
+const list = async (query: any) => {
   try {
-    const business = await Model.findAll(query, userId);
+    const business = await Model.findAll(query);
     return business;
 
   } catch (err) {

@@ -1,5 +1,5 @@
 import db from "@/config/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, or } from "drizzle-orm";
 import schema, { vendor_venue_schema, vendor_services_schema } from "./schema";
 import repository from "./repository";
 import { CreateBusinessType, CreateVenueDetailType } from "./validators";
@@ -35,15 +35,20 @@ class BusinessModel {
     const result = await db.update(vendor_venue_schema).set(params).where(eq(vendor_venue_schema.id, id)).returning();
     return result;
   }
-  static async findAll(params: any, userId: number) {
-    const { page = 1, limit = 10 } = params;
+  static async findAll(params: any,) {
+    const { page = 1, limit = 10, userId } = params;
     const offset = (Number(page) - 1) * Number(limit);
+    let condition = []
+    if (userId) {
+      condition.push(eq(schema.owner_id, userId));
+
+    }
 
     const items = await db
       .select(repository.businessSelectQuery)
       .from(schema)
       .limit(Number(limit))
-      .where(eq(schema.owner_id, userId))
+      .where(or(...condition))
       .offset(offset);
 
     const [{ count }]: any = await db
