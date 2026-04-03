@@ -10,13 +10,11 @@ const create = async (params: CreateBusinessType, ownerId: number) => {
     if (error || data == undefined) {
       return throwErrorOnValidation(error.message);
     }
-    console.log('This is the dat in the business creation on the module ', data);
     const result = await Model.create({ ...data, owner_id: ownerId });
     if (!result) {
       return throwErrorOnValidation("Failed to create business");
     }
     if (result.category == VendorBusinessCategoryTypes.Venue) {
-      console.log('this ios the rtye kajsd ');
       const venueResult = await Model.createVenueDetail({ ...data, business_id: result.id });
       if (!venueResult) {
         return throwErrorOnValidation("Failed to create venue details");
@@ -53,7 +51,9 @@ const udpateVendorServiceDetail = async (params: CreateVendorServiceDetailType, 
 
 const updateVendorVenueDetail = async (params: Partial<CreateVenueDetailType>, venueId: number, ownerId: number) => {
   try {
+    console.log("this is the updatevendor detail in this", params, venueId, ownerId);
     const venue_service_data = await Model.listBusinessVenueDetail(venueId);
+    console.log(venue_service_data);
     if (venue_service_data.length == 0 || venue_service_data == undefined) {
       return throwErrorOnValidation("Venue details not found");
     }
@@ -62,9 +62,9 @@ const updateVendorVenueDetail = async (params: Partial<CreateVenueDetailType>, v
     }
     const result = await Model.updatevenueservice(venueId, params);
     return result;
-  } catch (err) {
+  }
+  catch (err) {
     throw err;
-
   }
 }
 
@@ -76,7 +76,7 @@ const createVendorDetail = async (params: CreateVendorServiceDetailType, userId:
     }
     const business_detail = await find(params.businessesId);
 
-    if (business_detail.business_information.type == VendorBusinessCategoryTypes.Venue) {
+    if (business_detail.business_information.category == VendorBusinessCategoryTypes.Venue) {
       return throwErrorOnValidation("Business is of type venue");
     }
     if (business_detail.business_information.owner_id != userId) {
@@ -100,7 +100,7 @@ const addVenueDetail = async (params: CreateVenueDetailType & { business_id: num
       return throwErrorOnValidation(error.message);
     }
     const business_detail = await find(params.business_id);
-    if (business_detail.business_information.type !== VendorBusinessCategoryTypes.Venue) {
+    if (business_detail.business_information.category !== VendorBusinessCategoryTypes.Venue) {
       return throwErrorOnValidation("Business is not of type venue");
     }
     if (business_detail.business_information.owner_id != userId) {

@@ -114,13 +114,15 @@ class BusinessModel {
   }
 
   static async listBusinessVenueDetail(businessId: number) {
+    console.log('This is the business id that is being searched in the thing ', businessId);
     const rows = await db
       .select(repository.venueSelectQuery)
       .from(vendor_venue_schema).leftJoin(
         schema,
         eq(vendor_venue_schema.business_id, schema.id),
       )
-      .where(eq(vendor_venue_schema.business_id, businessId));
+      .where(eq(vendor_venue_schema.id, businessId));
+    console.log("this is the rowz in the data that is in the mnodel for the finfing the thing in the backend in thei", rows);
     return rows;
   }
   static async listBusinessVendorService(businessId: number) {

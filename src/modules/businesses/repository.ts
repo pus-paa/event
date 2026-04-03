@@ -33,6 +33,7 @@ const businessSelectQuery = {
 
 const venueSelectQuery = {
   venue_id: vendor_venue_schema.id,
+  venue_name: vendor_venue_schema.venue_name,
   venue_type: vendor_venue_schema.venue_type,
   capacity: vendor_venue_schema.capacity,
   area_sqft: vendor_venue_schema.area_sqft,
