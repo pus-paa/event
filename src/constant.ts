@@ -20,7 +20,8 @@ const attendingstate = {
   completed: "completed",
 };
 const invitationStatus = {
-  invited: "invited",
+  draft: "draft",
+  pending: "pending",
   accepted: "accepted",
   rejected: "rejected",
 } as const;

@@ -56,6 +56,10 @@ export interface Invitation_Event {
   familyId: number | null;
   role?: string | null;
 }
+export interface Hotel_responce {
+  user_detail: UserColumn | null;
+  user_room: string | null ; 
+}
 class Resource {
   static toJson(invitation: InvitationColumn) {
     const data = {
@@ -102,6 +106,15 @@ class Resource {
 
   static invitationeventCollection(invitations: Invitation_Event[]) {
     return invitations.map(this.toEventJson);
+  }
+  static toRoomJson(hotel_responce: Hotel_responce) :Hotel_responce{
+    return {
+      user_detail: hotel_responce.user_detail,
+      user_room: hotel_responce.user_room,
+    }
+  }
+  static toRoomCollection(hotel_responce: Hotel_responce[]) :Hotel_responce[] {
+    return hotel_responce.map(this.toRoomJson);
   }
 }
 export default Resource;

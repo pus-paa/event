@@ -3,8 +3,8 @@ const selectQuery = {
   id: users.id,
   username: users.username,
   email: users.email,
-  password: users.password,
   phone: users.phone,
+  accountStatus: users.accountStatus,
   dob: users.dob,
   location: users.location,
   bio: users.bio,
@@ -23,6 +23,12 @@ const selectQuery = {
   updatedAt: users.updatedAt,
 };
 
+const authSelectQuery = {
+  ...selectQuery,
+  password: users.password,
+};
+
 export default {
+  authSelectQuery,
   selectQuery,
 };

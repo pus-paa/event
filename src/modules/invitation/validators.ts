@@ -10,9 +10,10 @@ const validationRSVP = z.object({
   category: z.enum(["friend", "family", "colleague", "vvip"]),
 });
 const invitationStatusValidation = z.enum([
-  invitationStatus.invited,
+  invitationStatus.draft,
   invitationStatus.accepted,
   invitationStatus.rejected,
+  invitationStatus.pending
 ]);
 const EventInvitation = z.object({
   fullName: z
@@ -28,11 +29,12 @@ const EventInvitation = z.object({
     (val) => val || `+977-${generateRandomNumber(10)}`,
     z.string().max(15),
   ),
+  isDraft: z.boolean(),
   role: z.string().max(16).optional(),
   invitation_name: z.string().min(1, "Invitation name is required").max(50),
   relation: z.string().optional(),
   isFamily: z.boolean().default(false),
-  category: z.enum(["friend", "family", "colleague", "vvip"]),
+  category: z.enum(["friend", "family", "colleague", "vvip"]).nonoptional(),
 });
 const setResponcevalidation = z.object({
   invited_by: z.number().int().positive().optional(),

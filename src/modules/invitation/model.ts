@@ -1,4 +1,4 @@
-import { eq, and, sql, or, isNull } from "drizzle-orm";
+import { eq, and, sql, or, isNull, ne } from "drizzle-orm";
 import invitation from "./schema";
 import family from "@/modules/family/schema";
 import event from "@/modules/event/schema";
@@ -7,6 +7,7 @@ import repository from "./repository";
 import Resource from "./resource";
 import { InvitationColumn } from "./resource";
 import user from "@/modules/user/schema";
+import { invitationStatus } from "@/constant"
 import { setResponcevalidationType } from "./validators";
 
 export default class Invitation {
@@ -16,12 +17,14 @@ export default class Invitation {
     const result = await db
       .select()
       .from(invitation)
+      .where(ne(invitation.status, invitationStatus.draft))
       .limit(limit)
       .offset(offset);
 
     const [{ count }]: any = await db
       .select({ count: sql<number>`count(*)` })
-      .from(invitation);
+      .from(invitation)
+      .where(ne(invitation.status, invitationStatus.draft));
 
     return {
       items: result,
@@ -262,10 +265,6 @@ export default class Invitation {
       .limit(1);
 
     if (existingGuest[0]?.id) {
-      console.log(
-        "this dfjhsdkjfhsdjkfhsdkjlfhsdfskfsdjghfzsdjfggjhdgf",
-        existingGuest[0],
-      );
       const updated = await db
         .update(invitation)
         .set({
@@ -283,10 +282,10 @@ export default class Invitation {
       .insert(invitation)
       .values({
         ...params,
+        category: params.category!,
         eventId,
         userId: guestId,
         familyId: params.familyId ?? familyId ?? null,
-        joined_at: new Date(),
         invited_by: invited_by,
       })
       .returning();
@@ -316,10 +315,7 @@ export default class Invitation {
     return deletedEvent_guest;
   }
   static async EventHotelManagent(eventId: number) {
-    const hotel_management = await db.select({
-      assigned_room: invitation.assigned_room,
-      user: user
-    }).from(invitation).leftJoin(user, eq(invitation.userId, user.id)).where(eq(invitation.eventId, eventId))
+    const hotel_management = await db.select(repository.selectHotelManagement).from(invitation).leftJoin(user, eq(invitation.userId, user.id)).where(eq(invitation.eventId, eventId))
     return hotel_management;
   }
 

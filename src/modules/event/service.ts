@@ -115,7 +115,6 @@ const checkAuthorized = async (id: number, userId?: number) => {
   //if the event organizer is not the person also check the organizer family and then also
 
   const eventMember = await Model.getEventMember(id);
-  console.log("This is the list of the event member for the given event in the list ", eventMember);
   if (!event.organizer) {
     return throwUnauthorizedError("Unauthorized: Event organizer not found");
   }
@@ -123,7 +122,7 @@ const checkAuthorized = async (id: number, userId?: number) => {
   if (
     event.organizer === userId ||
     eventMember.some((member: any) => {
-      return member.user.id=== userId 
+      return member.user.id === userId
     })
   ) {
     return event;

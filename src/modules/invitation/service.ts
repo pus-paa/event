@@ -1,4 +1,5 @@
 import logger from "@/config/logger";
+import { invitationStatus } from "@/constant";
 import Model from "./model";
 import Resource, { Invitation_Event } from "./resource";
 import EventService from "@/modules/event/service";
@@ -170,12 +171,7 @@ const inviteGuest = async (
         result.error.issues.map((issue) => issue.message).join(", "),
       );
     }
-    const isValid = await EventService.checkAuthorized(eventId, userId);
-    if (!isValid) {
-      return throwErrorOnValidation(
-        "Unauthorized: You are not allowed to invite guests for this event",
-      );
-    }
+    await EventService.checkAuthorized(eventId, userId);
 
     const { fullName, email, phone, isFamily, relation } = input;
     let guestUser;
@@ -219,7 +215,7 @@ const inviteGuest = async (
       invitation_name: input.invitation_name || "FAMILY",
       familyId: isFamily ? guestUser.familyId : undefined,
       invited_by: userId,
-      status: "Pending",
+      status: input.isDraft ? invitationStatus.draft : invitationStatus.pending,
       category: input.category,
     });
 
@@ -256,13 +252,14 @@ const getEventHotelManagement = async (eventId: number, userId: number) => {
         "User with the details cannot get the information of the guest ",
       );
     }
-    const event_hotel_management = Model.EventHotelManagent(eventId);
-    return event_hotel_management;
+    const event_hotel_management = await Model.EventHotelManagent(eventId);
+    return Resource.toRoomCollection(event_hotel_management);
   }
   catch (err) {
     throw err;
   }
 }
+
 
 const remove_invitation = async (
   eventId: number,

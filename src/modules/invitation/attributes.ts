@@ -38,7 +38,7 @@ const attributes = {
     false,
   ),
   isAccomodation: boolean("is_accomodation"),
-  joined_at: timestamp("joined_at", { withTimezone: true }),
+  joined_at: timestamp("joined_at", { withTimezone: true }).defaultNow(),
   responded_at: timestamp("responded_at", { withTimezone: true }),
   arrival_date_time: timestamp("arrival_date_time", { withTimezone: true }),
   departure_date_time: timestamp("departure_date_time", { withTimezone: true }),

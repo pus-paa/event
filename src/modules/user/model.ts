@@ -4,7 +4,6 @@ import type { UserColumn } from "./resource";
 import Repository from "./repository";
 import { sql, not, eq, or } from "drizzle-orm";
 import { user } from "@/config/db/schema";
-import Resource from "./resource";
 
 class User {
 
@@ -91,7 +90,18 @@ class User {
     return result[0];
   }
 
-  static async find(params: Partial<UserColumn>) {
+  static async find(
+    params: Partial<UserColumn>,
+    options: { includePassword: true },
+  ): Promise<(UserColumn & { password: string }) | null>;
+  static async find(
+    params: Partial<UserColumn>,
+    options?: { includePassword?: false },
+  ): Promise<UserColumn | null>;
+  static async find(
+    params: Partial<UserColumn>,
+    options: { includePassword?: boolean } = {},
+  ): Promise<(UserColumn & { password: string }) | UserColumn | null> {
     const { id, email, phone } = params;
     const conditions = [];
     if (id !== undefined) {
@@ -108,8 +118,12 @@ class User {
     if (conditions.length === 0) {
       return null;
     }
+    const selectShape = options.includePassword
+      ? Repository.authSelectQuery
+      : Repository.selectQuery;
+
     const result = await db
-      .select(Repository.selectQuery)
+      .select(selectShape)
       .from(users)
       .where(conditions.length === 1 ? conditions[0] : or(...conditions));
     return result[0] || null;

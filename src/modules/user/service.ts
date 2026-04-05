@@ -74,7 +74,7 @@ const login = async (input: loginType) => {
       );
     }
 
-    const user = await Model.find({ phone: input.phone })
+    const user = await Model.find({ phone: input.phone }, { includePassword: true })
     if (!user || !user.id) {
       throwErrorOnValidation("Invalid credentials");
     }
@@ -140,7 +140,7 @@ const changePassword = async (input: { currentPassword: string, newPassword: str
     }
     const { currentPassword, newPassword } = input;
 
-    const user = await Model.find({ id });
+    const user = await Model.find({ id }, { includePassword: true });
     if (!user) {
       throwNotFoundError("User");
     }

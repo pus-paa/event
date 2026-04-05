@@ -47,7 +47,8 @@ const route = [
   {
     method: "get",
     controller: Controller.getHotelManegemt,
-    path: "event/:id/hotel-management"
+    path: "event/:id/hotel-management",
+    authorization: true,
   }
 ];
 export default route;

@@ -16,7 +16,6 @@ export interface UserColumn {
   bio: string | null;
   location: string | null;
   phone: string;
-  accountStatus: boolean | null;
   isActivated: boolean;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -42,7 +41,6 @@ class Resource {
       coverPhoto: user.coverPhoto,
       info: user.info,
       dob: user.dob,
-      accountStatus: user.accountStatus,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
