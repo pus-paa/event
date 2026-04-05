@@ -77,7 +77,7 @@ export default class Invitation {
         ),
       })
       .from(invitation)
-      .where(whereCondition)
+      .where(and(whereCondition, ne(invitation.status, invitationStatus.draft)))
       .groupBy(invitation.eventId)
       .as("distinct_event_invitations");
     //Tyo pako CTE table bata eventId ani , invitation ko detail hamlai tannera chaini kura linxa
