@@ -1,6 +1,7 @@
 import db from "@/config/db";
 import { sql, eq, or, and, isNull } from "drizzle-orm";
-import event, { event_vendor_schema } from "./schema";
+import event from "./schema";
+import { event_vendorTable } from "@/config/db/schema";
 import { event_member_schema } from "./schema";
 import repository from "./repository";
 
@@ -157,8 +158,8 @@ class Event {
   static async getEventVendor(eventId: number) {
     const event_vendor = await db
       .select()
-      .from(event_vendor_schema)
-      .where(eq(event_vendor_schema.event_id, eventId));
+      .from(event_vendorTable)
+      .where(eq(event_vendorTable.event_id, eventId));
     return event_vendor;
   }
 

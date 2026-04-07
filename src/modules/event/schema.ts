@@ -1,5 +1,5 @@
 import { pgTable } from "drizzle-orm/pg-core";
-import { integer, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, serial, varchar } from "drizzle-orm/pg-core";
 import user from "@/modules/user/schema"
 import {
   eventAttribute,
