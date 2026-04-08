@@ -255,7 +255,11 @@ export default class Invitation {
     familyId?: number | null;
   }) {
     const existingGuest = await db
-      .select({ id: invitation.id, isFamily: invitation.familyId })
+      .select({
+        id: invitation.id,
+        isFamily: invitation.familyId,
+        status: invitation.status,
+      })
       .from(invitation)
       .leftJoin(event, eq(invitation.eventId, event.id))
       .where(
@@ -264,10 +268,33 @@ export default class Invitation {
       .limit(1);
 
     if (existingGuest[0]?.id) {
+      const nextStatus = params.status;
+      const shouldClearResponseDetails =
+        existingGuest[0].status === invitationStatus.accepted &&
+        (nextStatus === invitationStatus.pending ||
+          nextStatus === invitationStatus.rejected);
+
+      const clearedResponseFields = shouldClearResponseDetails
+        ? {
+            notes: null,
+            arrival_date_time: null,
+            departure_date_time: null,
+            isAccomodation: null,
+            isArrivalPickupRequired: false,
+            isDeparturePickupRequired: false,
+            assigned_room: null,
+            arrival_info: null,
+            departure_info: null,
+            responded_by: null,
+            responded_at: null,
+          }
+        : {};
+
       const updated = await db
         .update(invitation)
         .set({
           ...params,
+          ...clearedResponseFields,
           userId: guestId,
           eventId,
           updatedAt: new Date(),
