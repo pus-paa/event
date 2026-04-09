@@ -58,7 +58,8 @@ export interface Invitation_Event {
 }
 export interface Hotel_responce {
   user_detail: UserColumn | null;
-  user_room: string | null ; 
+  user_room: string | null;
+  category: string | null;
 }
 class Resource {
   static toJson(invitation: InvitationColumn) {
@@ -107,13 +108,14 @@ class Resource {
   static invitationeventCollection(invitations: Invitation_Event[]) {
     return invitations.map(this.toEventJson);
   }
-  static toRoomJson(hotel_responce: Hotel_responce) :Hotel_responce{
+  static toRoomJson(hotel_responce: Hotel_responce): Hotel_responce {
     return {
       user_detail: hotel_responce.user_detail,
       user_room: hotel_responce.user_room,
-    }
+      category: hotel_responce.category,
+    };
   }
-  static toRoomCollection(hotel_responce: Hotel_responce[]) :Hotel_responce[] {
+  static toRoomCollection(hotel_responce: Hotel_responce[]): Hotel_responce[] {
     return hotel_responce.map(this.toRoomJson);
   }
 }

@@ -52,8 +52,9 @@ const selectInvitationResponse = {
 };
 const selectHotelManagement = {
   user_detail: User.selectQuery,
-  user_room: select.assigned_room
-}
+  user_room: select.assigned_room,
+  category: select.category,
+};
 export default {
   selectHotelManagement,
   select,
