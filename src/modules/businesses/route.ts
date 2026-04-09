@@ -71,7 +71,13 @@ const routes = [
   {
     method: "get",
     controller: Controller.getEventVendor,
-    path: "vendor/event/:eventId",
+    path: "event/vendor/:eventId",
+    authorization: true,
+  },
+  {
+    method: "get",
+    controller: Controller.getVendorEvents,
+    path: "vendor/event/:vendorId",
     authorization: true,
   }
 ];

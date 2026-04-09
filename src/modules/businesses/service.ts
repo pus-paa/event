@@ -126,15 +126,28 @@ const addVenueDetail = async (params: CreateVenueDetailType & { business_id: num
 }
 const getEventVendor = async (eventId: number, userId: number) => {
   try {
-    await EventService.checkAuthorized(eventId, userId);
     const result = await Model.findEventVendor(eventId);
     if (!result || result.length == 0) {
       throwNotFoundError("No vendors found for the event");
     }
+    await EventService.checkAuthorized(eventId, userId);
     return result;
   } catch (err) {
     throw err;
 
+  }
+}
+const getVendorEvent = async (vendorId: number, userId: number) => {
+  try {
+    const vendor = await find(vendorId);
+    if (vendor.business_information.owner_id != userId) {
+      throwForbiddenError("You are not allowed to see the information of the list of the event in the user");
+    }
+    const result = await Model.findVendorEvent(vendorId);
+    return result;
+
+  } catch (err) {
+    throw err;
   }
 }
 const findEventVendor = async ({
@@ -331,5 +344,6 @@ export default {
   updatebusinessInformation,
   remove,
   findOne,
+  getVendorEvent,
   list
 };

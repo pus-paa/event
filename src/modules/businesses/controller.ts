@@ -158,6 +158,19 @@ const updateEventVendor = async (req: IAuthRequest) => {
     throw err;
   }
 }
+const getVendorEvents = async (req: IAuthRequest) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const userId = req?.user.id
+    if (isNaN(Number(vendorId))) {
+      throwErrorOnValidation("invalid businesstype");
+    }
+    const vendorEvent = await Service.getVendorEvent(vendorId, userId);
+    return vendorEvent;
+  } catch (err) {
+    throw err;
+  }
+}
 
 export default {
   list,
@@ -171,5 +184,6 @@ export default {
   updateVendorVenueDetail,
   updateVendorServiceDetail,
   AddEventVendor,
+  getVendorEvents,
   getEventVendor,
 };

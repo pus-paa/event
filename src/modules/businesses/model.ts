@@ -1,5 +1,8 @@
 import db from "@/config/db";
+import businessSchema from "@/modules/businesses/schema"
+import eventSchema from "@/modules/event/schema"
 import { eq, or, and, sql } from "drizzle-orm";
+import EventRepository from "@/modules/event/repository"
 import schema, { vendor_venue_schema, vendor_services_schema, event_vendorTable } from "./schema";
 import repository from "./repository";
 import { CreateBusinessType, CreateVenueDetailType } from "./validators";
@@ -167,6 +170,7 @@ class BusinessModel {
     return result[0] ?? null;
   }
   static async updateEventVendor(params: any, eventId: number, businessId: number) {
+    console.log(params, eventId, businessId);
     const result = await db.update(event_vendorTable).set(params).where(and(eq(event_vendorTable.vendor_buisness_id, businessId), eq(event_vendorTable.event_id, eventId))).returning();
     return result;
   }
@@ -176,9 +180,26 @@ class BusinessModel {
     if (!!businessId) {
       conditions.push(eq(event_vendorTable.vendor_buisness_id, businessId));
     }
-    const result = await db.select(repository.businessSelectQuery).from(event_vendorTable).where(and(...conditions));
+    const result = await db
+      .select(repository.businessSelectQuery)
+      .from(event_vendorTable)
+      .innerJoin(
+        businessSchema,
+        eq(event_vendorTable.vendor_buisness_id, businessSchema.id),
+      )
+      .where(and(...conditions));
     if (result.length == 0) return null;
     return result;
+  }
+  static async findVendorEvent(vendorId: number) {
+    const result = await db.select(EventRepository.baseSelectQuery).from(event_vendorTable).innerJoin(eventSchema, eq(event_vendorTable.event_id, eventSchema.id)).where(eq(event_vendorTable.vendor_buisness_id, vendorId));
+    if (!result || result.length == 0) {
+      return null
+    }
+    return result;
+
+
+
   }
 }
 
