@@ -9,6 +9,12 @@ const routes = [
     authorization: true,
   },
   {
+    method: "get",
+    controller: Controller.getMyBusinesses,
+    path: "business/me",
+    authorization: true
+  },
+  {
     method: "post",
     controller: Controller.create,
     path: "business",
