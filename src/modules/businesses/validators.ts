@@ -28,6 +28,7 @@ export const CreateBusinessSchema = z.object({
 
 export const CreateVenueDetailSchema = z.object({
   venue_type: z.string().optional(),
+  venue_name: z.string().nonempty(),
   capacity: z.number().int().optional(),
   area_sqft: z.string().optional(),
   min_booking_hours: z.number().int().optional(),
