@@ -6,6 +6,7 @@ export interface BusinessColumn {
   avatar?: string | null;
   cover?: string | null;
   location?: string | null;
+  email: string | null | undefined;
   city?: string | null;
   country?: string | null;
   legal_document?: string | null;
@@ -39,6 +40,7 @@ class Resource {
       avatar: row.avatar,
       cover: row.cover,
       location: row.location,
+      email: row.email,
       city: row.city,
       country: row.country,
       is_verified: row.is_verified,

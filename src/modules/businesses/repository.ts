@@ -23,6 +23,7 @@ const businessSelectQuery = {
   team_size: schema.team_size,
   service_area: schema.service_area,
   contact_person_name: schema.contact_person_name,
+  email: schema.email,
   contact_phone: schema.contact_phone,
   website_url: schema.website_url,
   instagram_url: schema.instagram_url,

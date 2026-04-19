@@ -30,6 +30,7 @@ export const businessesAttribute = {
   service_area: varchar("service_area", { length: 255 }),
   contact_person_name: varchar("contact_person_name", { length: 120 }),
   contact_phone: varchar("contact_phone", { length: 20 }),
+  email: varchar("email", { length: 60 }),
   website_url: text("website_url"),
   instagram_url: text("instagram_url"),
   whatsapp_number: varchar("whatsapp_number", { length: 20 }),
