@@ -16,6 +16,7 @@ export const CreateBusinessSchema = z.object({
   years_of_experience: z.number().int().optional(),
   team_size: z.number().int().optional(),
   service_area: z.string().optional(),
+  email: z.string().check(z.email()).optional(),
   contact_person_name: z.string().optional(),
   contact_phone: z.string().optional(),
   website_url: z.string().url().optional(),
