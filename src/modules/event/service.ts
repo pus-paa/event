@@ -143,12 +143,14 @@ const update = async (id: number, input: updateEventType, userId?: number) => {
       );
     }
 
+    const { rsvpDeadline, ...rest } = input as any;
     const eventData = {
-      ...input,
+      ...rest,
       ...(input.startDateTime && {
         startDateTime: new Date(input.startDateTime),
       }),
       ...(input.endDateTime && { endDateTime: new Date(input.endDateTime) }),
+      ...(rsvpDeadline && { rsvp_deadline: rsvpDeadline }),
     };
 
     const data = await Model.update(eventData as any, id); //TODO:

@@ -1,3 +1,4 @@
+import { dateSchema } from "@/utils/baseValidation";
 import { z } from "zod";
 const EventValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -27,6 +28,7 @@ const EventValidationSchema = z.object({
   theme: z.string().optional(),
   parentId: z.number().int().optional(),
   location: z.string().optional(),
+  rsvpDeadline: dateSchema.optional(),
 });
 
 const getSubEVenntOfEventValidationSchema = z.object({
