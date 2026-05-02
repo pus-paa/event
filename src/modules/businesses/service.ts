@@ -173,9 +173,6 @@ const addVenueDetail = async (
 const getEventVendor = async (eventId: number, userId: number) => {
   try {
     const result = await Model.findEventVendor(eventId);
-    if (!result || result.length == 0) {
-      throwNotFoundError("No vendors found for the event");
-    }
     await EventService.checkAuthorized(eventId, userId);
     return result;
   } catch (err) {

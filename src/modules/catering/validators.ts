@@ -8,7 +8,7 @@ export const CreateCateringSchema = z.object({
       .max(255, "Name cannot exceed 255 characters"),
     perPlateprice: z
       .string()
-      .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+      .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").nonempty(),
     startDateTime: z.coerce
       .date()
       .min(new Date(), "Start date must be in future"),
