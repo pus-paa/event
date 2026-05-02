@@ -33,7 +33,7 @@ export const UpdateCateringSchema = z.object({
         .min(1, "Catering name is required")
         .max(255, "Name cannot exceed 255 characters")
         .optional(),
-      perPlateprice: z
+      perPlatePrice: z
         .string()
         .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
         .optional(),
