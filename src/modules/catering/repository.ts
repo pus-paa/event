@@ -3,7 +3,7 @@ import schema, { menuSchema } from "./schema";
 const cateringSelectQuery = {
   id: schema.id,
   name: schema.name,
-  perPlateprice: schema.perPlatePrice,
+  perPlateprice: schema.perPlateprice,
   startDateTime: schema.startDateTime,
   endDateTime: schema.endDateTime,
   eventId: schema.eventId,
