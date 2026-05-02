@@ -31,7 +31,7 @@ const isAuthorized = async (
       const catering = await Model.findCateringById(cateringId);
       if (catering?.vendorId) {
         const vendor = await BusinessModel.findById(catering.vendorId);
-        if (vendor && vendor.owner_id === userId) {
+        if (vendor && vendor.ownerId === userId) {
           return true;
         }
       }
