@@ -16,7 +16,7 @@ import { assignedVehicle, vehicleSchema } from "@/modules/logistics/schema"
 import rsvp, { guest_category_schema } from "@/modules/invitation/schema";
 import { vwEventDetails, vw_event_user } from "./view";
 import catering, { menuSchema } from "@/modules/catering/schema";
-
+import review from "@/modules/review/schema"
 import {
   budgetCategory,
   expense,
@@ -53,4 +53,5 @@ export {
   generalCategory,
   catering,
   menuSchema,
+  review
 };
