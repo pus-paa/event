@@ -4,7 +4,7 @@ import { dateSchema } from "@/utils/baseValidation"
 const createVehicleValidation = z.object({
   vehicleName: z.string().nonempty(),
   driverName: z.string().optional(),
-  driverNumber: z.string().optional(),
+  driverNumber: z.string().min(10).max(15).default(`${Date.now()}`),
   capacity: z.number().nonnegative(),
   availablityStartTime: dateSchema,
   availablityEndTime: dateSchema,
@@ -15,11 +15,11 @@ const assignVehicleValidation = z.object({
   invitationId: z.number().nonnegative(),
   fromTime: dateSchema.optional(),
   toTime: dateSchema.optional(),
-  isDeparture:z.boolean().optional(), 
-  isArrival:z.boolean().optional() , 
+  isDeparture: z.boolean().optional(),
+  isArrival: z.boolean().optional(),
   fromLocation: z.string().optional(),
   toLocation: z.string().optional(),
- 
+
 })
 
 type CreateVehicleType = z.infer<typeof createVehicleValidation>

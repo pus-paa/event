@@ -4,7 +4,7 @@ import user from "@/modules/user/schema"
 export const tableName = "todos";
 export const todoAttribute = {
   id: serial(),
-  eventId: integer("event_id").references(() => eventSchema.id).notNull(),
+  eventId: integer("event_id").references(() => eventSchema.id, { onDelete: "cascade" }).notNull(),
   task: varchar('task', { length: 200 }),
   isDone: boolean("is_done").default(false),
   assignedTo: integer("assigned_to").references(() => user.id),
