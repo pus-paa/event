@@ -14,6 +14,7 @@ export interface EventColumn {
   attire: string | null;
   side: string | null;
   location: string | null;
+  venue: string | null;
   status?: string | null;
   organizer: number | null;
   createdAt: Date | null;
@@ -47,6 +48,7 @@ class Resource {
       theme: event.theme || "Cozy",
       parentId: event.parentId,
       location: event.location,
+      venue: event.venue,
       role: event.role,
       status: "upcoming",
       organizer: event.organizer,
