@@ -7,7 +7,6 @@ const routes = [
     controller: Controller.get,
     path: "todo",
     authorization: true,
-
   },
   {
     method: "get",
