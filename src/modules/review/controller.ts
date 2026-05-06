@@ -6,11 +6,13 @@ import { throwErrorOnValidation } from "@/utils/error";
 const get = async (req: IAuthRequest) => {
   try {
     const { businessId, userId } = req.query;
+
     const data = await Service.listReviews({
       businessId: businessId ? Number(businessId) : undefined,
       userId: userId ? Number(userId) : undefined,
       ...req?.query,
     });
+
     return data;
   } catch (err: any) {
     throw err;
@@ -20,9 +22,11 @@ const get = async (req: IAuthRequest) => {
 const findOne = async (req: IAuthRequest) => {
   try {
     const { id } = req.params;
+
     if (!id || isNaN(Number(id))) {
       return throwErrorOnValidation("Invalid review ID");
     }
+
     const data = await Service.findReviewById(Number(id));
     return data;
   } catch (err: any) {
@@ -48,6 +52,7 @@ const create = async (req: IAuthRequest) => {
       Number(businessId),
       userId,
     );
+
     return data;
   } catch (err: any) {
     throw err;
@@ -68,12 +73,19 @@ const update = async (req: IAuthRequest) => {
     }
 
     const review = await ReviewModel.findReviewById(Number(id));
+
     if (!review) {
       return throwErrorOnValidation("Review not found");
     }
 
+    // ✅ Ownership check
+    if (review.userId !== userId) {
+      return throwErrorOnValidation("You cannot edit others' reviews");
+    }
+
     const data = await Service.updateReview(Number(id), req.body, userId);
     return data;
+
   } catch (err: any) {
     throw err;
   }
@@ -93,12 +105,19 @@ const deleteModule = async (req: IAuthRequest) => {
     }
 
     const review = await ReviewModel.findReviewById(Number(id));
+
     if (!review) {
       return throwErrorOnValidation("Review not found");
     }
 
+    // ✅ Ownership check
+    if (review.userId !== userId) {
+      return throwErrorOnValidation("You cannot delete others' reviews");
+    }
+
     const data = await Service.deleteReview(Number(id), userId);
     return data;
+
   } catch (err: any) {
     throw err;
   }
