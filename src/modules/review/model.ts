@@ -85,7 +85,7 @@ class ReviewModel {
     try {
       const result = await db
         .update(Review)
-        .set({ ...params, updatedAt: new Date() } )
+        .set({ ...params} )
         .where(eq(Review.id, id))
         .returning();
       return result[0] ?? null;
