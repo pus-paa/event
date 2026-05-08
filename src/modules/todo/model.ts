@@ -38,7 +38,7 @@ class Todo {
       .select(repository.selectQuery)
       .from(todo)
       .leftJoin(user, eq(todo.assignedTo, user.id))
-      .orderBy(asc(todo.isDone), asc(todo.dueDate))
+      .orderBy(asc(todo.dueDate))
     const result = whereClause
       ? await baseQuery.where(whereClause)
       : await baseQuery
@@ -129,8 +129,8 @@ class Todo {
       .from(todo)
       .leftJoin(user, eq(user.id, todo.assignedTo))
       .where(
-        eq(todo.eventId, eventId)
-      );
+        eq(todo.eventId, eventId))
+      .orderBy(asc(todo.dueDate))
     return result;
 
   }
