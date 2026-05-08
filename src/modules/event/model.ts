@@ -1,5 +1,5 @@
 import db from "@/config/db";
-import { sql, eq, or, and, isNull } from "drizzle-orm";
+import { sql, eq, or, and, isNull, notInArray } from "drizzle-orm";
 import event from "./schema";
 import { event_vendorTable } from "@/config/db/schema";
 import { event_member_schema } from "./schema";
@@ -163,11 +163,11 @@ class Event {
     return event_vendor;
   }
 
-  static async getSubEventOfEvent(eventId: number) {
+  static async getSubEventOfEvent(eventId: number, unSubscribedsubEvent?: number[]) {
     const subEvents = await db
       .select()
       .from(event)
-      .where(eq(event.parentId, eventId));
+      .where(and(eq(event.parentId, eventId), notInArray(event.id, unSubscribedsubEvent ?? [])));
     return subEvents;
   }
 }

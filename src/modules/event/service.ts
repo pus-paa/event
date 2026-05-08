@@ -1,6 +1,7 @@
 import Model from "./model";
 import UserService from "@/modules/user/service";
 import InvitationModel from "@/modules/invitation/model";
+import InvitationService from "@/modules/invitation/service"
 import Resource from "./resource";
 import logger from "@/config/logger";
 import {
@@ -246,16 +247,35 @@ const makeEventMember = async (
   }
 };
 
-const getSubEventOfEvent = async (eventId: number) => {
+const getSubEventOfEvent = async (eventId: number, userId: number) => {
   try {
-    await find(eventId);
-    const data = await Model.getSubEventOfEvent(eventId);
-
-    if (data.length === 0) {
-      return [];
+    //Check the user or tge guest for the invitaiton or the event member table lookup in the db 
+    let hasPermission = false;
+    let unSubscribedsubEvent: number[] = [];
+    //Seaerch the list of the invitation of the event 
+    const invitationEvent = await InvitationService.findInvitationforEvent(
+      userId, eventId
+    );
+    if (!!invitationEvent) {
+      hasPermission = true;
+    }
+    unSubscribedsubEvent = invitationEvent?.unInvitedSubevent ?? [];
+    if (!hasPermission) {
+      //Check the user to be the admin of the event
+      hasPermission = await checkAuthorized(eventId, userId);
     }
 
-    return Resource.collection(data);
+    //IF permission then get the sub event with the list of the unwanted event to the guest
+    if (hasPermission) {
+      const data = await Model.getSubEventOfEvent(eventId, unSubscribedsubEvent);
+      if (data.length === 0) {
+        return [];
+      }
+      return Resource.collection(data);
+    }
+    else {
+      throwForbiddenError("Error While getting data this user cannot access the data ");
+    }
   } catch (error) {
     throw error;
   }

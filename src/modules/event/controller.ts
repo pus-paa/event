@@ -108,9 +108,9 @@ const getUserRelatedToEvent = async (req: IAuthRequest) => {
 };
 
 const getSubEventOfEvent = async (req: IAuthRequest) => {
-  const { params } = req;
-
-  const subEvents = await Service.getSubEventOfEvent(Number(params.id));
+  const { params, user } = req;
+  console.log("user", user.id);
+  const subEvents = await Service.getSubEventOfEvent(Number(params.id), user.id);
   return subEvents;
 };
 const makeUserRelatedToEvent = async (req: IAuthRequest) => {
