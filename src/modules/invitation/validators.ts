@@ -72,8 +72,14 @@ const updateGuestCategoryValidation = z.object({
   priority: z.number().int().optional(),
 });
 
+const importGuestsValidation = z.object({
+  sourceEventId: z.number().int().positive("Valid sourceEventId is required"),
+  selectedUserIds: z.array(z.number().int().positive()).optional(),
+});
+
 type GuestCategoryType = z.infer<typeof guestCategoryValidation>;
 type UpdateGuestCategoryType = z.infer<typeof updateGuestCategoryValidation>;
+type ImportGuestsType = z.infer<typeof importGuestsValidation>;
 
 type EventInvitationRemoveType = z.infer<typeof removeInvitationValidation>;
 type EventInvitationType = z.infer<typeof EventInvitation>;
@@ -92,4 +98,6 @@ export {
   updateGuestCategoryValidation,
   GuestCategoryType,
   UpdateGuestCategoryType,
+  ImportGuestsType,
+  importGuestsValidation,
 };

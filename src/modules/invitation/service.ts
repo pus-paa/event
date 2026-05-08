@@ -18,6 +18,8 @@ import {
   setResponcevalidationType,
   setResponcevalidation,
   EventInvitationRemoveType,
+  importGuestsValidation,
+  ImportGuestsType,
 } from "./validators";
 
 //list of the event with the event detail and the user id in the header
@@ -135,7 +137,7 @@ const setResponce = async (
     if (invitations && userId !== data.userId && familyId !== null) {
       params = {
         ...data,
-        category: invitations.category,
+        category: invitations.category ?? undefined,
         invitationName: invitations.invitationName,
       };
     } else {
@@ -169,13 +171,11 @@ const inviteGuest = async (
     }
     await EventService.checkAuthorized(eventId, userId);
 
-    const geteventCategory = await getEventGuestCategory(eventId, userId);
-    const categoryExists = geteventCategory.some(
-      (cat) => cat.category_title === input.category,
-    );
-
-    if (!categoryExists) {
-      return throwErrorOnValidation("The category is not in the event");
+    if (!input.isDraft) {
+      const eventCategories = await getEventGuestCategory(eventId, userId);
+      if (!eventCategories.some((cat) => cat.category_title === input.category)) {
+        return throwErrorOnValidation("The category is not in the event");
+      }
     }
 
     const { fullName, email, phone, isFamily, relation } = input;
@@ -287,6 +287,66 @@ const remove_invitation = async (
   }
 };
 
+const importGuestsFromEvent = async (
+  targetEventId: number,
+  body: ImportGuestsType,
+  userId: number,
+) => {
+  try {
+    const result = importGuestsValidation.safeParse(body);
+    if (!result.success) {
+      return throwErrorOnValidation(result.error.issues.map((i) => i.message).join(", "));
+    }
+    const { sourceEventId, selectedUserIds } = result.data;
+
+    await EventService.checkAuthorized(targetEventId, userId);
+    await EventService.checkAuthorized(sourceEventId, userId);
+
+    const sourceGuests = await Model.getEventGuest(sourceEventId);
+
+    let imported = 0;
+    let skipped = 0;
+    let failed = 0;
+
+    for (const guest of sourceGuests) {
+      if (!guest.user?.id) {
+        failed++;
+        continue;
+      }
+
+      if (selectedUserIds && !selectedUserIds.includes(guest.user.id)) {
+        continue;
+      }
+
+      const existing = await Model.find({ eventId: targetEventId, userId: guest.user.id });
+      if (existing) {
+        skipped++;
+        continue;
+      }
+
+      try {
+        await Model.create({
+          eventId: targetEventId,
+          userId: guest.user.id,
+          invitedBy: userId,
+          familyId: guest.eventGuest?.familyId ?? null,
+          category: guest.eventGuest?.category ?? null,
+          status: invitationStatus.draft,
+        });
+        imported++;
+      } catch (err: any) {
+        logger.error(`Failed to import guest ${guest.user.id}: ${err.message}`);
+        failed++;
+      }
+    }
+
+    return { imported, skipped, failed };
+  } catch (err: any) {
+    logger.error(`Error importing guests: ${err.message}`);
+    throw err;
+  }
+};
+
 const getEventGuestCategory = async (eventId: number, userId: number) => {
   try {
     await EventService.checkAuthorized(eventId, userId);
@@ -377,4 +437,5 @@ export default {
   delete_guest_category,
   toggleCheckInOut,
   getGuestTransportationList,
+  importGuestsFromEvent,
 };

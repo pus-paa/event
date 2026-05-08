@@ -83,6 +83,12 @@ const route = [
     controller: Controller.toggleCheckInOut,
     path: "invitation/:id/check-status",
     authorization: true,
-  }
+  },
+  {
+    method: "post",
+    controller: Controller.importGuests,
+    path: "event/:eventId/import-guests",
+    authorization: true,
+  },
 ];
 export default route;

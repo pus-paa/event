@@ -20,7 +20,7 @@ const attributes = {
   notes: varchar("notes", { length: 150 }),
   organizerNote: varchar("organizer_note", { length: 150 }),
   role: varchar("role", { length: 16 }).notNull().default("Guest"), // Guest , Singer and maybe more role in the future
-  category: varchar("category", { length: 10 }).notNull(), //  friend  , colleague , VVIP, family
+  category: varchar("category", { length: 10 }), // friend, colleague, vvip, family — nullable for drafts
   eventId: integer("event_id")
     .notNull()
     .references(() => event.id, { onDelete: "cascade" }),

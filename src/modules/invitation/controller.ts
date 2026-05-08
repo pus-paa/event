@@ -175,6 +175,19 @@ const getGuestTransportationList = async (req: IAuthRequest) => {
   }
 };
 
+const importGuests = async (req: IAuthRequest) => {
+  try {
+    const targetEventId = Number(req.params.eventId);
+    const userId = req.user.id;
+    if (!targetEventId || isNaN(targetEventId)) {
+      throwErrorOnValidation("Valid eventId is required in params");
+    }
+    return await Service.importGuestsFromEvent(targetEventId, req.body, userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 export default {
   setResponce,
   getHotelManegemt,
@@ -189,4 +202,5 @@ export default {
   deleteGuestCategory,
   toggleCheckInOut,
   getGuestTransportationList,
+  importGuests,
 };
