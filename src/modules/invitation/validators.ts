@@ -53,6 +53,7 @@ const setResponcevalidation = z.object({
   organizerNote: z.string().optional().nullable(),
   arrivalLocation: z.string().optional(),
   departureLocation: z.string().optional(),
+  unInvitedSubevent: z.number().array().optional(),
   arrivalInfo: z.string().max(200).optional().nullable(),
   departureInfo: z.string().max(200).optional().nullable(),
   assignedRoom: z.string().max(150).optional().nullable(),

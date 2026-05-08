@@ -2,7 +2,6 @@ import event from "@/modules/event/schema";
 import invitation from "./schema";
 import Family from "@/modules/family/repository";
 import User from "@/modules/user/repository";
-import { foodPreference } from "@/constant";
 
 const select = {
   id: invitation.id,
@@ -15,6 +14,7 @@ const select = {
   respondedAt: invitation.respondedAt,
   invitedBy: invitation.invitedBy,
   role: invitation.role,
+  unInvitedSubevent: invitation.unInvitedSubevent,
   status: invitation.status,
   notes: invitation.notes,
   category: invitation.category,

@@ -15,6 +15,7 @@ export interface InvitationColumn {
   category: string;
   isArrivalPickupRequired: boolean | null;
   isDeparturePickupRequired: boolean | null;
+  unInvitedSubevent: number[];
   organizerNote: string | null;
   arrivalDatetime: Date | null;
   departureDatetime: Date | null;
