@@ -2,7 +2,7 @@ export interface ReviewColumn {
   id: number;
   businessId: number;
   userId: number;
-  // username: string;
+  username?: string | null;
   rating: number;
   description: string | null;
   createdAt: Date | null;
@@ -18,7 +18,7 @@ class Resource {
       id: review.id,
       businessId: review.businessId,
       userId: review.userId,
-      // username: review.username,
+      username: review.username,
       rating: review.rating,
       description: review.description,
       createdAt: review.createdAt,

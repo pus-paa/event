@@ -1,5 +1,6 @@
 import db from "@/config/db";
 import Review from "./schema";
+import user from "@/modules/user/schema";
 import Repository from "./repository";
 import { eq, sql, desc, and } from "drizzle-orm";
 import type { ReviewColumn } from "./resource";
@@ -43,6 +44,7 @@ class ReviewModel {
       const items = await db
         .select(Repository.reviewSelectQuery)
         .from(Review)
+        .leftJoin(user, eq(Review.userId, user.id))
         .where(whereClause)
         .orderBy(desc(Review.createdAt))
         .limit(Number(limit))
@@ -71,6 +73,7 @@ class ReviewModel {
       const result = await db
         .select(Repository.reviewSelectQuery)
         .from(Review)
+        .leftJoin(user, eq(Review.userId, user.id))
         .where(eq(Review.id, id));
       return result[0] ?? null;
     } catch (error) {
