@@ -54,8 +54,8 @@ const getInvitationResponse = async (req: IAuthRequest) => {
 
 const setResponce = async (req: IAuthRequest) => {
   try {
+    const eventId = req.params.id;
     const userId = req.user.id;
-    const eventId = Number(req.params.id);
     const familyId = req?.user?.familyId;
     const service = await Service.setResponce(req.body, userId, familyId, eventId); // TODO:update the validaion in this line of the code 
     return service;

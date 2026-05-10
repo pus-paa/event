@@ -75,6 +75,7 @@ class Event {
   }
 
   static async update(params: Partial<EventColumn>, id: number) {
+    console.log('This is the updated theme in the event', params);
     const result = await db
       .update(event)
       .set({ ...params, updatedAt: new Date() } as any)

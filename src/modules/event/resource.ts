@@ -45,7 +45,7 @@ class Resource {
       startDateTime: event.startDateTime,
       endDateTime: event.endDateTime,
       budget: event.budget || null,
-      theme: event.theme || "Cozy",
+      theme: event.theme,
       parentId: event.parentId,
       location: event.location,
       venue: event.venue,

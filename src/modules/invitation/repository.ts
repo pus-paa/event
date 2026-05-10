@@ -49,8 +49,6 @@ const selectInvitationEvent = {
   familyId: invitation.familyId,
   userId: invitation.userId,
   status: invitation.status,
-  organizerNote: invitation.organizerNote,
-  role: invitation.category,
   category: invitation.category,
   invitationName: invitation.invitationName,
 };
@@ -60,6 +58,7 @@ const selectInvitationResponse = {
   eventGuest: select,
   familyName: Family.selectQuery.familyName,
 };
+
 const selectHotelManagement = {
   user: User.selectQuery,
   room: select.assignedRoom,

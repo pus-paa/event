@@ -31,7 +31,6 @@ const attributes = {
   relation: varchar("relation", { length: 50 }),
   foodPreference: varchar("food_preference", { length: 100 }),
   coverPhoto: text("coverPhoto"),
-  info: json("info"),
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
 };

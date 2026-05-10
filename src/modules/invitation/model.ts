@@ -257,7 +257,7 @@ export default class Invitation {
     eventId: number;
     guestId: number;
     invitedBy: number;
-    params: setResponcevalidationType;
+    params: setResponcevalidationType["body"];
     familyId?: number | null;
   }) {
     const existingGuest = await db
@@ -274,28 +274,10 @@ export default class Invitation {
       .limit(1);
 
     const baseData = {
-      status: params.status,
-      notes: params.notes,
-      invitationName: params.invitationName,
-      arrivalDatetime: params.arrivalDatetime,
-      departureDatetime: params.departureDatetime,
-      isAccomodation: params.isAccomodation,
-      isArrivalPickupRequired: params.isArrivalPickupRequired,
-      isDeparturePickupRequired: params.isDeparturePickupRequired,
-      organizerNote: params.organizerNote,
-      arrivalLocation: params.arrivalLocation,
-      departureLocation: params.departureLocation,
-      arrivalInfo: params.arrivalInfo,
-      departureInfo: params.departureInfo,
-      assignedRoom: params.assignedRoom,
-      category: params.category,
-      hasCheckedIn: params.hasCheckedIn,
-      hasCheckedOut: params.hasCheckedOut,
-      unInvitedSubevent: params.unInvitedSubevent,
-      userId: guestId,
-      eventId,
-      familyId: familyId ?? null,
+      ...params,
       invitedBy: params.invitedBy ?? invitedBy,
+      eventId,
+      familyId: familyId,
     };
 
     if (existingGuest[0]?.id) {

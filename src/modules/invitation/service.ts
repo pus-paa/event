@@ -16,7 +16,6 @@ import {
   EventInvitationType,
   EventInvitation,
   setResponcevalidationType,
-  setResponcevalidation,
   EventInvitationRemoveType,
 } from "./validators";
 
@@ -96,16 +95,12 @@ const listinvitationsResponce = async (
 };
 
 const setResponce = async (
-  body: setResponcevalidationType,
+  body: setResponcevalidationType["body"],
   userId: number,
   familyId: number | null = null,
   eventId: number,
 ) => {
   try {
-    const { error, data } = setResponcevalidation.safeParse(body);
-    if (error) {
-      return throwErrorOnValidation(error.message);
-    }
     let invitations;
     invitations = await Model.findInvitationEvent({
       eventId: eventId,
@@ -147,20 +142,20 @@ const setResponce = async (
 
     let params;
 
-    if (invitations && userId !== data.userId && familyId !== null) {
+    if (invitations && userId !== body.userId && familyId !== null) {
+      //Import the category fromt he family Id to make the same category when responding for the family invitation for the family memebr 
       params = {
-        ...data,
+        ...body,
         category: invitations.category,
         invitationName: invitations.invitationName,
       };
     } else {
-      params = data;
+      params = body;
     }
 
-    console.log('This is the event of the params', params);
     const result = await Model.makeEventGuest({
       eventId: eventId,
-      guestId: data?.userId!,
+      guestId: body.userId,
       invitedBy: Number(invitations?.invitedBy!),
       familyId: invitations.familyId ? invitations.familyId : null,
       params,
@@ -274,7 +269,7 @@ const getEventHotelManagement = async (eventId: number, userId: number) => {
       );
     }
     const event_hotel_management = await Model.EventHotelManagent(eventId);
-    const room_grouped = Resource.toRoomGroupCollection(event_hotel_management)
+    const room_grouped = Resource.toRoomGroupCollection(event_hotel_management);
     return room_grouped;
   }
   catch (err) {

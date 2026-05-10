@@ -54,7 +54,7 @@ export interface Hotel_responce {
   room: string | null;
   hasCheckedIn: boolean | null;
   hasCheckedOut: boolean | null;
-  category: string | null;
+  category: string;
   invitationId: number;
 }
 class Resource {
@@ -65,12 +65,8 @@ class Resource {
       notes: invitation.notes,
       status: invitation.status,
       respondedAt: invitation.respondedAt,
-      updatedAt: invitation.updatedAt
-        ? invitation.updatedAt.toISOString()
-        : null,
+      updatedAt: invitation.updatedAt,
       createdAt: invitation.createdAt
-        ? invitation.createdAt.toISOString()
-        : null,
     };
     return data;
   }
@@ -81,7 +77,7 @@ class Resource {
       invitation_status: invitation.invitation_status,
       invited_by: invitation.invited_by,
       familyId: invitation.familyId,
-      role: invitation.role ?? "Guest",
+      role: invitation.role,
     };
     return data;
   }

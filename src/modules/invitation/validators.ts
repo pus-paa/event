@@ -38,26 +38,32 @@ const EventInvitation = z.object({
   category: z.string().nonoptional(),
 });
 const setResponcevalidation = z.object({
-  invitedBy: z.number().int().positive().optional(),
-  userId: z.number().int().positive(),
-  invitationName: z.string().min(1).max(50).optional(),
-  notes: z.string().max(40).optional().nullable(),
-  hasCheckedIn: z.boolean().optional(),
-  hasCheckedOut: z.boolean().optional(),
-  status: z.string().min(1).max(10).optional().nullable(),
-  arrivalDatetime: z.coerce.date().optional().nullable(),
-  departureDatetime: z.coerce.date().optional().nullable(),
-  isAccomodation: z.boolean().optional().nullable(),
-  isArrivalPickupRequired: z.boolean().optional().nullable(),
-  isDeparturePickupRequired: z.boolean().optional().nullable(),
-  organizerNote: z.string().optional().nullable(),
-  arrivalLocation: z.string().optional(),
-  departureLocation: z.string().optional(),
-  unInvitedSubevent: z.number().array().optional(),
-  arrivalInfo: z.string().max(200).optional().nullable(),
-  departureInfo: z.string().max(200).optional().nullable(),
-  assignedRoom: z.string().max(150).optional().nullable(),
-  category: z.string().optional(),
+  params: z.object({
+    id: z.coerce.number().int().positive("User Id must be valid positive number ")
+  }),
+  body: z.object({
+    invitedBy: z.number().int().positive().optional(),
+    userId: z.number().int().positive(),
+    invitationName: z.string().min(1).max(50).optional(),
+    notes: z.string().max(40).optional().nullable(),
+    hasCheckedIn: z.boolean().optional(),
+    hasCheckedOut: z.boolean().optional(),
+    status: z.string().min(1).max(10).optional().nullable(),
+    arrivalDatetime: z.coerce.date().optional().nullable(),
+    departureDatetime: z.coerce.date().optional().nullable(),
+    isAccomodation: z.boolean().optional().nullable(),
+    isArrivalPickupRequired: z.boolean().optional().nullable(),
+    isDeparturePickupRequired: z.boolean().optional().nullable(),
+    organizerNote: z.string().optional().nullable(),
+    arrivalLocation: z.string().optional(),
+    departureLocation: z.string().optional(),
+    unInvitedSubevent: z.number().array().optional(),
+    arrivalInfo: z.string().max(200).optional().nullable(),
+    departureInfo: z.string().max(200).optional().nullable(),
+    assignedRoom: z.string().max(150).optional().nullable(),
+    category: z.string().optional(),
+  })
+
 });
 const removeInvitationValidation = z.object({
   userId: z.number().nonoptional(),

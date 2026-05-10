@@ -1,4 +1,6 @@
+import { validate } from "@/middlewares/zodValidation";
 import Controller from "./controller";
+import { setResponcevalidation } from "./validators";
 const route = [
   {
     method: "get",
@@ -17,6 +19,7 @@ const route = [
     controller: Controller.setResponce,
     path: "invitation/responce/:id",
     authorization: true,
+    validation: validate(setResponcevalidation)
   },
   {
     method: "get",
