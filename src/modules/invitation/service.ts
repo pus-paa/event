@@ -1,7 +1,7 @@
 import logger from "@/config/logger";
 import { invitationStatus } from "@/constant";
 import Model from "./model";
-import Resource, { Invitation_Event } from "./resource";
+import Resource from "./resource";
 import EventService from "@/modules/event/service";
 import {
   throwErrorOnValidation,
@@ -22,7 +22,7 @@ import {
 
 //list of the event with the event detail and the user id in the header
 const getInvitedEvent = async (
-  params: Partial<Invitation_Event>,
+  params: { page?: number, limit?: number, userId?: number, eventId?: number, familyId?: number },
   userId: number,
   familyId?: number,
 ) => {
@@ -40,6 +40,21 @@ const getInvitedEvent = async (
     throw err;
   }
 };
+const findInvitationforEvent = async (userId: number, eventId: number) => {
+  try {
+    const invitedEvent = await Model.find({
+      eventId,
+      userId
+    });
+    if (!invitedEvent) {
+      throwNotFoundError("No invitation for the userId for the given event");
+    }
+    return invitedEvent;
+  }
+  catch (err) {
+
+  }
+}
 
 const listinvitationsResponce = async (
   eventId: number,
@@ -142,6 +157,7 @@ const setResponce = async (
       params = data;
     }
 
+    console.log('This is the event of the params', params);
     const result = await Model.makeEventGuest({
       eventId: eventId,
       guestId: data?.userId!,
@@ -305,6 +321,7 @@ const createGuestCategory = async (body: any, eventId: number, userId: number) =
   }
 };
 
+
 const updateGuestCategory = async (body: any, id: number, userId: number) => {
   try {
     const category = await Model.findGuestCategory(id);
@@ -369,6 +386,7 @@ export default {
   getInvitedEvent,
   getEventguest,
   getEventHotelManagement,
+  findInvitationforEvent,
   listinvitationsResponce,
   remove_invitation,
   getEventGuestCategory,

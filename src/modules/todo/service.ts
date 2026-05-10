@@ -24,15 +24,9 @@ const list = async (params: any) => {
 
 const findByEventId = async (eventId: number, params: any) => {
   try {
-    const data = await Model.findAllAndCount({
-      ...params,
-      eventId,
-    });
+    const data = await Model.getByEventId(eventId);
+    return data;
 
-    return {
-      ...data,
-      items: Resource.collection(data.items),
-    };
   } catch (err: any) {
     logger.error("Error in Todo findByEventId:", err);
     throw err;

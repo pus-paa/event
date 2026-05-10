@@ -14,6 +14,7 @@ const select = {
   respondedAt: invitation.respondedAt,
   invitedBy: invitation.invitedBy,
   role: invitation.role,
+  unInvitedSubevent: invitation.unInvitedSubevent,
   status: invitation.status,
   notes: invitation.notes,
   category: invitation.category,

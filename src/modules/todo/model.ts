@@ -1,5 +1,6 @@
 import db from "@/config/db";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import event from "@/modules/event/schema"
+import { and, asc, eq, inArray, or, sql } from "drizzle-orm";
 import user from "@/modules/user/schema"
 import todo from "./schema";
 import repository from "./repository";
@@ -37,7 +38,7 @@ class Todo {
       .select(repository.selectQuery)
       .from(todo)
       .leftJoin(user, eq(todo.assignedTo, user.id))
-      .orderBy(asc(todo.isDone), asc(todo.dueDate))
+      .orderBy(asc(todo.dueDate))
     const result = whereClause
       ? await baseQuery.where(whereClause)
       : await baseQuery
@@ -119,6 +120,17 @@ class Todo {
   }
   static async delete(id: number) {
     const result = await db.delete(todo).where(eq(todo.id, id));
+    return result;
+
+  }
+  static async getByEventId(eventId: number) {
+    const result = await db
+      .select(repository.selectQuery)
+      .from(todo)
+      .leftJoin(user, eq(user.id, todo.assignedTo))
+      .where(
+        eq(todo.eventId, eventId))
+      .orderBy(asc(todo.dueDate))
     return result;
 
   }

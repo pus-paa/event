@@ -52,7 +52,7 @@ export default class Invitation {
   }
 
   //get the family event or the user event based on the user id and family id
-  static async listAllInvitationEvent(params: any) {
+  static async listAllInvitationEvent(params: { page?: number, limit?: number, userId?: number, eventId?: number, familyId?: number }) {
     const { page = 1, limit = 10, userId, familyId, eventId } = params;
     const offset = (page - 1) * limit;
 
@@ -161,7 +161,7 @@ export default class Invitation {
   static async update(params: Partial<InvitationColumn>, id: number) {
     const result = await db
       .update(invitation)
-      .set(params )
+      .set(params)
       .where(eq(invitation.id, id))
       .returning();
     return result[0];
@@ -291,6 +291,7 @@ export default class Invitation {
       category: params.category,
       hasCheckedIn: params.hasCheckedIn,
       hasCheckedOut: params.hasCheckedOut,
+      unInvitedSubevent: params.unInvitedSubevent,
       userId: guestId,
       eventId,
       familyId: familyId ?? null,
@@ -453,28 +454,28 @@ export default class Invitation {
   }
 
   static async getGuestTransportationList(eventId: number) {
-   const data = await db
-  .select(repository.selectTransportation)
-  .from(invitation)
-  .leftJoin(user, eq(user.id, invitation.userId))
-  .where(
-    and(
-      eq(invitation.eventId, eventId),
-      ne(invitation.status, invitationStatus.draft),
-      or(
-        // Arrival pickup needed but not yet assigned
+    const data = await db
+      .select(repository.selectTransportation)
+      .from(invitation)
+      .leftJoin(user, eq(user.id, invitation.userId))
+      .where(
         and(
-          eq(invitation.isArrivalPickupRequired, true),
-          sql`COALESCE(${invitation.arrivalInfo}, '') != 'assigned'`
+          eq(invitation.eventId, eventId),
+          ne(invitation.status, invitationStatus.draft),
+          or(
+            // Arrival pickup needed but not yet assigned
+            and(
+              eq(invitation.isArrivalPickupRequired, true),
+              sql`COALESCE(${invitation.arrivalInfo}, '') != 'assigned'`
+            ),
+            // Departure pickup needed but not yet assigned
+            and(
+              eq(invitation.isDeparturePickupRequired, true),
+              sql`COALESCE(${invitation.departureInfo}, '') != 'assigned'`
+            ),
+          ),
         ),
-        // Departure pickup needed but not yet assigned
-        and(
-          eq(invitation.isDeparturePickupRequired, true),
-          sql`COALESCE(${invitation.departureInfo}, '') != 'assigned'`
-        ),
-      ),
-    ),
-  );
+      );
     return data;
   }
 }

@@ -4,6 +4,7 @@ import {
   timestamp,
   boolean,
   varchar,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 import event from "@/modules/event/schema";
@@ -48,6 +49,7 @@ const attributes = {
   departureLocation: varchar("departureLocation"),
   departureDatetime: timestamp("departure_date_time", { withTimezone: true }),
   assignedRoom: varchar("assigned_room", { length: 150 }),
+  unInvitedSubevent: jsonb("un_invited_subevent").array().$type<number[]>(),
   arrivalInfo: varchar("arrival_info", { length: 200 }),
   departureInfo: varchar("departure_info", { length: 200 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
