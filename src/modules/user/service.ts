@@ -225,6 +225,7 @@ const updateProfile = async (input: updateProfileType, id: number) => {
 
     return Resource.toJson(updatedUser as any);
   } catch (error) {
+    //Check if the error is due to the conflicting error if ys-> validation errpo
     throw error;
   }
 };

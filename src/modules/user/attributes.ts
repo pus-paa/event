@@ -17,8 +17,8 @@ const attributes = {
   email: varchar("email", { length: 50 }).unique(),
   password: varchar("password", { length: 60 }).notNull(),
   phone: varchar("phone", { length: 20 }).notNull().unique(),
-  accountStatus: boolean("accountStatus").default(true),
-  isActivated: boolean("isActivated").default(false).notNull(), // when the user is signed up set this to true if is guest then set this to the false
+  accountStatus: boolean("account_status").default(true),
+  isActivated: boolean("is_activated").default(false).notNull(), // when the user is signed up set this to true if is guest then set this to the false
   location: varchar("location", { length: 255 }),
   bio: text("bio"),
   photo: text("photo"),
@@ -30,8 +30,8 @@ const attributes = {
   familyId: integer("family_id"),
   relation: varchar("relation", { length: 50 }),
   foodPreference: varchar("food_preference", { length: 100 }),
-  coverPhoto: text("coverPhoto"),
+  coverPhoto: text("cover_photo"),
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
 };
 export { tableName, attributes };

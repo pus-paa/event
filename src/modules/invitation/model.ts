@@ -46,7 +46,8 @@ export default class Invitation {
       .from(invitation)
       .leftJoin(user, eq(invitation.userId, user.id))
       .leftJoin(family, eq(family.id, invitation.familyId))
-      .where(eq(invitation.eventId, eventId));
+      .where(eq(invitation.eventId, eventId)).orderBy(user.username);
+
 
     return event_guest;
   }
