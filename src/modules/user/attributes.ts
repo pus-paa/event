@@ -11,7 +11,6 @@ import {
 const tableName = "user";
 
 const attributes = {
-  // Much more practical lengths
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 50 }).notNull(),
   email: varchar("email", { length: 50 }).unique(),

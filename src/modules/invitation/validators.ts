@@ -31,9 +31,7 @@ const EventInvitation = z.object({
   ),
   isDraft: z.boolean(),
   role: z.string().max(16).optional(),
-  invitation_name: z.string().min(1, "Invitation name is required").max(50).optional(),
   invitationName: z.string().min(1, "Invitation name is required").max(50).optional(),
-  relation: z.string().optional(),
   isFamily: z.boolean().default(false),
   category: z.string().nonoptional(),
 });

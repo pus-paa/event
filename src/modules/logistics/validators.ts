@@ -10,6 +10,8 @@ const createVehicleValidation = z.object({
   availablityEndTime: dateSchema,
 })
 
+const updateVehicleValidation = createVehicleValidation.partial();
+
 const assignVehicleValidation = z.object({
   vehicleId: z.number().nonnegative(),
   invitationId: z.number().nonnegative(),
@@ -24,5 +26,6 @@ const assignVehicleValidation = z.object({
 
 type CreateVehicleType = z.infer<typeof createVehicleValidation>
 type AssignVehicleType = z.infer<typeof assignVehicleValidation>
+type UpdateVehicleType = z.infer<typeof updateVehicleValidation>
 
-export { createVehicleValidation, CreateVehicleType, assignVehicleValidation, AssignVehicleType }; 
+export { createVehicleValidation, CreateVehicleType, assignVehicleValidation, AssignVehicleType, updateVehicleValidation, UpdateVehicleType }; 

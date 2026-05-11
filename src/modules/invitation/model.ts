@@ -461,4 +461,17 @@ export default class Invitation {
       );
     return data;
   }
+  static async inviteBulk(user: {
+    category: string,
+    userId: number,
+    familyId?: number,
+    eventId: number,
+    invitedBy: number
+  }[],) {
+    const data = await db.insert(invitation).values(
+      user
+    ).returning();
+    return data;
+
+  }
 }

@@ -1,5 +1,5 @@
 import Model from "./model";
-import { createVehicleValidation, assignVehicleValidation, AssignVehicleType } from "./validators";
+import { createVehicleValidation, assignVehicleValidation, AssignVehicleType, updateVehicleValidation } from "./validators";
 import Resource from "./resource";
 import EventService from "@/modules/event/service";
 import InvitationModel from "@/modules/invitation/model";
@@ -69,7 +69,14 @@ const updateVehicle = async (id: number, input: any, userId: number) => {
     if (!vehicle) throw new Error("Vehicle not found");
     await EventService.checkAuthorized(vehicle.eventId, userId);
 
-    const data = await Model.update(input, id);
+    const { data: validatedData, error } = updateVehicleValidation.safeParse(input);
+    if (error || !validatedData) {
+      return throwErrorOnValidation("Error while validating the update data");
+    }
+
+    console.log('This is the data to be updated in the udpate vehicle in the section ', vehicle, validatedData);
+    const data = await Model.update(validatedData, id);
+    console.log('this is the udpate vehicle in the db ', data);
     return Resource.vehicleToJson(data);
   } catch (err: any) {
     logger.error("Error in updateVehicle:", err);
@@ -103,7 +110,7 @@ const assignVehicle = async (input: AssignVehicleType, userId: number) => {
     await EventService.checkAuthorized(vehicle.eventId, userId);
 
     const data = await Model.assignVehicle(parsedInput.data);
-console.log('The data in the issue is in the service for the assign vehicle', input);
+    console.log('The data in the issue is in the service for the assign vehicle', input);
     const invitationUpdate: Record<string, string> = {};
     if (parsedInput.data.isArrival) {
       invitationUpdate.arrivalInfo = "assigned";
