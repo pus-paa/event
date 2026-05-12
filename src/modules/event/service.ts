@@ -105,14 +105,22 @@ const find = async (id: number) => {
 };
 
 const checkAuthorized = async (id: number, userId?: number) => {
+  //Handle the sub event edge case ==> event .paretid !=null check the parent event and check the status there 
+  //
   if (!userId) {
     throw new Error("Unauthorized: User not authenticated");
   }
   const event = await find(id);
   if (!event) return throwNotFoundError("Event not found");
   //if the event organizer is not the person also check the organizer family and then also
+  let eventMember = [];
+  if (event.parentId != null) {
+    eventMember = await Model.getEventMember(event.parentId);
+  }
+  else {
+    eventMember = await Model.getEventMember(id);
+  }
 
-  const eventMember = await Model.getEventMember(id);
   if (!event.organizer) {
     return throwUnauthorizedError("Unauthorized: Event organizer not found");
   }

@@ -46,7 +46,7 @@ const setResponcevalidation = z.object({
     notes: z.string().max(40).optional().nullable(),
     hasCheckedIn: z.boolean().optional(),
     hasCheckedOut: z.boolean().optional(),
-    status: z.string().min(1).max(10).optional().nullable(),
+    status: z.enum(["accepted", "rejected"]).optional().nullable(),
     arrivalDatetime: z.coerce.date().optional().nullable(),
     departureDatetime: z.coerce.date().optional().nullable(),
     isAccomodation: z.boolean().optional().nullable(),
