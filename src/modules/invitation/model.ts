@@ -272,7 +272,7 @@ export default class Invitation {
     guestId: number;
     invitedBy: number;
     params: setResponcevalidationType["body"];
-    familyId?: number | null;
+    familyId?: number;
   }) {
     const existingGuest = await db
       .select({
@@ -293,6 +293,7 @@ export default class Invitation {
       eventId,
       familyId: familyId,
     };
+    console.log('This is the base data', baseData);
 
     if (existingGuest[0]?.id) {
       const nextStatus = params.status;

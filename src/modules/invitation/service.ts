@@ -107,6 +107,7 @@ const setResponce = async (
       userId: userId,
       familyId: familyId ?? undefined,
     });
+    //Doer Ko invitation
 
     if (!invitations) {
       const eventMembers = await EventService.getUserRelatedToEvent(
@@ -152,12 +153,12 @@ const setResponce = async (
     } else {
       params = body;
     }
-
+    console.log('UPdateing the database data', params);
     const result = await Model.makeEventGuest({
       eventId: eventId,
       guestId: body.userId,
       invitedBy: Number(invitations?.invitedBy!),
-      familyId: invitations.familyId ? invitations.familyId : null,
+      familyId: invitations.familyId ? invitations.familyId : undefined,
       params,
     });
     return result;
@@ -400,7 +401,7 @@ const importInvitation = async ({ fromEventId, toEventId }: { fromEventId: numbe
     if (!newEventInvitation.length) {
       return [];
     }
-    const bulkInvitationResponce = await Model.inviteBulk(newEventInvitation);
+    const bulkInvitationResponce = await Model.inviteBulk(newEventInvitation as any);
     return bulkInvitationResponce;
 
   } catch (err) {
