@@ -208,6 +208,34 @@ const listMyEvents = async (userId: number, params: any) => {
   }
 };
 
+
+
+const duplicateSubevent = async (eventId: number, userId: number) => {
+  try {
+    await checkAuthorized(eventId, userId);
+    const originalEvent = await find(eventId);
+    if (!originalEvent) {
+      throwNotFoundError("Event not found");
+    }
+
+    const {
+      id,
+      createdAt,
+      updatedAt,
+      ...eventPayload
+    } = originalEvent as any;
+
+    const newEvent = await Model.create(eventPayload );
+    if (!newEvent) {
+      throw new Error("Something went wrong while duplicating the event");
+    }
+
+    return Resource.toJson(newEvent);
+  } catch (err: any) {
+    logger.error("Error in duplicating the event", err);
+    throw err;
+  }
+};
 const getUserRelatedToEvent = async (eventId: number, userId: number) => {
   try {
     await checkAuthorized(eventId, userId);
@@ -300,5 +328,6 @@ export default {
   checkAuthorized,
   getUserRelatedToEvent,
   getEventVendor,
+  duplicateSubevent,
   getSubEventOfEvent,
 };

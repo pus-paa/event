@@ -47,7 +47,7 @@ class Event {
       totalPages: Math.ceil(count / limit),
     };
   }
-  static async create(params: EventColumn) {
+  static async create(params:  Partial<EventColumn>) {
     const result = await db
       .insert(event)
       .values(params as any)

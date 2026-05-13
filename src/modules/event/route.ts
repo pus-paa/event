@@ -75,6 +75,13 @@ const routes = [
     authorization: true,
     validation: validate(getSubEVenntOfEventValidationSchema),
   },
+  {
+    method: "post",
+    controller: Controller.duplicateSubEvent,
+    path: "event/:id/duplicate",
+    authorization: true,
+    authCheckType: [role.user],
+  },
 ];
 
 export default routes;
