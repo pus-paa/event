@@ -374,7 +374,7 @@ const getGuestTransportationList = async (eventId: number, userId: number) => {
     throw err;
   }
 };
-const importInvitation = async (fromEventId: number, toEventId: number, userId: number) => {
+const importInvitation = async ({ fromEventId, toEventId }: { fromEventId: number, toEventId: number }, userId: number) => {
   try {
     const eventInvitation = await Model.listinvitationByEventId(fromEventId);
     const toEventInvitationList = await Model.listinvitationByEventId(toEventId);
