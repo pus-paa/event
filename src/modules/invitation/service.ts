@@ -189,7 +189,7 @@ const inviteGuest = async (
       return throwErrorOnValidation("The category is not in the event");
     }
 
-    const { fullName, email, phone, isFamily, relation } = input;
+    const { fullName, email, phone, isFamily } = input;
     let guestUser;
     if (email || phone) {
       try {
@@ -202,7 +202,7 @@ const inviteGuest = async (
             fullName,
             email,
             phone,
-            relation: relation ? relation : `${isFamily ? "Family" : "Friend"}`,
+            relation: input.category ? input.category : `${isFamily ? "Family" : "Friend"}`,
           });
         }
       } catch (err) {
@@ -228,7 +228,7 @@ const inviteGuest = async (
     const invitation = await Invitation.create({
       eventId: eventId,
       userId: guestUser.id!,
-      invitationName: input.invitation_name || "FAMILY",
+      invitationName: input.invitationName || "FAMILY",
       familyId: isFamily ? guestUser.familyId : undefined,
       invitedBy: userId,
       status: input.isDraft ? invitationStatus.draft : invitationStatus.pending,
@@ -374,8 +374,43 @@ const getGuestTransportationList = async (eventId: number, userId: number) => {
     throw err;
   }
 };
+const importInvitation = async (fromEventId: number, toEventId: number, userId: number) => {
+  try {
+    const eventInvitation = await Model.listinvitationByEventId(fromEventId);
+    const toEventInvitationList = await Model.listinvitationByEventId(toEventId);
+    const existingUserIds = new Set(
+      toEventInvitationList
+        .map((invitation) => invitation.userId)
+        .filter((id): id is number => typeof id === "number"),
+    );
+    const newEventInvitation = eventInvitation
+      .filter((invitation) => typeof invitation.userId === "number")
+      .filter((invitation) => !existingUserIds.has(invitation.userId as number))
+      .map((invitation) => {
+        return {
+          ...invitation,
+          eventId: toEventId,
+          invitedBy: userId,
+          familyId: invitation.familyId ? invitation.familyId : null,
+          userId: invitation.userId as number,
+        };
+      });
+    if (!newEventInvitation.length) {
+      return [];
+    }
+    const bulkInvitationResponce = await Model.inviteBulk(newEventInvitation);
+    return bulkInvitationResponce;
+
+  } catch (err) {
+    throw err;
+  }
+
+}
+
+
 
 export default {
+  importInvitation,
   setResponce,
   inviteGuest,
   getInvitedEvent,

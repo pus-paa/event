@@ -51,6 +51,19 @@ export default class Invitation {
 
     return event_guest;
   }
+  static async listinvitationByEventId(eventId: number) {
+    const eventInvitation = await db.select(
+      {
+        userId: invitation.userId,
+        eventId: invitation.eventId,
+        familyId: invitation.familyId,
+        category: invitation.category,
+        invitedBy: invitation.invitedBy
+      }
+    ).from(invitation).where(eq(invitation.eventId, eventId));
+    return eventInvitation;
+
+  }
 
   //get the family event or the user event based on the user id and family id
   static async listAllInvitationEvent(params: { page?: number, limit?: number, userId?: number, eventId?: number, familyId?: number }) {
@@ -464,10 +477,10 @@ export default class Invitation {
   static async inviteBulk(user: {
     category: string,
     userId: number,
-    familyId?: number,
+    familyId?: number | null,
     eventId: number,
     invitedBy: number
-  }[],) {
+  }[]) {
     const data = await db.insert(invitation).values(
       user
     ).returning();

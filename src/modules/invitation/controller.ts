@@ -174,8 +174,20 @@ const getGuestTransportationList = async (req: IAuthRequest) => {
     throw err;
   }
 };
-
+const importGuest = async(req:IAuthRequest) =>{
+  try {
+    const eventId = Number(req.body.eventId);
+    const userId = req.user.id;
+    if (!eventId) {
+      throwErrorOnValidation("eventId is required");
+    }
+    return await Service.importInvitation(req.body, eventId, userId);
+  } catch (err) {
+    throw err;
+  }
+};
 export default {
+  importGuest , 
   setResponce,
   getHotelManegemt,
   removeinvitation,

@@ -14,6 +14,12 @@ const route = [
     path: "invitation/event-responses/:id",
     authorization: true,
   },
+   {
+  method:"post",
+  controller:Controller.importGuest , 
+  path:"invitation/import-guest",
+  authorization:true
+  } , 
   {
     method: "post",
     controller: Controller.setResponce,
@@ -86,6 +92,7 @@ const route = [
     controller: Controller.toggleCheckInOut,
     path: "invitation/:id/check-status",
     authorization: true,
-  }
+  },
+ 
 ];
 export default route;
