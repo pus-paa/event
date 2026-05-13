@@ -113,6 +113,25 @@ const getSubEventOfEvent = async (req: IAuthRequest) => {
   const subEvents = await Service.getSubEventOfEvent(Number(params.id), user.id);
   return subEvents;
 };
+
+const duplicateSubEvent = async (req: IAuthRequest) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    if (!id || isNaN(Number(id))) {
+      throwErrorOnValidation("Invalid ID");
+    }
+    if (!userId) {
+      throwErrorOnValidation("User not authenticated");
+    }
+
+    const data = await Service.duplicateSubevent(Number(id), userId);
+    return data;
+  } catch (err: any) {
+    throw err;
+  }
+};
+
 const makeUserRelatedToEvent = async (req: IAuthRequest) => {
   try {
     const eventId = Number(req.params.eventId);
@@ -136,4 +155,5 @@ export default {
   listMyEvents,
   getUserRelatedToEvent,
   getSubEventOfEvent,
+  duplicateSubEvent,
 };
