@@ -479,6 +479,7 @@ export default class Invitation {
     userId: number,
     familyId?: number | null,
     eventId: number,
+    status: "draft",
     invitedBy: number
   }[]) {
     const data = await db.insert(invitation).values(

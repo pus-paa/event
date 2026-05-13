@@ -6,6 +6,7 @@ const createBudgetCategorySchema = z.object({
   }),
   body: z.object({
     name: z.string().max(255),
+    subEventId: z.number().optional(),
     allocatedBudget: z.number().positive(),
   }),
 });

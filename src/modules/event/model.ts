@@ -163,6 +163,15 @@ class Event {
     return event_vendor;
   }
 
+  static async removeEventMember(eventId: number, userId: number) {
+    const removedMember = await db.delete(event_member_schema).where(
+      and(
+        eq(event_member_schema.eventId, eventId),
+        eq(event_member_schema.userId, userId),
+      ));
+    return removedMember;
+  }
+
   static async getSubEventOfEvent(eventId: number, unSubscribedsubEvent?: number[]) {
     const subEvents = await db
       .select()

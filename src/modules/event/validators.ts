@@ -6,8 +6,7 @@ const EventValidationSchema = z.object({
   dressCode: z.string().optional(),
   imageUrl: z
     .string()
-    .optional()
-    .default(
+    .optional().default(
       "https://images.unsplash.com/photo-1522673607200-1645062cd5d1?w=800&q=80",
     ),
   type: z.string().default("WEDDING"),
@@ -30,6 +29,17 @@ const EventValidationSchema = z.object({
   location: z.string().optional(),
   rsvpDeadline: dateSchema.optional(),
 });
+export const removeEventMemberValidationSchema = z.object({
+  params: z.object({
+    eventId: z.string().refine((id) => !isNaN(Number(id)), {
+      message: "Invalid event ID",
+    }),
+  }),
+  body: z.object({
+    userId: z.number().nonnegative().nonoptional()
+  })
+
+})
 
 const getSubEVenntOfEventValidationSchema = z.object({
   params: z.object({
@@ -48,9 +58,11 @@ const EventUpdateValidationSchema = EventValidationSchema.partial();
 //Type extraction from the zod
 type createEventType = z.infer<typeof EventValidationSchema>;
 type updateEventType = z.infer<typeof EventUpdateValidationSchema>;
+type removeEventMemberValidationType = z.infer<typeof removeEventMemberValidationSchema>
 
 export {
   AddEventMemberValidationSchema,
+  removeEventMemberValidationType,
   EventValidationSchema,
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,

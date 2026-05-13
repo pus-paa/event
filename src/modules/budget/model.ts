@@ -1,4 +1,4 @@
-import { eq, sum } from "drizzle-orm";
+import { eq, or, sum } from "drizzle-orm";
 import { budgetCategory, expense, payment } from "./schema";
 import event from "../event/schema";
 import db from "@/config/db";
@@ -15,8 +15,13 @@ class Budget {
   static async totalAllocatedAndRemainingBudget(eventId: number) {
     const result = await db
       .select(Repository.budgetCategorySelectQuery)
-      .from(budgetCategory)
-      .where(eq(budgetCategory.eventId, eventId));
+      .from(budgetCategory).leftJoin(event , eq(budgetCategory.eventId , event.id))
+      .where(
+        or(
+          eq(budgetCategory.eventId, eventId) , 
+          eq(budgetCategory.eventId ,event.parentId )
+        )
+      );
 
     const totalAllocated = result.reduce(
       (total, category) => total + Number(category.allocatedBudget),
@@ -91,9 +96,15 @@ class Budget {
 
   static async getAllBudgetCategories(eventId: number) {
     const result = await db
-      .select(Repository.budgetCategorySelectQuery)
-      .from(budgetCategory)
-      .where(eq(budgetCategory.eventId, eventId));
+    .select(Repository.budgetCategorySelectQuery)
+    .from(budgetCategory)
+    .leftJoin(event, eq(budgetCategory.eventId, event.id)) 
+    .where(
+      or(
+        eq(event.id, eventId),        
+        eq(event.parentId, eventId)   
+      )
+    );
     return result;
   }
 

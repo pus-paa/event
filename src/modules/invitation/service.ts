@@ -389,10 +389,12 @@ const importInvitation = async ({ fromEventId, toEventId }: { fromEventId: numbe
       .map((invitation) => {
         return {
           ...invitation,
+          status: "draft",
           eventId: toEventId,
           invitedBy: userId,
           familyId: invitation.familyId ? invitation.familyId : null,
           userId: invitation.userId as number,
+
         };
       });
     if (!newEventInvitation.length) {

@@ -6,6 +6,8 @@ import Resource from "./resource";
 import logger from "@/config/logger";
 import {
   AddEventMemberValidationSchema,
+  removeEventMemberValidationSchema,
+  removeEventMemberValidationType,
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
   EventValidationSchema,
@@ -105,14 +107,12 @@ const find = async (id: number) => {
 };
 
 const checkAuthorized = async (id: number, userId?: number) => {
-  //Handle the sub event edge case ==> event .paretid !=null check the parent event and check the status there 
-  //
+
   if (!userId) {
     throw new Error("Unauthorized: User not authenticated");
   }
   const event = await find(id);
   if (!event) return throwNotFoundError("Event not found");
-  //if the event organizer is not the person also check the organizer family and then also
   let eventMember = [];
   if (event.parentId != null) {
     eventMember = await Model.getEventMember(event.parentId);
@@ -247,6 +247,7 @@ const getUserRelatedToEvent = async (eventId: number, userId: number) => {
     throw error;
   }
 };
+
 const makeEventMember = async (
   eventId: number,
   userId: number,
@@ -283,6 +284,15 @@ const makeEventMember = async (
   }
 };
 
+const removeEventMember = async (params: removeEventMemberValidationType["body"], eventId: number) => {
+  try {
+    const removeEventMember = await Model.removeEventMember(eventId, params.userId);
+    return removeEventMember;
+  } catch (err) {
+    throw err;
+  }
+}
+
 const getSubEventOfEvent = async (eventId: number, userId: number) => {
   try {
     //Check the user or tge guest for the invitaiton or the event member table lookup in the db 
@@ -317,6 +327,7 @@ const getSubEventOfEvent = async (eventId: number, userId: number) => {
   }
 };
 
+
 export default {
   makeEventMember,
   list,
@@ -329,5 +340,6 @@ export default {
   getUserRelatedToEvent,
   getEventVendor,
   duplicateSubevent,
+  removeEventMember,
   getSubEventOfEvent,
 };

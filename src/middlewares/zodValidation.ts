@@ -6,7 +6,6 @@ export type ZodFlattenedErrors<T = any> = ReturnType<ZodError<T>["flatten"]>;
 export const validate =
   (schema: ZodObject<ZodRawShape>) =>
     (req: Request, res: Response, next: NextFunction) => {
-      console.log(`The body that was being sent from the user was`, req.body);
       const result = schema.safeParse({
         body: req.body,
         query: req.query,
