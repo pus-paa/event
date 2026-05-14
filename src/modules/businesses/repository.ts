@@ -88,10 +88,23 @@ const eventVendorWithBusiness = {
   businessName: businessSelectQuery.businessName,
 };
 
+const eventVendorSelectQuery = {
+  id: event_vendorTable.id,
+  eventId: event_vendorTable.eventId,
+  vendorBusinessid: event_vendorTable.vendorBusinessid,
+  acquiredBy: event_vendorTable.acquiredBy,
+  estimatedGuest: event_vendorTable.estimatedGuest,
+  status: event_vendorTable.status,
+  notes: event_vendorTable.notes,
+  createdAt: event_vendorTable.createdAt,
+  updatedAt: event_vendorTable.updatedAt,
+    
+};
 export default {
   selectWithBusiness,
   businessSelectQuery,
   venueSelectQuery,
   vendorServiceselectQuery,
   eventVendorWithBusiness,
+  eventVendorSelectQuery,
 };

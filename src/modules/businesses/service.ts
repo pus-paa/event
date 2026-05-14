@@ -170,15 +170,25 @@ const addVenueDetail = async (
     throw err;
   }
 };
-const getEventVendor = async (eventId: number, userId: number) => {
+const getEventVendorDetails = async (eventId: number, userId: number) => {
   try {
-    const result = await Model.findEventVendor(eventId);
+    const result = await Model.findEventVendorDetails(eventId);
     await EventService.checkAuthorized(eventId, userId);
     return result;
   } catch (err) {
     throw err;
   }
 };
+
+const getEventVendor = async (vendorId: number, userId: number, eventId: number) => {
+  try {
+    const result = Model.findEventVendorLink(eventId, vendorId);
+    return result;
+  } catch (err) {
+    throw err;
+  }
+    
+}
 const getVendorEvent = async (vendorId: number, userId: number) => {
   try {
     const vendor = await find(vendorId);
@@ -193,7 +203,7 @@ const getVendorEvent = async (vendorId: number, userId: number) => {
     throw err;
   }
 };
-const findEventVendor = async ({
+const findEventVendorDetails = async ({
   eventId,
   businessId,
 }: {
@@ -201,7 +211,7 @@ const findEventVendor = async ({
   businessId?: number;
 }) => {
   try {
-    const eventVendor = await Model.findEventVendor(eventId, businessId);
+    const eventVendor = await Model.findEventVendorDetails(eventId, businessId);
     return eventVendor ? eventVendor[0] : null;
   } catch (err) {
     throw err;
@@ -262,7 +272,7 @@ const updateEventVendor = async ({
   params: any;
 }) => {
   try {
-    const eventVendor = await findEventVendor({
+    const eventVendor = await findEventVendorDetails({
       eventId: eventId,
       businessId: vendorId,
     });
@@ -404,11 +414,12 @@ export default {
   addVenueDetail,
   udpateVendorServiceDetail,
   updateVendorVenueDetail,
-  getEventVendor,
+  getEventVendorDetails,
   updateEventVendor,
   postEventVendor,
+  getEventVendor,
   update,
-  findEventVendor,
+  findEventVendorDetails,
   find,
   updatebusinessInformation,
   remove,

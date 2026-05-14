@@ -156,7 +156,7 @@ class BusinessModel {
 
   static async findEventVendorLink(eventId: number, businessId: number) {
     const rows = await db
-      .select({ id: event_vendorTable.id })
+      .select(repository.eventVendorSelectQuery)
       .from(event_vendorTable)
       .where(
         and(
@@ -206,7 +206,7 @@ class BusinessModel {
       .returning();
     return result;
   }
-  static async findEventVendor(eventId: number, businessId?: number) {
+  static async findEventVendorDetails(eventId: number, businessId?: number) {
     let conditions = [];
     conditions.push(eq(event_vendorTable.eventId, eventId));
     if (!!businessId) {
