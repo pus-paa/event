@@ -37,7 +37,7 @@ const AddEventVendor = async (req: IAuthRequest) => {
   }
 };
 
-const getEventVendor = async (req: IAuthRequest) => {
+const getEventVendorDetails = async (req: IAuthRequest) => {
   try {
     const { eventId } = req.params;
     const userId = req.user?.id;
@@ -49,7 +49,7 @@ const getEventVendor = async (req: IAuthRequest) => {
       throwErrorOnValidation("User not authenticated");
     }
 
-    return await Service.getEventVendor(Number(eventId), userId);
+    return await Service.getEventVendorDetails(Number(eventId), userId);
   } catch (err) {
     throw err;
   }
@@ -175,6 +175,25 @@ const updateEventVendor = async (req: IAuthRequest) => {
     throw err;
   }
 };
+const getEventVendor = async (req: IAuthRequest) => {
+  try {
+    const eventId = Number(req.params.eventId);
+    const vendorId = Number(req.params.vendorId);
+    const userId = req.user?.id;
+
+    if (isNaN(eventId) || isNaN(vendorId)) {
+      throwErrorOnValidation("Invalid event ID or vendor ID");
+    }
+    if (!userId) {
+      throwErrorOnValidation("User not authenticated");
+    }
+
+    return await Service.getEventVendor(vendorId, userId, eventId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 const getVendorEvents = async (req: IAuthRequest) => {
   try {
     const vendorId = req.params.vendorId;
@@ -243,8 +262,9 @@ export default {
   updateVendorVenueDetail,
   updateVendorServiceDetail,
   AddEventVendor,
-  getVendorEvents,
   getEventVendor,
+  getVendorEvents,
+  getEventVendorDetails,
   getEventOfMyBusiness,
   getMyBusinesses,
 };
