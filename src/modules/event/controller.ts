@@ -135,13 +135,22 @@ const duplicateSubEvent = async (req: IAuthRequest) => {
 const makeUserRelatedToEvent = async (req: IAuthRequest) => {
   try {
     const eventId = Number(req.params.eventId);
-    console.log('eventId', eventId);
     const userId = req.user.id;
     const service = await Service.makeEventMember(eventId, userId, req.body)
-    console.log('the service in the evemt mking jobis', service)
     return service;
   } catch (err) {
     throw err;
+  }
+}
+const removeEventMember = async (req: IAuthRequest) => {
+  try {
+    const userId = req.user.id;
+    const service = await Service.removeEventMember(req.params, userId);
+    return service;
+
+  } catch (err) {
+    throw err;
+
   }
 
 }
@@ -155,5 +164,6 @@ export default {
   listMyEvents,
   getUserRelatedToEvent,
   getSubEventOfEvent,
+  removeEventMember,
   duplicateSubEvent,
 };

@@ -6,7 +6,6 @@ import Resource from "./resource";
 import logger from "@/config/logger";
 import {
   AddEventMemberValidationSchema,
-  removeEventMemberValidationSchema,
   removeEventMemberValidationType,
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
@@ -28,9 +27,7 @@ const list = async (params: any) => {
       return {
         ...event,
         role:
-          event.organizer && event.event_member_userId == params.userId
-            ? event.role || "Organizer"
-            : "Guest",
+          event.organizer == params.userId ? "Organizer" : event.role,
       };
     });
     return {
@@ -199,7 +196,7 @@ const listMyEvents = async (userId: number, params: any) => {
       ...data,
       items: data.items.map((item: any) => ({
         ...Resource.toJson(item.event as any),
-        role: item.user_event?.role,
+        role: item.organizer == userId ? "Organizer" : item.user_event?.role,
       })),
     };
   } catch (err: any) {
@@ -225,7 +222,7 @@ const duplicateSubevent = async (eventId: number, userId: number) => {
       ...eventPayload
     } = originalEvent as any;
 
-    const newEvent = await Model.create(eventPayload );
+    const newEvent = await Model.create(eventPayload);
     if (!newEvent) {
       throw new Error("Something went wrong while duplicating the event");
     }
@@ -284,10 +281,17 @@ const makeEventMember = async (
   }
 };
 
-const removeEventMember = async (params: removeEventMemberValidationType["body"], eventId: number) => {
+const removeEventMember = async (params: removeEventMemberValidationType["params"], userId: number) => {
   try {
-    const removeEventMember = await Model.removeEventMember(eventId, params.userId);
-    return removeEventMember;
+    const eventAuthorized = await checkAuthorized(Number(params.eventId), userId);
+
+    if (eventAuthorized) {
+      const removeEventMember = await Model.removeEventMember(Number(params.eventId), Number(params.eventMemberId));
+      return removeEventMember;
+    }
+    else {
+      throwErrorOnValidation("User cannot change the planning Committe")
+    }
   } catch (err) {
     throw err;
   }

@@ -31,13 +31,13 @@ const EventValidationSchema = z.object({
 });
 export const removeEventMemberValidationSchema = z.object({
   params: z.object({
-    eventId: z.string().refine((id) => !isNaN(Number(id)), {
-      message: "Invalid event ID",
+    eventId: z.string().refine((eventId) => !isNaN(Number(eventId)), {
+      message: "Invalid event ID for the event",
+    }),
+    eventMemberId: z.string().refine((eventMemberId) => !isNaN(Number(eventMemberId)), {
+      message: "Invalid event EventMember Id",
     }),
   }),
-  body: z.object({
-    userId: z.number().nonnegative().nonoptional()
-  })
 
 })
 

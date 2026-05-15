@@ -1,6 +1,6 @@
 import { role } from "@/constant";
 import Controller from "./controller";
-import { getSubEVenntOfEventValidationSchema } from "./validators";
+import { getSubEVenntOfEventValidationSchema, removeEventMemberValidationSchema } from "./validators";
 import { validate } from "@/middlewares/zodValidation";
 
 const routes = [
@@ -24,6 +24,13 @@ const routes = [
     path: "event/:eventId/member",
     authorization: true,
     authCheckType: [role.user],
+  },
+  {
+    method: "delete",
+    controller: Controller.removeEventMember,
+    path: "event/:eventId/member/:eventMemberId",
+    authorization: true,
+    validation: validate(removeEventMemberValidationSchema)
   },
   {
     method: "get",
