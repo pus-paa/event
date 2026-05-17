@@ -13,6 +13,7 @@ export const CreateCateringSchema = z.object({
       .date()
       .min(new Date(), "Start date must be in future"),
     endDateTime: z.coerce.date(),
+    noOfpax: z.number().optional(),
     mealType: z
       .string()
       .min(1, "Meal type is required")
@@ -39,6 +40,7 @@ export const UpdateCateringSchema = z.object({
         .optional(),
       startDateTime: z.coerce.date().optional(),
       endDateTime: z.coerce.date().optional(),
+      noOfpax: z.number().optional(),
       mealType: z
         .string()
         .min(1, "Meal type is required")

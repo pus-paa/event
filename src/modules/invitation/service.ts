@@ -263,12 +263,14 @@ const getEventguest = async (eventid: number, userId: number) => {
 };
 const getEventHotelManagement = async (eventId: number, userId: number) => {
   try {
-    const isAllowed = await EventService.checkAuthorized(eventId, userId);
-    if (!isAllowed) {
-      return throwUnauthorizedError(
-        "User with the details cannot get the information of the guest ",
-      );
-    }
+    console.log('The user in the hotel management is', userId);
+    //const isAllowed = await EventService.checkAuthorized(eventId, userId);
+    //TODO: handle the guest and the user
+    //if (!isAllowed) {
+    // return throwForbiddenError(
+    //  "User with the details cannot get the information of the guest ",
+    //);
+    //}
     const event_hotel_management = await Model.EventHotelManagent(eventId);
     const room_grouped = Resource.toRoomGroupCollection(event_hotel_management as any);
     return room_grouped;

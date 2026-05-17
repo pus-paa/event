@@ -1,7 +1,8 @@
 import db from "@/config/db";
+import event from "@/modules/event/schema"
 import catering, { menuSchema } from "./schema";
 import Repository from "./repository";
-import { eq, sql, desc } from "drizzle-orm";
+import { eq, sql, desc, or } from "drizzle-orm";
 import type { CateringColumn, MenuItemColumn } from "./resource";
 
 class Catering {
@@ -33,7 +34,20 @@ class Catering {
       const items = await db
         .select(Repository.cateringSelectQuery)
         .from(catering)
-        .where(eq(catering.eventId, params.eventId))
+        .leftJoin(event, eq(event.id, catering.eventId))
+
+
+        .where(
+          or(
+            eq(
+              catering.eventId, params.eventId
+            ),
+            eq(
+              event.parentId, params.eventId
+            )
+          )
+        )
+
         .orderBy(desc(catering.createdAt))
         .limit(Number(limit))
         .offset(offset);

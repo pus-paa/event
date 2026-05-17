@@ -14,6 +14,7 @@ const attributes = {
     .notNull()
     .references(() => event.id, { onDelete: "cascade" }),
   mealType: varchar("meal_type", { length: 255 }).notNull(),
+  noOfpax: integer("no_of_pax"),
   isVeg: boolean("is_veg"),
   vendorId: integer("vendor_id").references(() => business.id),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),

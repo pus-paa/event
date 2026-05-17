@@ -5,13 +5,10 @@ import user from "@/modules/user/schema"
 import todo from "./schema";
 import repository from "./repository";
 import type { TodoColumn } from "./resource";
+import { TodoInputType, UpdateTodoInputType } from "./validators";
 
 class Todo {
   static async findAllAndCount(params: any) {
-    //    const page = Math.max(1, Number(params?.page) || 1);
-    //   const limit = Math.max(1, Number(params?.limit) || 20);
-    //  const offset = (page - 1) * limit;
-
     const conditions = [] as any[];
     if (params?.eventId !== undefined) {
       conditions.push(eq(todo.eventId, Number(params.eventId)));
@@ -23,16 +20,8 @@ class Todo {
     if (params?.parentId !== undefined) {
       conditions.push(eq(todo.parentId, Number(params.parentId)));
     }
-    if (params?.status !== undefined) {
-      conditions.push(eq(todo.status, params.status));
-    }
-    if (params?.isDone !== undefined) {
-      const isDoneValue =
-        typeof params.isDone === "string"
-          ? params.isDone === "true"
-          : Boolean(params.isDone);
-      conditions.push(eq(todo.isDone, isDoneValue));
-    }
+
+
     const whereClause = conditions.length ? and(...conditions) : undefined;
     const baseQuery = db
       .select(repository.selectQuery)
@@ -81,55 +70,64 @@ class Todo {
     return result[0] || null;
   }
 
-  static async update(params: Partial<TodoColumn>, id: number) {
+  static async findByIds(todoIds: number[]) {
+    if (!todoIds.length) return [];
+    const result = await db
+      .select({
+        id: todo.id,
+        doneByuserIds: todo.doneByuserIds,
+      })
+      .from(todo)
+      .where(inArray(todo.id, todoIds));
+
+    return result;
+  }
+
+  static async update(params: UpdateTodoInputType | undefined, id: number) {
     const result = await db
       .update(todo)
-      .set({ ...params } as any)
+      .set({ ...params })
       .where(eq(todo.id, id))
       .returning();
     return result[0] || null;
   }
-  static async bulkupdate({
-    todoIds,
-    status = "completed",
-    isDone
-  }: {
-    todoIds: number[],
-    status: string,
-    isDone: boolean
-  }) {
-    const result = await db.update(todo).set({
-      status: status, isDone: isDone
-    }).where(
-      inArray(todo.id, todoIds)
-    )
-    return result;
 
-
-  }
-
-  static async create(params: Partial<TodoColumn>) {
-    const result = await db.insert(todo).values(params as any).returning();
+  static async create(params: TodoInputType["body"], userId: number) {
+    const result = await db.insert(todo).values({ ...params, createdBy: userId }).returning();
     return result[0] || null;
   }
 
-  static async bulkCreate(params: Partial<TodoColumn>[]) {
-    if (!params?.length) return [];
-    const result = await db.insert(todo).values(params as any).returning();
+  static async bulkToGuest(create: TodoInputType[]) {
+    if (!create?.length) return [];
+    const result = await db.insert(todo).values(create as any).returning();
     return result;
   }
+
   static async delete(id: number) {
     const result = await db.delete(todo).where(eq(todo.id, id));
     return result;
 
   }
-  static async getByEventId(eventId: number) {
+
+  static async getByEventId(eventId: number, userId: number, userGroup: string) {
     const result = await db
       .select(repository.selectQuery)
       .from(todo)
       .leftJoin(user, eq(user.id, todo.assignedTo))
+      .leftJoin(event, eq(event.id, todo.eventId))
       .where(
-        eq(todo.eventId, eventId))
+        and(
+          or(// For the parent and child relation
+            eq(todo.eventId, eventId),
+            eq(event.parentId, eventId)
+          ),
+          or(
+            eq(todo.assignedGroup, userGroup),
+            eq(todo.createdBy, userId),
+            eq(todo.assignedTo, userId)
+          )
+        )
+      )
       .orderBy(asc(todo.dueDate))
     return result;
 

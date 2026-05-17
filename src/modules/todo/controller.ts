@@ -20,17 +20,14 @@ const getByEventId = async (req: IAuthRequest) => {
   try {
     const userId = req.user?.id;
     const { eventId } = req.params;
-
     if (!userId) {
       throwErrorOnValidation("User not authenticated");
     }
-
     if (!eventId || isNaN(Number(eventId))) {
       throwErrorOnValidation("Invalid eventId");
     }
 
-
-    const data = await Service.findByEventId(Number(eventId), { ...req?.query });
+    const data = await Service.findByEventId(Number(eventId), userId);
     return data;
   } catch (err: any) {
     throw err;
@@ -67,6 +64,7 @@ const findOne = async (req: IAuthRequest) => {
 
 const update = async (req: IAuthRequest) => {
   try {
+    console.log("this is the params", req.params);
     const { id } = req.params;
     // const userId = req.user?.id;
     if (!id || isNaN(Number(id))) {
@@ -80,19 +78,6 @@ const update = async (req: IAuthRequest) => {
   }
 };
 
-const populateDefaultChecklist = async (req: IAuthRequest) => {
-  try {
-    const { eventId } = req.params;
-    if (!eventId || isNaN(Number(eventId))) {
-      throwErrorOnValidation("Invalid eventId");
-    }
-
-    const data = await Service.populateDefaultChecklist(Number(eventId), req.body);
-    return data;
-  } catch (err: any) {
-    throw err;
-  }
-};
 const deleteTodo = async (req: IAuthRequest) => {
   try {
     const { id } = req.params;
@@ -107,7 +92,11 @@ const deleteTodo = async (req: IAuthRequest) => {
 }
 const bulkStatus = async (req: IAuthRequest) => {
   try {
-    const udpateTodo = await Service.bulkUpdate(req.body);
+    const userId = req.user?.id;
+    if (!userId) {
+      throwErrorOnValidation("User not authenticated");
+    }
+    const udpateTodo = await Service.bulkUpdate(req.body, userId);
     return udpateTodo;
   } catch (err) {
     throw err;
@@ -123,5 +112,4 @@ export default {
   create,
   findOne,
   update,
-  populateDefaultChecklist,
 };

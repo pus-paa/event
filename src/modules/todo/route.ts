@@ -1,5 +1,7 @@
 
+import { validate } from "@/middlewares/zodValidation";
 import Controller from "./controller";
+import { todoBulkStatusValidationSchema, todoUpdateValidationSchema, todoValidationSchema } from "./validators";
 
 const routes = [
   {
@@ -19,6 +21,7 @@ const routes = [
     controller: Controller.create,
     path: "todo",
     authorization: true,
+    validation: validate(todoValidationSchema)
   },
   {
     method: "get",
@@ -31,6 +34,7 @@ const routes = [
     controller: Controller.update,
     path: "todo/:id",
     authorization: true,
+    validation: validate(todoUpdateValidationSchema)
   },
   {
     method: "delete",
@@ -43,7 +47,8 @@ const routes = [
     method: "post",
     controller: Controller.bulkStatus,
     path: "todo/bulk",
-    authorization: true
+    authorization: true,
+    validation: validate(todoBulkStatusValidationSchema)
   }
 ];
 

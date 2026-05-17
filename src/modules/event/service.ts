@@ -131,7 +131,8 @@ const checkAuthorized = async (id: number, userId?: number) => {
     return true;
   }
   if (event.organizer !== userId) {
-    throw new Error("Unauthorized: You are not the organizer of this event");
+    return false;
+    //throw new Error("Unauthorized: You are not the organizer of this event");
   }
 
   return true;

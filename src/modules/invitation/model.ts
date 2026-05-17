@@ -475,7 +475,7 @@ export default class Invitation {
       );
     return data;
   }
-  static async inviteBulk(user: {
+  static async inviteBulk(invitationBulkData: {
     category: string,
     userId: number,
     familyId?: number | null,
@@ -484,7 +484,7 @@ export default class Invitation {
     invitedBy: number
   }[]) {
     const data = await db.insert(invitation).values(
-      user
+      invitationBulkData
     ).returning();
     return data;
 

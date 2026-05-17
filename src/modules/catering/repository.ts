@@ -5,6 +5,7 @@ const cateringSelectQuery = {
   name: schema.name,
   perPlateprice: schema.perPlateprice,
   startDateTime: schema.startDateTime,
+  noOfpax: schema.noOfpax,
   endDateTime: schema.endDateTime,
   eventId: schema.eventId,
   mealType: schema.mealType,

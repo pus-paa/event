@@ -1,18 +1,18 @@
 import UserResource from "@/modules/user/resource"
 export interface TodoColumn {
   id?: number;
-  eventId: number | null;
+  eventId: number;
   task: string | null;
-  isDone: boolean | null;
-  assignedTo?: number | null;
-  assignedUser?: UserResource | null;
+  doneByuserIds: number[];
+  assignedTo: number | null;
+  assignedGroup: string | null;
   title: string | null;
+  assignedUser?: UserResource | null;
   parentId: number | null;
   category: string | null;
   dueDate: Date | string | null;
-  status: string | null;
-  created_at?: Date | string | null;
-  updated_at?: Date | string | null;
+  createdAt?: Date | string | null;
+  updatedAt?: Date | string | null;
 }
 
 class Resource {
@@ -23,15 +23,15 @@ class Resource {
       eventId: todo.eventId,
       category: todo.category,
       task: todo.task,
-      isDone: todo.isDone,
+      doneByuserIds: todo.doneByuserIds,
       assignedTo: todo.assignedTo,
+      assignedGroup: todo.assignedGroup,
       assignedUser: todo.assignedUser,
       title: todo.title,
       parentId: todo.parentId,
       dueDate: todo.dueDate,
-      status: todo.status,
-      created_at: todo.created_at,
-      updated_at: todo.updated_at,
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
     };
     return data;
   }

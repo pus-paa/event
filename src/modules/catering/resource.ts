@@ -4,6 +4,7 @@ export interface CateringColumn {
   perPlateprice: string;
   startDateTime: Date;
   endDateTime: Date;
+  noOfpax: number | null | undefined;
   eventId: number;
   mealType: string;
   isVeg: boolean;
@@ -34,6 +35,7 @@ class Resource {
       isVeg: catering.isVeg,
       name: catering.name,
       perPlateprice: catering.perPlateprice,
+      noOfpax: catering.noOfpax,
       startDateTime: catering.startDateTime,
       endDateTime: catering.endDateTime,
       mealType: catering.mealType,
