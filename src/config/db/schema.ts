@@ -14,7 +14,7 @@ import { family } from "@/modules/family/schema";
 import event from "@/modules/event/schema";
 import { assignedVehicle, vehicleSchema } from "@/modules/logistics/schema"
 import rsvp, { guest_category_schema } from "@/modules/invitation/schema";
-import { vwEventDetails, vw_event_user } from "./view";
+//import { vwEventDetails, vw_event_user } from "./view";
 import catering, { menuSchema } from "@/modules/catering/schema";
 import review from "@/modules/review/schema"
 import {
@@ -31,7 +31,7 @@ export {
   admin,
   vehicleSchema,
   assignedVehicle,
-  vw_event_user,
+  //vw_event_user,
   guest_category_schema,
   buisness,
   vendor_venue_schema,
@@ -39,7 +39,7 @@ export {
   todo,
   vendor_services_schema,
   invitation,
-  vwEventDetails,
+  //vwEventDetails,
   event,
   user,
   event_member_schema,
