@@ -31,6 +31,7 @@ const addExpenseToCategorySchema = z.object({
     nextDueDate: z.coerce.date().optional(),
     notes: z.string().max(999).optional(),
     businessId: z.coerce.number().positive().optional(),
+    subEventid: z.number().optional(),
   }),
 });
 
@@ -41,6 +42,7 @@ const updateExpenseSchema = z.object({
   body: z.object({
     name: z.string().max(255).optional(),
     allocatedAmount: z.number().positive().optional(),
+    subEventid: z.number().optional(),
     nextDueDate: z.coerce.date().optional(),
     notes: z.string().max(999).optional(),
     businessId: z.coerce.number().positive().optional(),

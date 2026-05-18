@@ -47,6 +47,7 @@ const expenseAttributes = {
   categoryId: integer("category_id")
     .notNull()
     .references(() => budgetCategory.id, { onDelete: "cascade" }),
+  subEventid: integer("sub_event_id").references(() => event.id),
   name: varchar("name", { length: 255 }).notNull(),
   businessId: integer("vendor_id").references(() => buisness.id),
   allocatedAmount: numeric("allocated_amount", {

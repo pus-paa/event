@@ -79,6 +79,7 @@ class Budget {
             name: row.expenseName,
             businessId: row.businessId,
             allocatedAmount: Number(row.allocatedAmount),
+            subEventid: row.subEventid,
             nextDueDate: row.nextDueDate,
             notes: row.expenseNotes,
             createdAt: row.expenseCreatedAt,
@@ -145,6 +146,7 @@ class Budget {
         nextDueDate: params.nextDueDate?.toISOString().split("T")[0] ?? null,
         notes: params.notes ?? null,
         businessId: params.businessId ?? null,
+        subEventid: params.subEventid ,
       })
       .returning();
     return result[0];
@@ -169,6 +171,7 @@ class Budget {
       allocatedAmount: Number(rows[0]?.expense.allocatedAmount),
       nextDueDate: rows[0]?.expense.nextDueDate,
       notes: rows[0]?.expense.notes,
+      subEventid: rows[0]?.expense.subEventid,
       createdAt: rows[0]?.expense.createdAt,
       updatedAt: rows[0]?.expense.updatedAt,
       payments: [] as any[],
@@ -212,7 +215,15 @@ class Budget {
   }
 
   static async updateExpense(expenseId: number, params: UpdateExpenseInput) {
-    const updateData: any = {};
+    const updateData:{
+      name?: string;
+      allocatedAmount?: string;
+      nextDueDate?: string;
+      notes?: string | null;
+      businessId?: number | null;
+      subEventid?: number | null;
+    } = {};
+    if(params.subEventid !== undefined) updateData.subEventid = params.subEventid;
     if (params.name) updateData.name = params.name;
     if (params.allocatedAmount)
       updateData.allocatedAmount = params.allocatedAmount.toString();
@@ -341,6 +352,7 @@ class Budget {
         categoryCreatedAt: budgetCategory.createdAt,
         categoryUpdatedAt: budgetCategory.updatedAt,
         expenseId: expense.id,
+        subEventid: expense.subEventid,
         expenseName: expense.name,
         allocatedAmount: expense.allocatedAmount,
         paymentId: payment.id,
@@ -376,6 +388,7 @@ class Budget {
         if (!expenseMap.has(row.expenseId)) {
           const expenseObj = {
             id: row.expenseId,
+            subEventid: row.subEventid,
             categoryId: row.categoryId,
             allocated: Number(row.allocatedAmount),
             spent: 0,

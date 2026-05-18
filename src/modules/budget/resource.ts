@@ -49,6 +49,7 @@ export interface ExpenseColumn {
   categoryId: number;
   name: string;
   businessId: number | null;
+  subEventid: number | null;
   allocatedAmount: string | number;
   nextDueDate: string | null;
   notes: string | null;
@@ -72,6 +73,7 @@ class ExpenseResource {
       categoryId: expenseData.categoryId,
       name: expenseData.name,
       businessId: expenseData.businessId ?? null,
+      subEventid: expenseData.subEventid ?? null,
       allocatedAmount: Number(expenseData.allocatedAmount),
       nextDueDate: expenseData.nextDueDate ?? null,
       notes: expenseData.notes ?? null,

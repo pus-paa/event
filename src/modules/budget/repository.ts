@@ -12,6 +12,7 @@ const budgetCategorySelectQuery = {
 const expenseSelectQuery = {
   id: expense.id,
   categoryId: expense.categoryId,
+  subEventid: expense.subEventid,
   name: expense.name,
   businessId: expense.businessId,
   allocatedAmount: expense.allocatedAmount,
@@ -41,8 +42,8 @@ const expenseWithCategorySelectQuery = {
   allocatedBudget: budgetCategory.allocatedBudget,
   categoryCreatedAt: budgetCategory.createdAt,
   categoryUpdatedAt: budgetCategory.updatedAt,
-
   expenseId: expense.id,
+  subEventid: expense.subEventid,
   expenseName: expense.name,
   businessId: expense.businessId,
   allocatedAmount: expense.allocatedAmount,
