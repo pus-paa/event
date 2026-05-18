@@ -10,19 +10,10 @@ const EventValidationSchema = z.object({
       "https://images.unsplash.com/photo-1522673607200-1645062cd5d1?w=800&q=80",
     ),
   type: z.string().default("WEDDING"),
-  startDateTime: z
-    .string()
-    .refine((date) => !isNaN(Date.parse(date)), {
-      // if this is not the valid date fformat then
-      message: "Invalid date format",
-    })
-    .optional(),
-  endDateTime: z
-    .string()
-    .refine((date) => !isNaN(Date.parse(date)), {
-      message: "Invalid date format",
-    })
-    .optional(),
+  venue: z.string(),
+  startDateTime: dateSchema.nonoptional()
+  ,
+  endDateTime: dateSchema.nonoptional(),
   budget: z.number().int().min(0).optional(),
   theme: z.string().optional(),
   parentId: z.number().int().optional(),
@@ -57,7 +48,7 @@ const EventUpdateValidationSchema = EventValidationSchema.partial();
 
 //Type extraction from the zod
 type createEventType = z.infer<typeof EventValidationSchema>;
-type updateEventType = z.infer<typeof EventUpdateValidationSchema>;
+type UpdateEventType = z.infer<typeof EventUpdateValidationSchema>;
 type removeEventMemberValidationType = z.infer<typeof removeEventMemberValidationSchema>
 
 export {
@@ -68,5 +59,5 @@ export {
   EventUpdateValidationSchema,
   getSubEVenntOfEventValidationSchema,
   type createEventType,
-  type updateEventType,
+  UpdateEventType,
 };

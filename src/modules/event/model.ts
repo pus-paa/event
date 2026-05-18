@@ -1,4 +1,7 @@
 import db from "@/config/db";
+import { UpdateEventType } from "@/modules/event/validators"
+import invitation from "@/modules/invitation/schema"
+
 import { sql, eq, or, and, isNull, notInArray } from "drizzle-orm";
 import event from "./schema";
 import { event_vendorTable } from "@/config/db/schema";
@@ -47,7 +50,7 @@ class Event {
       totalPages: Math.ceil(count / limit),
     };
   }
-  static async create(params:  Partial<EventColumn>) {
+  static async create(params: Partial<EventColumn>) {
     const result = await db
       .insert(event)
       .values(params as any)
@@ -74,10 +77,10 @@ class Event {
     return result[0] || null;
   }
 
-  static async update(params: Partial<EventColumn>, id: number) {
+  static async update(params: any, id: number) {
     const result = await db
       .update(event)
-      .set({ ...params, updatedAt: new Date() } as any)
+      .set(params)
       .where(eq(event.id, id))
       .returning();
     return result[0] || null;
@@ -120,6 +123,44 @@ class Event {
       .from(event_member_schema)
       .where(eq(event_member_schema.eventId, eventId))
       .leftJoin(user, eq(user.id, event_member_schema.userId));
+    return result;
+  }
+
+  static async getRoleforUser(eventId: number, userId: number) {
+    const result = await db.select({
+      userId: sql<string>`COALESCE(
+      ${event_member_schema.userId},
+      ${invitation.userId}
+    )`.as('userId'),
+
+      role: sql<string>`COALESCE(
+      ${invitation.category},
+      ${event_member_schema.role}
+    )`.as('role'),
+
+      isMember: sql<boolean>`${event_member_schema.userId} IS NOT NULL`.as('isMember'),
+      isInvited: sql<boolean>`${invitation.userId} IS NOT NULL`.as('isInvited'),
+    }).from(event)
+      .leftJoin(event_member_schema,
+        and(
+          eq(
+            event.id, event_member_schema.eventId
+          ),
+          eq(
+            event_member_schema.userId, userId
+          )
+        )
+      ).leftJoin(
+        invitation,
+        and(
+          eq(
+            invitation.eventId, eventId
+          ),
+          eq(
+            invitation.userId, userId
+          )
+        )
+      ).where(eq(event.id, eventId))
     return result;
   }
 

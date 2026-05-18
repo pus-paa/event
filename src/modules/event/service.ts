@@ -10,7 +10,7 @@ import {
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,
   EventValidationSchema,
-  type updateEventType,
+  UpdateEventType
 } from "./validators";
 
 import {
@@ -138,11 +138,11 @@ const checkAuthorized = async (id: number, userId?: number) => {
   return true;
 };
 
-const update = async (id: number, input: updateEventType, userId?: number) => {
+const update = async (id: number, input: UpdateEventType, userId?: number) => {
   try {
     await checkAuthorized(id, userId);
+
     const result = EventUpdateValidationSchema.safeParse(input);
-    console.log(result);
 
     if (!result.success) {
       throw new Error(
@@ -150,17 +150,8 @@ const update = async (id: number, input: updateEventType, userId?: number) => {
       );
     }
 
-    const { rsvpDeadline, ...rest } = input as any;
-    const eventData = {
-      ...rest,
-      ...(input.startDateTime && {
-        startDateTime: new Date(input.startDateTime),
-      }),
-      ...(input.endDateTime && { endDateTime: new Date(input.endDateTime) }),
-      ...(rsvpDeadline && { rsvpDeadline: rsvpDeadline }),
-    };
 
-    const data = await Model.update(eventData as any, id); //TODO:
+    const data = await Model.update(result.data, id); //TODO:
     if (!data) throw new Error("Event not found or update failed");
     return Resource.toJson(data as any);
   } catch (err: any) {
@@ -245,6 +236,22 @@ const getUserRelatedToEvent = async (eventId: number, userId: number) => {
     throw error;
   }
 };
+
+const getUserwithRole = async (eventId: number, userId: number) => {
+  try {
+    const user: {
+      userId: string,
+      role: string,
+      isMember: boolean,
+      isInvited: boolean
+    }[] = await Model.getRoleforUser(eventId, userId);
+    return user;
+
+  } catch (err) {
+    throw err;
+  }
+
+}
 
 const makeEventMember = async (
   eventId: number,
@@ -347,4 +354,5 @@ export default {
   duplicateSubevent,
   removeEventMember,
   getSubEventOfEvent,
+  getUserwithRole,
 };
