@@ -23,6 +23,8 @@ export interface EventColumn {
   date: string | null;
   imageUrl: string | null;
   rsvpDeadline?: string | null;
+  venueId?: number | null;
+
 }
 export interface EventGuestColumn {
   user: User;
@@ -49,6 +51,7 @@ class Resource {
       parentId: event.parentId,
       location: event.location,
       venue: event.venue,
+      venueId: event.venueId,
       role: event.role,
       status: "upcoming",
       organizer: event.organizer,

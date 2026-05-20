@@ -11,6 +11,7 @@ const EventValidationSchema = z.object({
     ),
   type: z.string().default("WEDDING"),
   venue: z.string(),
+  venueId: z.number().int().optional(),
   startDateTime: dateSchema.nonoptional()
   ,
   endDateTime: dateSchema.nonoptional(),

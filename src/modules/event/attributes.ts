@@ -37,6 +37,7 @@ const eventAttribute = {
   visiblity: varchar("visiblity"),
   status: varchar("status", { length: 20 }),
   venue: varchar("venue", { length: 50 }),
+  venueId: integer("venue_id"),
   theme: varchar("theme", { length: 50 }),
   attire: varchar("attire", { length: 50 }),
   side: varchar("side", { length: 20 }),
