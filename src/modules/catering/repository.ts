@@ -19,8 +19,10 @@ const menuSelectQuery = {
   id: menuSchema.id,
   name: menuSchema.name,
   description: menuSchema.description,
-  cateringId: menuSchema.cateringId,
+  note: menuSchema.note,
+  guestCount: menuSchema.guestCount,
   type: menuSchema.type,
+  cateringId: menuSchema.cateringId,
   createdAt: menuSchema.createdAt,
   updatedAt: menuSchema.updatedAt,
 };

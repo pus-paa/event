@@ -1,4 +1,5 @@
 import { type IAuthRequest } from "@/routes/index";
+import BudgetService from "@/modules/budget/service"
 import * as Service from "./service";
 import CateringModel from "./model";
 import { throwErrorOnValidation } from "@/utils/error";
@@ -34,8 +35,6 @@ const create = async (req: IAuthRequest) => {
     const userId = req.user?.id;
     const { eventId } = req.params;
 
-    console.log("🚀🚀🚀🚀🚀🚀", eventId, req.params);
-
     if (!userId) {
       return throwErrorOnValidation("User not authenticated");
     }
@@ -49,6 +48,10 @@ const create = async (req: IAuthRequest) => {
       Number(eventId),
       userId,
     );
+
+
+    //Create the expense for the category  in the already exist or newly created category 
+
     return data;
   } catch (err: any) {
     throw err;
@@ -209,8 +212,20 @@ const deleteMenuItem = async (req: IAuthRequest) => {
   }
 };
 
+const createCateringExpense = async (req: IAuthRequest) => {
+  try {
+    const cateringId = Number(req.params.cateringId);
+    const userId = req.user.id;
+    const addCateringExpense = await Service.createCateringexpense(req.body, userId, cateringId)
+    return addCateringExpense;
+  }
+  catch (err) {
+    throw err;
+  }
+}
 export default {
   get,
+  createCateringExpense,
   findOne,
   create,
   update,

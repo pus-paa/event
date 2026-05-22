@@ -1,5 +1,7 @@
 import logger from "@/config/logger";
-import z from "zod";
+import BudgetModel from "@/modules/budget/model"
+import BudgetService from "@/modules/budget/service"
+
 import Model from "./model";
 import Resource from "./resource";
 import {
@@ -57,7 +59,7 @@ const listCaterings = async (params: any) => {
 
     return {
       ...caterings,
-      items: caterings.items.map((item) => Resource.toJson(item)),
+      items: caterings.items.map((item) => Resource.toJson(item as any)),
     };
   } catch (error: any) {
     logger.error(`Error fetching caterings: ${error.message}`);
@@ -93,8 +95,7 @@ const createCatering = async (
       return throwErrorOnValidation("Failed to create catering");
     }
 
-    logger.info(`Catering created successfully: ${catering.id}`);
-    return Resource.toJson(catering);
+    return Resource.toJson(catering as any);
   } catch (error: any) {
     logger.error(`Error creating catering: ${error.message}`);
     throw error;
@@ -144,6 +145,18 @@ const updateCatering = async (
     }
 
     const updatedCatering = await Model.updateCatering(cateringId, input);
+    if (input.noOfpax || input.perPlateprice) { //If there is the condition to udpate the price per plate 
+      const TotalAmount = Number(updatedCatering?.noOfpax) * Number(updatedCatering?.perPlateprice);
+      const cateringExpenseInfo = await BudgetModel.getExpenseWithCateringId(cateringId);
+      if (cateringExpenseInfo) {
+        await BudgetService.updateExpense(
+          cateringExpenseInfo.id, {
+          allocatedAmount: TotalAmount
+        }, userId
+        )
+      }
+
+    }
 
     if (!updatedCatering) {
       return throwErrorOnValidation("Failed to update catering");
@@ -301,8 +314,53 @@ const deleteMenuItem = async (menuItemId: number, userId: number) => {
   }
 };
 
+const createCateringexpense = async (input: {
+  subEventId?: number
+  , eventId: number
+}, userId: number, cateringId: number) => {
+  try {
+    const cateringDetail = await Model.findCateringById(cateringId);
+    if (!cateringDetail?.id) {
+      return throwNotFoundError("catering with the detail was not found");
+    }
+
+    const Eventcategories = await BudgetService.getAllBudgetCategories(input.eventId, userId);
+    let cateringCategory;
+    cateringCategory = Eventcategories.find((value) => {
+      return "Catering" == value?.name
+    })
+    const TotalAmount = Number(Number(cateringDetail?.noOfpax) * Number(cateringDetail?.perPlateprice));
+
+    if (!cateringCategory?.id) {
+      cateringCategory = await BudgetService.createBudgetCategory({
+        name: "Catering",
+        allocatedBudget: TotalAmount
+      }, userId, input.eventId);
+    }
+
+    if (cateringCategory?.id) {
+      const expenseCatering = await BudgetService.addExpenseToCategory({
+        subEventid: input.subEventId ?? undefined, // only add the subeevent When there is the subevent assiggned for the catering event
+        name: cateringDetail.name,
+        allocatedAmount: TotalAmount,
+        cateringId: cateringDetail.id,
+        businessId: cateringDetail.vendorId ?? undefined,
+      }, userId, cateringCategory.id
+      );
+      logger.info(`Catering created successfully: ${expenseCatering}`);
+      return expenseCatering;
+    }
+    else {
+      throw new Error("Error while trying to attach the expense for the cateirng ");
+    }
+  }
+  catch (err) {
+  }
+}
+
 export {
   listCaterings,
+  createCateringexpense,
   createCatering,
   findCateringById,
   updateCatering,

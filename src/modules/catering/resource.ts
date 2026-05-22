@@ -1,7 +1,7 @@
 export interface CateringColumn {
   id: number;
   name: string;
-  perPlateprice: string;
+  perPlateprice: number;
   startDateTime: Date;
   endDateTime: Date;
   noOfpax: number | null | undefined;
@@ -15,6 +15,8 @@ export interface CateringColumn {
 
 export interface MenuItemColumn {
   id: number;
+  guestCount: number | undefined;
+  note: string | undefined;
   name: string;
   description: string;
   cateringId: number;
@@ -57,6 +59,8 @@ class Resource {
       description: menuItem.description,
       cateringId: menuItem.cateringId,
       type: menuItem.type,
+      guestCount: menuItem.guestCount,
+      note: menuItem.note,
       createdAt: menuItem.createdAt,
       updatedAt: menuItem.updatedAt,
     };

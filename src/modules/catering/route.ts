@@ -8,6 +8,7 @@ import {
   DeleteCateringSchema,
   CreateMenuItemSchema,
   UpdateMenuItemSchema,
+  CreateCateringExpense,
 } from "./validators";
 
 const routes = [
@@ -53,6 +54,13 @@ const routes = [
     path: "catering/:cateringId/menu",
     authorization: true,
     validation: validate(CreateMenuItemSchema),
+  },
+  {
+    method: "post" as const,
+    controller: Controller.createCateringExpense,
+    path: "catering/expense/:cateringId",
+    authorization: true,
+    validation: validate(CreateCateringExpense)
   },
   {
     method: "get" as const,
