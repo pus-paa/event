@@ -55,3 +55,4 @@ export {
   menuSchema,
   review
 };
+export { default as favourites } from "@/modules/favourites/schema";
