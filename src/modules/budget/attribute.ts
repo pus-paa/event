@@ -1,4 +1,5 @@
 import { buisness, event } from "@/config/db/schema";
+import catering from "@/modules/catering/schema"
 import {
   integer,
   serial,
@@ -48,6 +49,7 @@ const expenseAttributes = {
     .notNull()
     .references(() => budgetCategory.id, { onDelete: "cascade" }),
   subEventid: integer("sub_event_id").references(() => event.id),
+  cateringId: integer('catering_id').references(() => catering.id),
   name: varchar("name", { length: 255 }).notNull(),
   businessId: integer("vendor_id").references(() => buisness.id),
   allocatedAmount: numeric("allocated_amount", {

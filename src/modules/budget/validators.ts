@@ -6,7 +6,6 @@ const createBudgetCategorySchema = z.object({
   }),
   body: z.object({
     name: z.string().max(255),
-    subEventId: z.number().optional(),
     allocatedBudget: z.number().positive(),
   }),
 });
@@ -30,6 +29,7 @@ const addExpenseToCategorySchema = z.object({
     allocatedAmount: z.number().positive(),
     nextDueDate: z.coerce.date().optional(),
     notes: z.string().max(999).optional(),
+    cateringId: z.number().optional(),
     businessId: z.coerce.number().positive().optional(),
     subEventid: z.number().optional(),
   }),
@@ -38,10 +38,10 @@ const addExpenseToCategorySchema = z.object({
 const updateExpenseSchema = z.object({
   params: z.object({
     expenseId: z.coerce.number().positive(),
-  }),
-  body: z.object({
+  }), body: z.object({
     name: z.string().max(255).optional(),
     allocatedAmount: z.number().positive().optional(),
+    cateringId: z.number().optional(),
     subEventid: z.number().optional(),
     nextDueDate: z.coerce.date().optional(),
     notes: z.string().max(999).optional(),

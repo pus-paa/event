@@ -34,9 +34,6 @@ const createBudgetCategory = async (
     );
   //CHeck if there is the sub event then this operaion will be done to that sub event id 
 
-  if (input.subEventId) {
-    budgeteventId = input.subEventId;
-  }
   const info = await Budget.totalAllocatedAndRemainingBudget(budgeteventId);
   if (input.allocatedBudget > info.remainingBudgetToAllocate)
     throwForbiddenError(
@@ -45,8 +42,7 @@ const createBudgetCategory = async (
   //EventId will be overridden by the sub event id 
   const category = await Budget.createBudgetCategory({ ...input, eventId: budgeteventId });
 
-  if (!category) throw new Error("Failed to create budget category");
-  return BudgetCategoryResource.toJson(category);
+  if (!category) throw new Error("Failed to create budget category"); return BudgetCategoryResource.toJson(category);
 };
 
 const getBudgetCategory = async (categoryId: number, userId: number) => {
@@ -281,6 +277,7 @@ const updateExpense = async (
   const expenseData = await Budget.getExpenseById(expenseId);
   if (expenseData?.cateringId) {
     //update input.expenseData has
+
   }
 
   if (!expenseData) throwNotFoundError("Expense");

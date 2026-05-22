@@ -15,11 +15,11 @@ class Budget {
   static async totalAllocatedAndRemainingBudget(eventId: number) {
     const result = await db
       .select(Repository.budgetCategorySelectQuery)
-      .from(budgetCategory).leftJoin(event , eq(budgetCategory.eventId , event.id))
+      .from(budgetCategory).leftJoin(event, eq(budgetCategory.eventId, event.id))
       .where(
         or(
-          eq(budgetCategory.eventId, eventId) , 
-          eq(budgetCategory.eventId ,event.parentId )
+          eq(budgetCategory.eventId, eventId),
+          eq(budgetCategory.eventId, event.parentId)
         )
       );
 
@@ -78,6 +78,7 @@ class Budget {
             categoryId: row.categoryId,
             name: row.expenseName,
             businessId: row.businessId,
+            cateringId: row.cateringId,
             allocatedAmount: Number(row.allocatedAmount),
             subEventid: row.subEventid,
             nextDueDate: row.nextDueDate,
@@ -97,15 +98,15 @@ class Budget {
 
   static async getAllBudgetCategories(eventId: number) {
     const result = await db
-    .select(Repository.budgetCategorySelectQuery)
-    .from(budgetCategory)
-    .leftJoin(event, eq(budgetCategory.eventId, event.id)) 
-    .where(
-      or(
-        eq(event.id, eventId),        
-        eq(event.parentId, eventId)   
-      )
-    );
+      .select(Repository.budgetCategorySelectQuery)
+      .from(budgetCategory)
+      .leftJoin(event, eq(budgetCategory.eventId, event.id))
+      .where(
+        or(
+          eq(event.id, eventId),
+          eq(event.parentId, eventId)
+        )
+      );
     return result;
   }
 
@@ -140,13 +141,14 @@ class Budget {
     const result = await db
       .insert(expense)
       .values({
-        categoryId: params.categoryId,
-        name: params.name,
         allocatedAmount: params.allocatedAmount.toString(),
         nextDueDate: params.nextDueDate?.toISOString().split("T")[0] ?? null,
-        notes: params.notes ?? null,
-        businessId: params.businessId ?? null,
-        subEventid: params.subEventid ,
+        notes: params.notes ?? undefined,
+        businessId: params.businessId ?? undefined,
+        categoryId: params.categoryId,
+        name: params.name,
+        subEventid: params.subEventid,
+        cateringId: params.cateringId
       })
       .returning();
     return result[0];
@@ -169,6 +171,7 @@ class Budget {
       name: rows[0]?.expense.name,
       businessId: rows[0]?.expense.businessId,
       allocatedAmount: Number(rows[0]?.expense.allocatedAmount),
+      cateringId: Number(rows[0]?.expense.cateringId),
       nextDueDate: rows[0]?.expense.nextDueDate,
       notes: rows[0]?.expense.notes,
       subEventid: rows[0]?.expense.subEventid,
@@ -213,17 +216,22 @@ class Budget {
       .where(eq(expense.categoryId, categoryId));
     return result;
   }
+  static async getExpenseWithCateringId(cateringId: number) {
+    const result = await db.select().from(expense).where(eq(expense.cateringId, cateringId));
+    return result[0];
+  }
 
   static async updateExpense(expenseId: number, params: UpdateExpenseInput) {
-    const updateData:{
+    const updateData: {
       name?: string;
       allocatedAmount?: string;
       nextDueDate?: string;
+      cateringId?: number;
       notes?: string | null;
       businessId?: number | null;
       subEventid?: number | null;
     } = {};
-    if(params.subEventid !== undefined) updateData.subEventid = params.subEventid;
+    if (params.subEventid !== undefined) updateData.subEventid = params.subEventid;
     if (params.name) updateData.name = params.name;
     if (params.allocatedAmount)
       updateData.allocatedAmount = params.allocatedAmount.toString();
@@ -232,7 +240,9 @@ class Budget {
     if (params.notes !== undefined) updateData.notes = params.notes;
     if (params.businessId !== undefined)
       updateData.businessId = params.businessId;
-
+    if (params.cateringId !== undefined) {
+      updateData.cateringId = params.cateringId;
+    }
     const result = await db
       .update(expense)
       .set(updateData)
@@ -353,6 +363,7 @@ class Budget {
         categoryUpdatedAt: budgetCategory.updatedAt,
         expenseId: expense.id,
         subEventid: expense.subEventid,
+        expenseCateringId: expense.cateringId,
         expenseName: expense.name,
         allocatedAmount: expense.allocatedAmount,
         paymentId: payment.id,
@@ -390,6 +401,7 @@ class Budget {
             id: row.expenseId,
             subEventid: row.subEventid,
             categoryId: row.categoryId,
+            cateringId: row.expenseCateringId,
             allocated: Number(row.allocatedAmount),
             spent: 0,
             balance: 0,
