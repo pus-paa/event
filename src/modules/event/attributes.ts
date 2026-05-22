@@ -5,6 +5,7 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import business, { vendor_venue_schema } from "@/modules/businesses/schema"
 const tableName = "event";
 import user from "@/modules/user/schema";
 
@@ -37,7 +38,8 @@ const eventAttribute = {
   visiblity: varchar("visiblity"),
   status: varchar("status", { length: 20 }),
   venue: varchar("venue", { length: 50 }),
-  venueId: integer("venue_id"),
+  venueBusinessid: integer("venue_business_id").references(() => business.id, { onDelete: "set null" }),
+  venueId: integer("venue_id").references(() => vendor_venue_schema.id, { onDelete: "set null" }),
   theme: varchar("theme", { length: 50 }),
   attire: varchar("attire", { length: 50 }),
   side: varchar("side", { length: 20 }),

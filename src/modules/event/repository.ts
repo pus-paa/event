@@ -12,6 +12,7 @@ const baseSelectQuery = {
   theme: event.theme,
   parentId: event.parentId,
   location: event.location,
+  venueBusinessid: event.venueBusinessid,
   venue: event.venue,
   venueId: event.venueId,
   dressCode: event.dressCode,

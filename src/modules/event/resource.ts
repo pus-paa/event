@@ -8,6 +8,7 @@ export interface EventColumn {
   type: any;
   budget: number | null;
   theme: string | null;
+  venueBusinessid?: number;
   parentId: number | null;
   startDateTime: Date | null;
   endDateTime: Date | null;
@@ -50,6 +51,7 @@ class Resource {
       theme: event.theme,
       parentId: event.parentId,
       location: event.location,
+      venueBusinessid: event.venueBusinessid,
       venue: event.venue,
       venueId: event.venueId,
       role: event.role,

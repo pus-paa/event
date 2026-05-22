@@ -141,7 +141,7 @@ const checkAuthorized = async (id: number, userId?: number) => {
 const update = async (id: number, input: UpdateEventType, userId?: number) => {
   try {
     await checkAuthorized(id, userId);
-
+    console.log(input);
     const result = EventUpdateValidationSchema.safeParse(input);
 
     if (!result.success) {
