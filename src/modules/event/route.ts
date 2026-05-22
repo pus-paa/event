@@ -66,7 +66,6 @@ const routes = [
     controller: Controller.update,
     path: "event/:id",
     authorization: true,
-    authCheckType: [role.user],
   },
   {
     method: "delete",

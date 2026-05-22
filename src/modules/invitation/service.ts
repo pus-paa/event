@@ -153,7 +153,6 @@ const setResponce = async (
     } else {
       params = body;
     }
-    console.log('UPdateing the database data', params);
     const result = await Model.makeEventGuest({
       eventId: eventId,
       guestId: body.userId,

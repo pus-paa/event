@@ -333,7 +333,7 @@ export default class Invitation {
       .insert(invitation)
       .values({
         ...baseData,
-        category: params.category!,
+        category: params.category,
         eventId: eventId,
         invitedBy: invitedBy,
       })
