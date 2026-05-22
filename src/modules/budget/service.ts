@@ -279,6 +279,10 @@ const updateExpense = async (
   userId: number,
 ) => {
   const expenseData = await Budget.getExpenseById(expenseId);
+  if (expenseData?.cateringId) {
+    //update input.expenseData has
+  }
+
   if (!expenseData) throwNotFoundError("Expense");
 
   const category = await Budget.getBudgetCategoryById(
