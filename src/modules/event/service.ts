@@ -6,6 +6,7 @@ import Resource from "./resource";
 import logger from "@/config/logger";
 import {
   AddEventMemberValidationSchema,
+  removeEventMemberValidationSchema,
   removeEventMemberValidationType,
   AddEventMemberValidationSchemaType,
   EventUpdateValidationSchema,

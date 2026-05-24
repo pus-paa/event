@@ -42,7 +42,8 @@ const createBudgetCategory = async (
   //EventId will be overridden by the sub event id 
   const category = await Budget.createBudgetCategory({ ...input, eventId: budgeteventId });
 
-  if (!category) throw new Error("Failed to create budget category"); return BudgetCategoryResource.toJson(category);
+  if (!category) throw new Error("Failed to create budget category");
+  return BudgetCategoryResource.toJson(category);
 };
 
 const getBudgetCategory = async (categoryId: number, userId: number) => {

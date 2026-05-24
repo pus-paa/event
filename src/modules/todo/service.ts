@@ -42,7 +42,9 @@ const findByEventId = async (eventId: number, userId: number) => {
 
 const create = async (input: TodoInputType["body"], userId: number) => {
   try {
-
+    //Check if the user is the organizer of the event if not the guest
+    const getUserwithRole = await Eventservice.getUserwithRole(input.eventId, userId);
+    console.log(getUserwithRole, 'THis is the event with the tole in the backend ');
     const data = await Model.create(input, userId);
     if (!data) throw new Error("Todo creation failed");
 

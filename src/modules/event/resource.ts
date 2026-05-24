@@ -8,7 +8,8 @@ export interface EventColumn {
   type: any;
   budget: number | null;
   theme: string | null;
-  venueBusinessid?: number;
+  venueBusinessid?: number |undefined ; 
+  venueId?: number |undefined | null ;
   parentId: number | null;
   startDateTime: Date | null;
   endDateTime: Date | null;
@@ -24,7 +25,6 @@ export interface EventColumn {
   date: string | null;
   imageUrl: string | null;
   rsvpDeadline?: string | null;
-  venueId?: number | null;
 
 }
 export interface EventGuestColumn {
@@ -60,7 +60,7 @@ class Resource {
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
       rsvpDeadline: event.rsvpDeadline,
-      imageUrl: event.imageUrl || photos[Math.floor(((Math.random() * 1000) % 6) + 1)]?.url
+      imageUrl: photos[Math.floor(((Math.random() * 1000) % 6) + 1)]?.url || event.imageUrl
     };
     return data;
   }
