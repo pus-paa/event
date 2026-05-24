@@ -94,6 +94,9 @@ const listinvitationsResponce = async (
   }
 };
 
+//Make another service for the guest and for the organizer  , have the search if this is the organizer or not then redirect to the noon Organizer responce handler 
+// The another will have the guest invitation and checks needed to be done and then will handle all the cases there
+
 const setResponce = async (
   body: setResponcevalidationType["body"],
   userId: number,
@@ -101,70 +104,203 @@ const setResponce = async (
   eventId: number,
 ) => {
   try {
-    let invitations;
-    invitations = await Model.findInvitationEvent({
+    const isOrganizer = await EventService.checkAuthorized(eventId, userId);
+    if (isOrganizer) {
+      return await OrganizerResponceSet(body, userId, eventId);
+    }
+
+    return await setResponceForGuest(body, userId, familyId, eventId);
+  } catch (err) {
+    throw err;
+  }
+};
+
+const OrganizerResponceSet = async (
+  body: setResponcevalidationType["body"],
+  userId: number,
+  eventId: number,
+) => {
+  try {
+    //Validation for the organizer related Resopnce 
+    logger.debug({
+      text: "This is the organizer responce set handler",
+      eventId: eventId,
+      guestId: body.userId,
+      userId: userId,
+      params: body,
+    });
+    let invitation = await Model.find({
+      eventId: eventId,
+      userId: body.userId,
+    });
+
+    if (!invitation && body.familyId) {
+      invitation = await Model.find({
+        eventId: eventId,
+        familyId: body.familyId,
+      });
+    }
+
+    if (!invitation) {
+      throwNotFoundError("Invitation was not found for the user");
+      return;
+    }
+
+    const params =
+      invitation && body.userId !== invitation.userId && invitation.familyId
+        ? {
+          ...body,
+          category: invitation.category,
+          invitationName: invitation.invitationName,
+        }
+        : body;
+
+    return await upsertInvitationResponse({
+      invitation,
+      eventId,
+      invitedBy: userId,
+      familyId: invitation.familyId ? invitation.familyId : undefined,
+      params,
+    });
+  } catch (err) {
+    throw err;
+  }
+}
+
+const setResponceForGuest = async (
+  body: setResponcevalidationType["body"],
+  userId: number,
+  familyId: number | null = null,
+  eventId: number,
+) => {
+  try {
+    logger.debug({
+      data: "THis is the data send by the user to set the responce from the ui ",
+      input: body,
+    });
+
+    let invitations = await Model.find({
       eventId: eventId,
       userId: userId,
       familyId: familyId ?? undefined,
     });
-    //Doer Ko invitation
 
     if (!invitations) {
-      const eventMembers = await EventService.getUserRelatedToEvent(
-        eventId,
-        userId,
-      );
-
-      const isOrganizer = eventMembers.some(
-        (user) => user?.user?.id === userId,
-      );
-      //Getting the invitation for the user that we are trying to set the responce ; 
-      invitations = await Model.findInvitationEvent({
+      invitations = await Model.find({
         eventId: eventId,
-        userId: isOrganizer ? body.userId : userId,
+        userId: body.userId,
         familyId: familyId ?? undefined,
       });
     }
 
+    logger.debug({
+      invitation: "This is the invitation",
+      invitationsasd: invitations,
+    });
+
     if (!invitations) {
       return throwNotFoundError("Invitation was not found");
     }
+
     const canRespondAsSelf = invitations.userId === userId;
     const canRespondAsFamily =
       familyId !== null &&
       invitations.familyId !== null &&
       invitations.familyId === familyId;
 
-    const canRespondAsOrganizer = invitations.invitedBy === userId;
-
-    if (!canRespondAsSelf && !canRespondAsFamily && !canRespondAsOrganizer) {
+    if (!canRespondAsSelf && !canRespondAsFamily) {
       throwForbiddenError("You are not allowed to respond to this invitation");
     }
 
-    let params;
+    const params =
+      invitations && userId !== body.userId && familyId !== null
+        ? {
+          ...body,
+          category: invitations.category,
+          invitationName: invitations.invitationName,
+        }
+        : body;
 
-    if (invitations && userId !== body.userId && familyId !== null) {
-      //Import the category fromt he family Id to make the same category when responding for the family invitation for the family memebr 
-      params = {
-        ...body,
-        category: invitations.category,
-        invitationName: invitations.invitationName,
-      };
-    } else {
-      params = body;
-    }
-    const result = await Model.makeEventGuest({
+    logger.debug({
+      text: "This the event guest detail ",
       eventId: eventId,
       guestId: body.userId,
       invitedBy: Number(invitations?.invitedBy!),
       familyId: invitations.familyId ? invitations.familyId : undefined,
       params,
     });
-    return result;
+
+    return await upsertInvitationResponse({
+      invitation: invitations,
+      eventId,
+      invitedBy: Number(invitations?.invitedBy!),
+      familyId: invitations.familyId ? invitations.familyId : undefined,
+      params,
+    });
   } catch (err) {
     throw err;
   }
-};
+}
+
+const upsertInvitationResponse = async ({
+  invitation,
+  eventId,
+  invitedBy,
+  familyId,
+  params,
+}: {
+  invitation: any;
+  eventId: number;
+  invitedBy: number;
+  familyId?: number;
+  params: setResponcevalidationType["body"];
+}) => {
+  const baseData = {
+    ...params,
+    invitedBy: params.invitedBy ?? invitedBy,
+    eventId,
+    familyId: familyId,
+  };
+
+  if (invitation?.id) {
+    const nextStatus = params.status;
+    const shouldClearResponseDetails =
+      nextStatus === invitationStatus.rejected;
+
+    const clearedResponseFields = shouldClearResponseDetails
+      ? {
+        notes: null,
+        arrivalDatetime: null,
+        departureDatetime: null,
+        isAccomodation: null,
+        isArrivalPickupRequired: false,
+        isDeparturePickupRequired: false,
+        assignedRoom: null,
+        arrivalInfo: null,
+        departureInfo: null,
+        respondedBy: null,
+        status: invitationStatus.rejected,
+        respondedAt: null,
+      }
+      : {};
+
+    return await Model.update(
+      {
+        ...baseData,
+        ...clearedResponseFields,
+        updatedAt: new Date(),
+      },
+      invitation.id,
+    );
+  }
+
+  return await Model.create({
+    ...baseData,
+    category: params.category as string,
+    eventId: eventId,
+    invitedBy: invitedBy,
+  });
+}
 
 const inviteGuest = async (
   input: EventInvitationType,
@@ -260,6 +396,9 @@ const getEventguest = async (eventid: number, userId: number) => {
     throw err;
   }
 };
+
+
+
 const getEventHotelManagement = async (eventId: number, userId: number) => {
   try {
     console.log('The user in the hotel management is', userId);

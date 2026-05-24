@@ -7,7 +7,7 @@ import { and, eq, isNull, ne, or, sql } from "drizzle-orm";
 import repository from "./repository";
 import Resource, { InvitationColumn } from "./resource";
 import invitation, { guest_category_schema } from "./schema";
-import { setResponcevalidationType } from "./validators";
+import logger from "@/config/logger";
 
 export default class Invitation {
   static readonly DEFAULT_GUEST_CATEGORIES = [
@@ -139,6 +139,14 @@ export default class Invitation {
     eventId: number;
   }) {
     const invitationConditions = [];
+
+    logger.debug({
+      message: "Finding invitation event with params",
+      userId,
+      familyId,
+      eventId,
+    });
+
     if (userId !== undefined && familyId !== undefined) {
       invitationConditions.push(
         or(eq(invitation.userId, userId), eq(invitation.familyId, familyId)),
@@ -163,6 +171,10 @@ export default class Invitation {
       .where(whereCondition);
 
     const result = await query;
+    logger.debug({
+      message: "Query result for finding invitation event",
+      result,
+    });
 
     return result[0] || null;
   }
@@ -252,6 +264,7 @@ export default class Invitation {
     if (familyId !== undefined) {
       conditions.push(eq(invitation.familyId, familyId));
     }
+    console.log('Finding invitation with conditions:', eventId , userId , familyId);
 
     if (conditions.length === 0) return null;
 
@@ -259,86 +272,8 @@ export default class Invitation {
       .select(repository.select)
       .from(invitation)
       .where(and(...conditions));
+    console.log("The invitation requested by the backend about the system is ", result);
     return result[0] || null;
-  }
-  static async makeEventGuest({
-    eventId,
-    guestId,
-    invitedBy,
-    familyId,
-    params,
-  }: {
-    eventId: number;
-    guestId: number;
-    invitedBy: number;
-    params: setResponcevalidationType["body"];
-    familyId?: number;
-  }) {
-    const existingGuest = await db
-      .select({
-        id: invitation.id,
-        isFamily: invitation.familyId,
-        status: invitation.status,
-      })
-      .from(invitation)
-      .leftJoin(event, eq(invitation.eventId, event.id))
-      .where(
-        and(eq(invitation.eventId, eventId), eq(invitation.userId, guestId)),
-      )
-      .limit(1);
-
-    const baseData = {
-      ...params,
-      invitedBy: params.invitedBy ?? invitedBy,
-      eventId,
-      familyId: familyId,
-    };
-    console.log('This is the base data', baseData);
-
-    if (existingGuest[0]?.id) {
-      const nextStatus = params.status;
-      const shouldClearResponseDetails =
-        nextStatus === invitationStatus.rejected;
-
-      const clearedResponseFields = shouldClearResponseDetails
-        ? {
-          notes: null,
-          arrivalDatetime: null,
-          departureDatetime: null,
-          isAccomodation: null,
-          isArrivalPickupRequired: false,
-          isDeparturePickupRequired: false,
-          assignedRoom: null,
-          arrivalInfo: null,
-          departureInfo: null,
-          respondedBy: null,
-          status: invitationStatus.rejected,
-          respondedAt: null,
-        }
-        : {};
-
-      const updated = await db
-        .update(invitation)
-        .set({
-          ...baseData,
-          ...clearedResponseFields,
-          updatedAt: new Date(),
-        })
-        .where(eq(invitation.id, existingGuest[0].id))
-        .returning();
-      return updated[0] ?? null;
-    }
-
-    const inserted = await db
-      .insert(invitation)
-      .values({
-        ...baseData,
-        category: params.category,
-        eventId: eventId,
-        invitedBy: invitedBy,
-      })
-      .returning();
-    return inserted[0] ?? null;
   }
 
   static async removeEventGuestWhileRemovingFamilyMember(

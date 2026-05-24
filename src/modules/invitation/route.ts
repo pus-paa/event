@@ -9,6 +9,12 @@ const route = [
     authorization: true,
   },
   {
+    method: "path",
+    controller: Controller.setDraftToInvited,
+    path: "rsvp/set-draft-to-invited/:invitationId",
+    authorization: true
+  },
+  {
     method: "get",
     controller: Controller.getInvitationResponse,
     path: "invitation/event-responses/:id",

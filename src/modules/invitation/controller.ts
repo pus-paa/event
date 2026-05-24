@@ -80,6 +80,20 @@ const getEventGuest = async (req: IAuthRequest) => {
     throw err;
   }
 }
+const setDraftToInvited = async (req: IAuthRequest) => {
+  try {
+    const invitationId = req.params.invitationId;
+    const userId = req.user.id;
+    console.log('This is the invitation id for the given invitation');
+    return true;
+
+  }
+  catch (err) {
+    throw err;
+
+  }
+
+}
 const removeinvitation = async (req: IAuthRequest) => {
   try {
     const { id } = req.params;
@@ -185,6 +199,7 @@ const importGuest = async (req: IAuthRequest) => {
 export default {
   importGuest,
   setResponce,
+  setDraftToInvited,
   getHotelManegemt,
   removeinvitation,
   sendInvitation,
