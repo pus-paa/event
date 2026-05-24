@@ -10,11 +10,10 @@ const EventValidationSchema = z.object({
       "https://images.unsplash.com/photo-1522673607200-1645062cd5d1?w=800&q=80",
     ),
   type: z.string().default("WEDDING"),
-  venue: z.string(),
+  venue: z.string().optional(),
   venueId: z.number().int().optional(),
   venueBusinessid: z.number().int().optional(),
-  startDateTime: dateSchema.nonoptional()
-  ,
+  startDateTime: dateSchema.nonoptional(),
   endDateTime: dateSchema.nonoptional(),
   budget: z.number().int().min(0).optional(),
   theme: z.string().optional(),
