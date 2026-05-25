@@ -2,6 +2,7 @@ import {
   throwErrorOnValidation,
   throwForbiddenError,
   throwNotFoundError,
+  throwUnauthorizedError,
 } from "@/utils/error";
 import Model from "./model";
 import {
@@ -182,12 +183,16 @@ const getEventVendorDetails = async (eventId: number, userId: number) => {
 
 const getEventVendor = async (vendorId: number, userId: number, eventId: number) => {
   try {
+    const isOrganizer = await EventService.checkAuthorized(eventId, userId);
+    if (!isOrganizer) {
+      return throwUnauthorizedError("Not authorized to see the ggiven event vendor");
+    }
     const result = Model.findEventVendorLink(eventId, vendorId);
     return result;
   } catch (err) {
     throw err;
   }
-    
+
 }
 const getVendorEvent = async (vendorId: number, userId: number) => {
   try {

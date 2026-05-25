@@ -7,7 +7,7 @@ export interface CateringColumn {
   noOfpax: number | null | undefined;
   eventId: number;
   mealType: string;
-  isVeg: boolean;
+  isVeg: boolean | null;
   vendorId: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -15,8 +15,8 @@ export interface CateringColumn {
 
 export interface MenuItemColumn {
   id: number;
-  guestCount: number | undefined;
-  note: string | undefined;
+  guestCount: number | null;
+  note: string | null;
   name: string;
   description: string;
   cateringId: number;

@@ -8,8 +8,8 @@ export interface EventColumn {
   type: any;
   budget: number | null;
   theme: string | null;
-  venueBusinessid?: number |undefined ; 
-  venueId?: number |undefined | null ;
+  venueBusinessid: number | null;
+  venueId?: number | undefined | null;
   parentId: number | null;
   startDateTime: Date | null;
   endDateTime: Date | null;

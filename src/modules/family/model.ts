@@ -104,7 +104,7 @@ class Family {
   ) {
     const result = await db
       .update(users)
-      .set(params)
+      .set({ ...params as any })
       .where(and(eq(users.familyId, familyId), eq(users.id, memberId)))
       .returning();
 

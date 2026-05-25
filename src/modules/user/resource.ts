@@ -1,7 +1,6 @@
 export interface UserColumn {
   id: number;
   username: string;
-  info: any | null;
   dob: string | null | Date | undefined;
   email: string | null;
   city: string | null;
@@ -39,7 +38,6 @@ class Resource {
       relation: user.relation,
       foodPreference: user.foodPreference,
       coverPhoto: user.coverPhoto,
-      info: user.info,
       dob: user.dob,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

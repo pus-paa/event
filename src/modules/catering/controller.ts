@@ -1,5 +1,4 @@
 import { type IAuthRequest } from "@/routes/index";
-import BudgetService from "@/modules/budget/service"
 import * as Service from "./service";
 import CateringModel from "./model";
 import { throwErrorOnValidation } from "@/utils/error";
