@@ -9,12 +9,6 @@ const route = [
     authorization: true,
   },
   {
-    method: "path",
-    controller: Controller.setDraftToInvited,
-    path: "rsvp/set-draft-to-invited/:invitationId",
-    authorization: true
-  },
-  {
     method: "get",
     controller: Controller.getInvitationResponse,
     path: "invitation/event-responses/:id",
@@ -35,13 +29,13 @@ const route = [
   },
   {
     method: "get",
-    controller: Controller.getEventGuest, // get the guest of the event in the id
+    controller: Controller.getEventGuest,
     path: "event/guest/:id",
     authorization: true,
   },
   {
     method: "post",
-    controller: Controller.sendInvitation, // send the invitation to the guest in the evnt
+    controller: Controller.sendInvitation, 
     path: "event/:eventId/invite",
     authorization: true,
   },

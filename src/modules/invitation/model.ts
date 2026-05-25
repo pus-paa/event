@@ -11,10 +11,10 @@ import logger from "@/config/logger";
 
 export default class Invitation {
   static readonly DEFAULT_GUEST_CATEGORIES = [
-    "friend",
-    "family",
-    "colleague",
-    "vvip",
+    "Friend",
+    "Family",
+    "Colleague",
+    "Vvip",
   ] as const;
 
   static async list(params: any) {

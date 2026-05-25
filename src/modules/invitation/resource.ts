@@ -1,4 +1,5 @@
 import { UserColumn } from "../user/resource";
+
 export interface InvitationColumn {
   id: number;
   userId: number | null;
@@ -15,7 +16,7 @@ export interface InvitationColumn {
   category: string;
   isArrivalPickupRequired: boolean | null;
   isDeparturePickupRequired: boolean | null;
-  unInvitedSubevent: number[];
+  unInvitedSubevent: number[] ;
   organizerNote: string | null;
   arrivalDatetime: Date | null;
   departureDatetime: Date | null;
@@ -27,6 +28,7 @@ export interface InvitationColumn {
   updatedAt: Date | null;
   createdAt: Date;
 }
+
 export interface FamilyInvitationResponseColumn {
   user: UserColumn;
   eventGuest: InvitationColumn | null;
@@ -49,6 +51,7 @@ export interface Invitation_Event {
   familyId: number | null;
   role?: string | null;
 }
+
 export interface Hotel_responce {
   user: UserColumn | null;
   room: string | null;
@@ -57,6 +60,7 @@ export interface Hotel_responce {
   category: string;
   invitationId: number;
 }
+
 class Resource {
   static toJson(invitation: InvitationColumn) {
     const data = {
