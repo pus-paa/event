@@ -31,6 +31,7 @@ const select = {
   assignedRoom: invitation.assignedRoom,
   arrivalInfo: invitation.arrivalInfo,
   departureInfo: invitation.departureInfo,
+  numberOfGuests: invitation.numberOfGuests,
   createdAt: invitation.createdAt,
   updatedAt: invitation.updatedAt,
 };

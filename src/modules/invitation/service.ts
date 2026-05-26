@@ -151,7 +151,7 @@ const OrganizerResponceSet = async (
         ? {
           ...body,
           category: invitation.category,
-          invitationName: invitation.invitationName,
+          invitationName: invitation.invitationName ?? undefined,
         }
         : body;
 
@@ -217,7 +217,7 @@ const setResponceForGuest = async (
         ? {
           ...body,
           category: invitations.category,
-          invitationName: invitations.invitationName,
+          invitationName: invitations.invitationName ?? undefined,
         }
         : body;
 
@@ -364,11 +364,12 @@ const inviteGuest = async (
     const invitation = await Invitation.create({
       eventId: eventId,
       userId: guestUser.id!,
-      invitationName: input.invitationName || "FAMILY",
+      invitationName: input.invitationName ?? undefined,
       familyId: isFamily ? guestUser.familyId : undefined,
       invitedBy: userId,
       status: input.isDraft ? invitationStatus.draft : invitationStatus.pending,
       category: input.category,
+      numberOfGuests: input.numberOfGuests,
     });
 
     if (!invitation) {

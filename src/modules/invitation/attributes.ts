@@ -14,9 +14,7 @@ import family from "@/modules/family/schema";
 const tableName = "invitation";
 const attributes = {
   id: serial("id").notNull().unique().primaryKey(),
-  invitationName: varchar("invitation_name", { length: 50 })
-    .notNull()
-    .default("Family name"),
+  invitationName: varchar("invitation_name", { length: 50 }),
   status: varchar("status", { length: 10 }), // accepted, declined, pending
   notes: varchar("notes", { length: 150 }),
   organizerNote: varchar("organizer_note", { length: 150 }),
@@ -49,6 +47,7 @@ const attributes = {
   departureLocation: varchar("departureLocation"),
   departureDatetime: timestamp("departure_date_time", { withTimezone: true }),
   assignedRoom: varchar("assigned_room", { length: 150 }),
+  numberOfGuests: integer("number_of_guests").default(1),
   unInvitedSubevent: jsonb("un_invited_subevent").array().$type<number[]>(),
   arrivalInfo: varchar("arrival_info", { length: 200 }),
   departureInfo: varchar("departure_info", { length: 200 }),
