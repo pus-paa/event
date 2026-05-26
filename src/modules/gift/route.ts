@@ -1,21 +1,29 @@
+import { validate } from "@/middlewares/zodValidation";
 import Controller from "./controller";
+import {
+	createGiftCategorySchema,
+	updateGiftCategorySchema,
+	createGiftSchema,
+	updateGiftSchema,
+} from "./validators";
 
 const routes = [
 	{
 		method: "get",
-		path: "event/:eventId/gift-categories",
+		path: "gift-categories/event/:eventId",
 		controller: Controller.getGiftCategories,
 		authorization: true,
 	},
 	{
 		method: "post",
-		path: "event/:eventId/gift-categories",
+		path: "gift-categories/event/:eventId",
 		controller: Controller.createGiftCategory,
 		authorization: true,
+		validation: validate(createGiftCategorySchema),
 	},
 	{
 		method: "get",
-		path: "event/:eventId/gift-categories-with-gifts",
+		path: "gift-categories/event/:eventId/gifts",
 		controller: Controller.getGiftCategoriesWithGifts,
 		authorization: true,
 	},
@@ -24,6 +32,7 @@ const routes = [
 		path: "gift-category/:categoryId",
 		controller: Controller.updateGiftCategory,
 		authorization: true,
+		validation: validate(updateGiftCategorySchema),
 	},
 	{
 		method: "delete",
@@ -33,15 +42,16 @@ const routes = [
 	},
 	{
 		method: "get",
-		path: "event/:eventId/gifts",
+		path: "gift/event/:eventId",
 		controller: Controller.listGifts,
 		authorization: true,
 	},
 	{
 		method: "post",
-		path: "event/:eventId/gifts",
+		path: "gift/event/:eventId",
 		controller: Controller.createGift,
 		authorization: true,
+		validation: validate(createGiftSchema),
 	},
 	{
 		method: "get",
@@ -54,6 +64,7 @@ const routes = [
 		path: "gift/:giftId",
 		controller: Controller.updateGift,
 		authorization: true,
+		validation: validate(updateGiftSchema),
 	},
 ];
 

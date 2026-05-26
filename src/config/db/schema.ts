@@ -15,6 +15,7 @@ import event from "@/modules/event/schema";
 import { assignedVehicle, vehicleSchema } from "@/modules/logistics/schema"
 import rsvp, { guest_category_schema } from "@/modules/invitation/schema";
 //import { vwEventDetails, vw_event_user } from "./view";
+import {gift , giftCategory} from "@/modules/gift/schema";
 import catering, { menuSchema } from "@/modules/catering/schema";
 import review from "@/modules/review/schema"
 import {
@@ -32,6 +33,8 @@ export {
   vehicleSchema,
   assignedVehicle,
   //vw_event_user,
+  gift , 
+  giftCategory,
   guest_category_schema,
   buisness,
   vendor_venue_schema,

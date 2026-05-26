@@ -10,6 +10,7 @@ export const routeConfig = [
   "admin",
   "review",
   "businesses",
+  "gift",
   "category",
   "user",
   "logistics",

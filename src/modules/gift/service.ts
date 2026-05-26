@@ -3,6 +3,12 @@ import { throwForbiddenError, throwNotFoundError, throwUnauthorizedError } from 
 import logger from "@/config/logger";
 import Model from "./model";
 import Resource from "./resource";
+import type {
+	CreateGiftCategoryInput,
+	UpdateGiftCategoryInput,
+	CreateGiftInput,
+	UpdateGiftInput,
+} from "./validators";
 
 const listCategories = async (params: any, userId: number, eventId: number) => {
 	try {
@@ -71,7 +77,11 @@ const listGifts = async (params: any, userId: number, eventId: number) => {
 	}
 };
 
-const createGiftcategory = async (input: any, userId: number, eventId: number) => {
+const createGiftcategory = async (
+	input: CreateGiftCategoryInput,
+	userId: number,
+	eventId: number,
+) => {
 	try {
 		const isAuthorized = await EventService.checkAuthorized(eventId, userId);
 		if (!isAuthorized) {
@@ -85,7 +95,11 @@ const createGiftcategory = async (input: any, userId: number, eventId: number) =
 	}
 };
 
-const updateCategory = async (id: number, input: any, userId: number) => {
+const updateCategory = async (
+	id: number,
+	input: UpdateGiftCategoryInput,
+	userId: number,
+) => {
 	try {
 		const category = await Model.findCategoryById(id);
 		if (!category) throwNotFoundError("Gift Category");
@@ -136,7 +150,11 @@ const deleteCategory = async (id: number, userId: number) => {
 
 
 
-const createGift = async(input:any , userId:number , eventId:number)=>{
+const createGift = async(
+	input: CreateGiftInput,
+	userId: number,
+	eventId: number,
+)=>{
   try{
     const isAuthorized = await EventService.checkAuthorized(eventId,userId) ; 
     if(!isAuthorized){
@@ -158,7 +176,11 @@ const findGift = async(giftId:number)=>{
     throw err ; 
   }
 }
-const updateGift = async (input:any , userId : number  , giftId:number )=>{
+const updateGift = async (
+	input: UpdateGiftInput,
+	userId : number,
+	giftId: number,
+)=>{
   try{
     const gift = await Model.findGiftbyId(giftId) ;
     if(!gift){

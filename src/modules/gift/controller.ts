@@ -6,7 +6,8 @@ const getGiftCategories = async (req: IAuthRequest) => {
 	const userId = req.user?.id;
 	const eventId = Number(req.params.eventId);
 	if (!eventId) throwNotFoundError("Event");
-	return await Service.listCategories(req.query, userId, eventId);
+	const result =  await Service.listCategories(req.query, userId, eventId);
+	return result;
 };
 
 const createGiftCategory = async (req: IAuthRequest) => {
@@ -21,21 +22,25 @@ const getGiftCategoriesWithGifts = async (req: IAuthRequest) => {
 	const userId = req.user?.id;
 	const eventId = Number(req.params.eventId);
 	// if (!eventId) throwNotFoundError("Event"); (validation will handle this )
-	return await Service.listCategoriesWithGifts(eventId, userId);
+	const  result = await Service.listCategoriesWithGifts(eventId, userId);
+  return result ;
+
 };
 
 const updateGiftCategory = async (req: IAuthRequest) => {
 	const userId = req.user?.id;
 	const categoryId = Number(req.params.categoryId);
 	if (!categoryId) throwNotFoundError("Gift Category");
-	return await Service.updateCategory(categoryId, req.body, userId);
+	const result = await Service.updateCategory(categoryId, req.body, userId);
+	return result;
 };
 
 const deleteGiftCategory = async (req: IAuthRequest) => {
 	const userId = req.user?.id;
 	const categoryId = Number(req.params.categoryId);
 	if (!categoryId) throwNotFoundError("Gift Category");
-	return await Service.deleteCategory(categoryId, userId);
+	const result = await Service.deleteCategory(categoryId, userId);
+	return result;
 };
 
 const createGift = async(req:IAuthRequest)=>{
