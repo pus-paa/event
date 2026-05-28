@@ -31,9 +31,10 @@ const EventInvitation = z.object({
   ),
   isDraft: z.boolean(),
   role: z.string().max(16).optional(),
-  invitationName: z.string().min(1, "Invitation name is required").max(50).optional(),
+  invitationName: z.string().max(50).optional(),
   isFamily: z.boolean().default(false),
   category: z.string().nonoptional(),
+  numberOfGuests: z.number().int().positive().optional(),
 });
 const setResponcevalidation = z.object({
   params: z.object({
@@ -61,6 +62,7 @@ const setResponcevalidation = z.object({
     departureInfo: z.string().max(200).optional().nullable(),
     assignedRoom: z.string().max(150).optional().nullable(),
     category: z.string().optional(),
+    numberOfGuests: z.number().int().positive().optional(),
   })
 
 });
