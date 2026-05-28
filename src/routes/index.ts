@@ -32,7 +32,7 @@ const createRouteHandler = (controller: Function, path: string) => {
       const startTime = Date.now();
       const data = await controller(req);
       const duration = Date.now() - startTime;
-      if (duration > 500) {
+      if (duration > 1000) {
         console.warn(`Slow API call: /api/${path} took ${duration}ms`);
       }
       res.json({
