@@ -1,8 +1,9 @@
 import db from "@/config/db";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import repository from "./repository";
-import Resource, { GiftCategoryColumn , GiftColumn } from "./resource";
-import { gift, giftCategory } from "./schema";
+import Resource, { GiftCategoryColumn } from "./resource";
+import { gift, giftCategory  , giftAssignmentTable} from "./schema";
+import { AssignGiftToInvitationInput } from "./validators";
 
 export default class Gift {
 	static async listCategories(params: {
@@ -151,5 +152,45 @@ export default class Gift {
   static async findGiftbyId(giftId:number){
     const result = await db.select(repository.giftSelectQuery).from(gift).where(eq(gift.id , giftId)).limit(1) ;
     return result[0] || null ;
+  }
+  static async assignGiftToInvitation(assignValidationBody: AssignGiftToInvitationInput, giftId:number ,  assignedBy:number){
+	 const result = await db.insert(giftAssignmentTable).values({
+		 giftId:giftId ,
+		...assignValidationBody , 
+		assignedBy,
+	 }).returning() ;
+	 return result[0] || null ;
+  }
+
+  static async findGiftAssignmentById(assignmentId: number) {
+	const result = await db
+		.select()
+		.from(giftAssignmentTable)
+		.where(eq(giftAssignmentTable.id, assignmentId))
+		.limit(1);
+	return result[0] || null;
+  }
+
+  static async updateGiftAssignment(
+	giftId: number,
+	invitationId: number,
+	params: Partial<{ totalCount: number }>,
+  ) {
+	const result = await db
+		.update(giftAssignmentTable)
+		.set({ ...params, updatedAt: new Date() })
+		.where(
+			and(
+				eq(giftAssignmentTable.giftId, giftId),
+				eq(giftAssignmentTable.invitationId, invitationId),
+			),
+		)
+		.returning();
+	return result[0] || null;
+  }
+
+  static async removeGiftAssignment(assignmentId:number){
+	 const result = await db.delete(giftAssignmentTable).where(eq(giftAssignmentTable.id , assignmentId)).returning() ;
+	 return result[0] || null ;
   }
 }

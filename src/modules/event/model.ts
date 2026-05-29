@@ -220,6 +220,14 @@ class Event {
       .where(and(eq(event.parentId, eventId), notInArray(event.id, unSubscribedsubEvent ?? [])));
     return subEvents;
   }
+  static async getEventSubEvent(eventId:number){
+    const subEvents = await db
+      .select()
+      .from(event)
+      .where(eq(event.parentId, eventId));
+    return subEvents;
+    
+  }
 }
 
 export default Event;

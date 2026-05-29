@@ -6,6 +6,7 @@ const giftCategorySelectQuery = {
   id: giftCategory.id,
   name: giftCategory.name,
   eventId: giftCategory.eventId,
+
   createdBy: giftCategory.createdBy,
   createdAt: giftCategory.createdAt,
   updatedAt: giftCategory.updatedAt,
@@ -16,6 +17,7 @@ const giftSelectQuery = {
   name: gift.name,
   category: gift.category,
   eventId: gift.eventId,
+  count:gift.count , 
   value: gift.value,
   createdBy: gift.createdBy,
   createdAt: gift.createdAt,

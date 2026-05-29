@@ -71,6 +71,30 @@ const listGifts = async (req: IAuthRequest) => {
 	const result = await Service.listGifts(req.query, userId, eventId);
 	return result;
 };
+
+const assignGiftToInvitation = async (req: IAuthRequest) => {
+	const userId = req.user?.id;
+	const giftId = Number(req.params.giftId);
+	if (!giftId) throwNotFoundError("Gift");
+	const result = await Service.assignGiftToInvitation(req.body, giftId, userId);
+	return result;
+};
+
+const updateAssignedGift = async (req: IAuthRequest) => {
+	const userId = req.user?.id;
+	const giftId = Number(req.params.giftId);
+	if (!giftId) throwNotFoundError("Gift");
+	const result = await Service.updateAssignedGift(req.body, giftId, userId);
+	return result;
+};
+
+const removeAssignedGift = async (req: IAuthRequest) => {
+	const userId = req.user?.id;
+	const assignedId = Number(req.params.assignedId);
+	if (!assignedId) throwNotFoundError("Gift Assignment");
+	const result = await Service.removeAssignGift(assignedId, userId);
+	return result;
+};
 export default {
 	getGiftCategories, 
   createGiftCategory  , 
@@ -81,4 +105,7 @@ export default {
   updateGift , 
 	listGifts,
   findGift , 
+	assignGiftToInvitation,
+	updateAssignedGift,
+	removeAssignedGift,
 };

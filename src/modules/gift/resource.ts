@@ -14,6 +14,7 @@ export interface GiftColumn {
   category: string | null;
   eventId: number;
   value: number | null;
+  count:number ; 
   createdBy: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
