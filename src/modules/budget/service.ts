@@ -21,6 +21,182 @@ const withExpenseComputed = async (expenseData: any) => {
   return ExpenseResource.toJson({ ...expenseData, spent, balance });
 };
 
+
+const createOrGetCategoryAndAddExpense = async ({
+  amount,
+  categoryName,
+  expenseName,
+  giftId,
+  eventId,
+  userId,
+  notes,
+  businessId,
+  subEventid,
+  cateringId,
+}: {
+  amount: number;
+  categoryName: string;
+  expenseName: string;
+  giftId: number;
+  eventId: number;
+  userId: number;
+  notes?: string;
+  businessId?: number;
+  subEventid?: number;
+  cateringId?: number;
+}) => {
+  // Check authorization
+  const isAuthorized = await EventService.checkAuthorized(eventId, userId);
+  if (!isAuthorized) {
+    throwForbiddenError("You do not have permission to manage budget for this event.");
+  }
+
+  // Get all categories for the event
+  const eventCategories = await Budget.getAllBudgetCategories(eventId);
+
+  // Find or create the category (case-insensitive match)
+  let targetCategory = eventCategories.find(
+    (cat) => cat?.name?.toLowerCase() === categoryName.toLowerCase()
+  );
+
+  if (!targetCategory?.id) {
+    // Create new category with the amount as initial allocated budget
+    targetCategory = await Budget.createBudgetCategory({
+      name: categoryName,
+      allocatedBudget: amount,
+      eventId,
+    });
+  } else {
+    // Update the category's allocated budget to include the new amount
+    const currentAllocated = Number(targetCategory.allocatedBudget);
+    const newAllocatedBudget = currentAllocated + amount;
+
+    await Budget.updateBudgetCategory(targetCategory.id, {
+      allocatedBudget: newAllocatedBudget,
+    });
+  }
+
+  if (!targetCategory?.id) {
+    throw new Error("Failed to create or find budget category");
+  }
+
+  // Create the expense with the giftId
+  const expenseInput: AddExpenseToCategoryInput & { categoryId: number; giftId: number } = {
+    name: expenseName,
+    allocatedAmount: amount,
+    categoryId: targetCategory.id,
+    giftId,
+    notes,
+    businessId,
+    subEventid,
+    cateringId,
+  };
+
+  const newExpense = await Budget.createExpense(expenseInput);
+
+  // Calculate warning if expense exceeds category budget
+  const totalAllocated = await Budget.getTotalAllocatedAmountByCategory(targetCategory.id);
+  const categoryBudget = Number(targetCategory.allocatedBudget);
+  const willExceedBudget = totalAllocated > categoryBudget;
+
+  return {
+    expense: ExpenseResource.toJson({
+      ...newExpense,
+      spent: 0,
+      balance: Number(newExpense?.allocatedAmount),
+    }),
+    category: BudgetCategoryResource.toJson({
+      ...targetCategory,
+      allocated: totalAllocated,
+      spent: 0,
+      pending: 0,
+      remaining: categoryBudget - totalAllocated,
+    }),
+    warning: willExceedBudget
+      ? `This expense pushes the category over its allocated budget of ${categoryBudget}`
+      : null,
+  };
+};
+
+/**
+ * Get expense by giftId. Returns null if no expense found.
+ */
+const getExpenseByGiftId = async (giftId: number) => {
+  const expenses = await Budget.getExpensesByGiftId(giftId);
+  return expenses.length > 0 ? expenses[0] : null;
+};
+
+/**
+ * Update or create an expense for a gift.
+ * Used when gift details (count/value) change.
+ */
+const updateOrCreateGiftExpense = async ({
+  giftId,
+  amount,
+  expenseName,
+  categoryName,
+  eventId,
+  userId,
+  notes,
+}: {
+  giftId: number;
+  amount: number;
+  expenseName: string;
+  categoryName: string;
+  eventId: number;
+  userId: number;
+  notes?: string;
+}) => {
+  // Check authorization
+  const isAuthorized = await EventService.checkAuthorized(eventId, userId);
+  if (!isAuthorized) {
+    throwForbiddenError("You do not have permission to manage budget for this event.");
+  }
+
+  // Try to find existing expense by giftId
+  const existingExpense = await getExpenseByGiftId(giftId);
+
+  if (existingExpense?.id) {
+    // Calculate the difference in amount
+    const oldAmount = Number(existingExpense.allocatedAmount);
+    const amountDifference = amount - oldAmount;
+
+    // Update the existing expense
+    const updated = await Budget.updateExpense(existingExpense.id, {
+      allocatedAmount: amount,
+      name: expenseName,
+      notes: (notes || existingExpense.notes )??undefined ,
+    });
+
+    // Update the category's allocated budget to reflect the change
+    const category = await Budget.getBudgetCategoryById(existingExpense.categoryId);
+    if (category && category!=null && category.id) {
+      const currentAllocated = Number(category.allocatedBudget);
+      const newAllocatedBudget = currentAllocated + amountDifference;
+
+      if (newAllocatedBudget > 0) {
+        await Budget.updateBudgetCategory(category.id, {
+          allocatedBudget: newAllocatedBudget,
+        });
+      }
+    }
+
+    return await withExpenseComputed(updated);
+  } else {
+    // Create new expense using the consolidated function
+    const result = await createOrGetCategoryAndAddExpense({
+      amount,
+      categoryName,
+      expenseName,
+      giftId,
+      eventId,
+      userId,
+      notes,
+    });
+    return result.expense;
+  }
+};
+
 const createBudgetCategory = async (
   input: CreateBudgetCategoryInput,
   userId: number,
@@ -32,14 +208,14 @@ const createBudgetCategory = async (
     throwForbiddenError(
       "You do not have permission to create a budget category.",
     );
-  //CHeck if there is the sub event then this operaion will be done to that sub event id 
+  //CHeck if there is the sub event then this operaion will be done to that sub event id
 
   const info = await Budget.totalAllocatedAndRemainingBudget(budgeteventId);
   if (input.allocatedBudget > info.remainingBudgetToAllocate)
     throwForbiddenError(
       `Allocated budget exceeds remaining budget. Remaining: ${info.remainingBudgetToAllocate}`,
     );
-  //EventId will be overridden by the sub event id 
+  //EventId will be overridden by the sub event id
   const category = await Budget.createBudgetCategory({ ...input, eventId: budgeteventId });
 
   if (!category) throw new Error("Failed to create budget category");
@@ -445,4 +621,8 @@ export default {
   getAllPaymentsByExpense,
   updatePayment,
   deletePayment,
+  // New consolidated functions for gift-budget integration
+  createOrGetCategoryAndAddExpense,
+  getExpenseByGiftId,
+  updateOrCreateGiftExpense,
 };

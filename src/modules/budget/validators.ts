@@ -33,6 +33,7 @@ const addExpenseToCategorySchema = z.object({
     cateringId: z.number().optional(),
     businessId: z.coerce.number().positive().optional(),
     subEventid: z.number().optional(),
+    giftId: z.number().positive().optional(),
   }),
 });
 
@@ -47,6 +48,7 @@ const updateExpenseSchema = z.object({
     nextDueDate: z.coerce.date().optional(),
     notes: z.string().max(999).optional(),
     businessId: z.coerce.number().positive().optional(),
+    giftId: z.number().positive().optional(),
   }),
 });
 

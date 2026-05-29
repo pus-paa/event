@@ -148,7 +148,8 @@ class Budget {
         categoryId: params.categoryId,
         name: params.name,
         subEventid: params.subEventid,
-        cateringId: params.cateringId
+        cateringId: params.cateringId,
+        giftId: params.giftId ?? undefined,
       })
       .returning();
     return result[0];
@@ -221,6 +222,22 @@ class Budget {
     return result[0];
   }
 
+  static async getExpensesByGiftId(giftId: number) {
+    const result = await db
+      .select()
+      .from(expense)
+      .where(eq(expense.giftId, giftId));
+    return result;
+  }
+
+  static async getExpenseByNotes(notes: string) {
+    const result = await db
+      .select()
+      .from(expense)
+      .where(eq(expense.notes, notes));
+    return result[0];
+  }
+
   static async updateExpense(expenseId: number, params: UpdateExpenseInput) {
     const updateData: {
       name?: string;
@@ -230,6 +247,7 @@ class Budget {
       notes?: string | null;
       businessId?: number | null;
       subEventid?: number | null;
+      giftId?: number | null;
     } = {};
     if (params.subEventid !== undefined) updateData.subEventid = params.subEventid;
     if (params.name) updateData.name = params.name;
@@ -242,6 +260,9 @@ class Budget {
       updateData.businessId = params.businessId;
     if (params.cateringId !== undefined) {
       updateData.cateringId = params.cateringId;
+    }
+    if (params.giftId !== undefined) {
+      updateData.giftId = params.giftId;
     }
     const result = await db
       .update(expense)
