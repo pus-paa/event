@@ -8,6 +8,7 @@ import repository from "./repository";
 import Resource, { InvitationColumn } from "./resource";
 import invitation, { guest_category_schema } from "./schema";
 import logger from "@/config/logger";
+import { gift, giftAssignmentTable } from "@/modules/gift/schema";
 
 export default class Invitation {
   static readonly DEFAULT_GUEST_CATEGORIES = [
@@ -185,6 +186,7 @@ export default class Invitation {
   }
 
   static async update(params: Partial<InvitationColumn>, id: number) {
+    console.log("This is the udpate in the inviataion", params)
     const result = await db
       .update(invitation)
       .set(params)
@@ -264,7 +266,7 @@ export default class Invitation {
     if (familyId !== undefined) {
       conditions.push(eq(invitation.familyId, familyId));
     }
-    console.log('Finding invitation with conditions:', eventId , userId , familyId);
+    console.log('Finding invitation with conditions:', eventId, userId, familyId);
 
     if (conditions.length === 0) return null;
 
@@ -423,5 +425,26 @@ export default class Invitation {
     ).returning();
     return data;
 
+  }
+
+  static async getInvitationGiftAssignments(invitationId: number) {
+    const data = await db
+      .select({
+        assignmentId: giftAssignmentTable.id,
+        invitationId: giftAssignmentTable.invitationId,
+        giftId: giftAssignmentTable.giftId,
+        totalCount: giftAssignmentTable.totalCount,
+        assignedAt: giftAssignmentTable.assignedAt,
+        assignedBy: giftAssignmentTable.assignedBy,
+        updatedAt: giftAssignmentTable.updatedAt,
+        giftName: gift.name,
+        giftCategory: gift.category,
+        giftValue: gift.value,
+        giftCount: gift.count,
+      })
+      .from(giftAssignmentTable)
+      .leftJoin(gift, eq(giftAssignmentTable.giftId, gift.id))
+      .where(eq(giftAssignmentTable.invitationId, invitationId));
+    return data[0] || null;
   }
 }

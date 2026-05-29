@@ -57,6 +57,7 @@ const setResponce = async (req: IAuthRequest) => {
     const eventId = req.params.id;
     const userId = req.user.id;
     const familyId = req?.user?.familyId;
+    console.log('This is the update int he invitaiotn table ', req.body);
     const service = await Service.setResponce(req.body, userId, familyId, eventId); // TODO:update the validaion in this line of the code 
     return service;
   } catch (err) {
@@ -183,6 +184,27 @@ const importGuest = async (req: IAuthRequest) => {
     throw err;
   }
 };
+
+const getInvitationGifts = async (req: IAuthRequest) => {
+  try {
+    const { invitationId } = req.params;
+    const userId = req.user?.id;
+    const familyId = req.user?.familyId ? Number(req.user.familyId) : undefined;
+    if (!invitationId || isNaN(Number(invitationId))) {
+      throwErrorOnValidation("Valid invitation id is required");
+    }
+    if (!userId) {
+      throwErrorOnValidation("User not authenticated");
+    }
+    return await Service.getInvitationGifts(
+      Number(invitationId),
+      userId,
+      familyId,
+    );
+  } catch (err) {
+    throw err;
+  }
+};
 export default {
   importGuest,
   setResponce,
@@ -198,4 +220,5 @@ export default {
   deleteGuestCategory,
   toggleCheckInOut,
   getGuestTransportationList,
+  getInvitationGifts,
 };

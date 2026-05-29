@@ -1,6 +1,6 @@
 import { validate } from "@/middlewares/zodValidation";
 import Controller from "./controller";
-import { setResponcevalidation } from "./validators";
+import { invitationGiftAssignmentsValidation, setResponcevalidation } from "./validators";
 const route = [
   {
     method: "get",
@@ -92,6 +92,13 @@ const route = [
     controller: Controller.toggleCheckInOut,
     path: "invitation/:id/check-status",
     authorization: true,
+  },
+  {
+    method: "get",
+    controller: Controller.getInvitationGifts,
+    path: "invitation/:invitationId/gifts",
+    authorization: true,
+    validation: validate(invitationGiftAssignmentsValidation),
   },
 
 ];

@@ -80,12 +80,21 @@ const updateGuestCategoryValidation = z.object({
   priority: z.number().int().optional(),
 });
 
+const invitationGiftAssignmentsValidation = z.object({
+  params: z.object({
+    invitationId: z.coerce.number().int().positive(),
+  }),
+});
+
 type GuestCategoryType = z.infer<typeof guestCategoryValidation>;
 type UpdateGuestCategoryType = z.infer<typeof updateGuestCategoryValidation>;
 
 type EventInvitationRemoveType = z.infer<typeof removeInvitationValidation>;
 type EventInvitationType = z.infer<typeof EventInvitation>;
 type setResponcevalidationType = z.infer<typeof setResponcevalidation>;
+type InvitationGiftAssignmentsValidationType = z.infer<
+  typeof invitationGiftAssignmentsValidation
+>;
 
 export {
   EventInvitationRemoveType,
@@ -100,4 +109,6 @@ export {
   updateGuestCategoryValidation,
   GuestCategoryType,
   UpdateGuestCategoryType,
+  invitationGiftAssignmentsValidation,
+  InvitationGiftAssignmentsValidationType,
 };

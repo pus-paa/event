@@ -5,6 +5,9 @@ import {
 	updateGiftCategorySchema,
 	createGiftSchema,
 	updateGiftSchema,
+	assignGiftToInvitationSchema,
+	updateAssignGiftToInvitationSchema,
+	removeAssignment,
 } from "./validators";
 
 const routes = [
@@ -65,6 +68,27 @@ const routes = [
 		controller: Controller.updateGift,
 		authorization: true,
 		validation: validate(updateGiftSchema),
+	},
+	{
+		method: "post",
+		path: "gift/assign/:giftId",
+		controller: Controller.assignGiftToInvitation,
+		authorization: true,
+		validation: validate(assignGiftToInvitationSchema),
+	},
+	{
+		method: "patch",
+		path: "gift/assign/:giftId",
+		controller: Controller.updateAssignedGift,
+		authorization: true,
+		validation: validate(updateAssignGiftToInvitationSchema),
+	},
+	{
+		method: "delete",
+		path: "gift/assign/:assignedId",
+		controller: Controller.removeAssignedGift,
+		authorization: true,
+		validation: validate(removeAssignment),
 	},
 ];
 

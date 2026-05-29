@@ -187,8 +187,6 @@ const setResponceForGuest = async (
 
     if (!invitations) {
       invitations = await Model.find({
-        eventId: eventId,
-        userId: body.userId,
         familyId: familyId ?? undefined,
       });
     }
@@ -551,6 +549,38 @@ const importInvitation = async ({ fromEventId, toEventId }: { fromEventId: numbe
 
 }
 
+const getInvitationGifts = async (
+  invitationId: number,
+  userId: number,
+  familyId?: number,
+) => {
+  try {
+    const invitation = await Model.find({ id: invitationId });
+    if (!invitation) return throwNotFoundError("Invitation not found");
+
+    const isOrganizer = await EventService.checkAuthorized(
+      invitation.eventId,
+      userId,
+    );
+
+    const isSelfInvite = invitation.userId === userId;
+    const isFamilyInvite =
+      familyId !== undefined &&
+      invitation.familyId !== null &&
+      invitation.familyId === familyId;
+
+    if (!isOrganizer && !isSelfInvite && !isFamilyInvite) {
+      return throwForbiddenError(
+        "You do not have permission to view gifts for this invitation",
+      );
+    }
+
+    return await Model.getInvitationGiftAssignments(invitationId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 
 
 
@@ -571,4 +601,5 @@ export default {
   delete_guest_category,
   toggleCheckInOut,
   getGuestTransportationList,
+  getInvitationGifts,
 };

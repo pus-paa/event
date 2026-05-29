@@ -1,5 +1,10 @@
 import EventService from "@/modules/event/service";
-import { throwForbiddenError, throwNotFoundError, throwUnauthorizedError } from "@/utils/error";
+import {
+	throwErrorOnValidation,
+	throwForbiddenError,
+	throwNotFoundError,
+	throwUnauthorizedError,
+} from "@/utils/error";
 import logger from "@/config/logger";
 import Model from "./model";
 import Resource from "./resource";
@@ -8,7 +13,11 @@ import type {
 	UpdateGiftCategoryInput,
 	CreateGiftInput,
 	UpdateGiftInput,
+	AssignGiftToInvitationInput,
+	UpdateAssignGiftToInvitationInput,
 } from "./validators";
+import BudgetModel from "@/modules/budget/model";
+import BudgetService from "@/modules/budget/service";
 
 const listCategories = async (params: any, userId: number, eventId: number) => {
 	try {
@@ -148,22 +157,38 @@ const deleteCategory = async (id: number, userId: number) => {
 	}
 };
 
-
-
 const createGift = async(
 	input: CreateGiftInput,
 	userId: number,
 	eventId: number,
 )=>{
   try{
-    const isAuthorized = await EventService.checkAuthorized(eventId,userId) ; 
+    const isAuthorized = await EventService.checkAuthorized(eventId,userId) ;
     if(!isAuthorized){
-      return throwUnauthorizedError("You do not have permission to create gifts.") ;
+      throwUnauthorizedError("You do not have permission to create gifts.") ;
     }
     const data = await Model.createGift(input,userId,eventId) ;
+		if(!data) throw new Error("Error creating gift") ;
+
+		// Only create budget expense if the gift has a value
+		const totalCost = input.count * (input.value || 0);
+		if (totalCost > 0) {
+			const budgetNote = `giftId:${data.id}`;
+
+			await BudgetService.createOrGetCategoryAndAddExpense({
+				amount: totalCost,
+				categoryName: "Gift",
+				expenseName: data.name,
+				giftId: data.id,
+				eventId,
+				userId,
+				notes: budgetNote,
+			});
+		}
+
     return Resource.toGiftJson(data) ;
   }catch(err){
-    throw err ; 
+    throw err ;
   }
 }
 
@@ -171,11 +196,12 @@ const findGift = async(giftId:number)=>{
   try{
     const gift = await Model.findGiftbyId(giftId) ;
     if(!gift) throwNotFoundError("Gift") ;
-    return gift ; 
+    return gift ;
   }catch(err){
-    throw err ; 
+    throw err ;
   }
 }
+
 const updateGift = async (
 	input: UpdateGiftInput,
 	userId : number,
@@ -184,19 +210,42 @@ const updateGift = async (
   try{
     const gift = await Model.findGiftbyId(giftId) ;
     if(!gift){
-      return  throwNotFoundError("Unable to Find Gift with the given ID");
+      return throwNotFoundError("Unable to Find Gift with the given ID");
     }
 
     if(gift.eventId ){
-      const isAuthorized  = await EventService.checkAuthorized(gift.eventId,userId) ; 
+      const isAuthorized  = await EventService.checkAuthorized(gift.eventId,userId) ;
       if(!isAuthorized ) {
-        return throwUnauthorizedError("You do not have permisssion to update Gifts")
+        throwUnauthorizedError("You do not have permisssion to update Gifts")
       }
+
+			// Check if count or value changed - need to update budget
+			const oldTotalCost = (gift.count || 0) * (gift.value || 0);
+			const newCount = input.count !== undefined ? input.count : gift.count;
+			const newValue = input.value !== undefined ? input.value : gift.value;
+			const newTotalCost = (newCount || 0) * (newValue || 0);
+
+			// Update the gift first
       const data = await Model.updateGift(giftId , input) ;
+
+			// Update or create budget expense if value/count changed
+			if (newTotalCost !== oldTotalCost && newTotalCost > 0) {
+				const budgetNote = `giftId:${giftId}`;
+				await BudgetService.updateOrCreateGiftExpense({
+					giftId,
+					amount: newTotalCost,
+					expenseName: data?.name || gift.name,
+					categoryName: "Gift",
+					eventId: gift.eventId,
+					userId,
+					notes: budgetNote,
+				});
+			}
+
       return Resource.toGiftJson(data) ;
     }
     else{
-      return throwNotFoundError("Event") ;
+      throwNotFoundError("Event") ;
     }
 
   }catch(err){
@@ -204,14 +253,93 @@ const updateGift = async (
 
   }
 }
+
+const assignGiftToInvitation = async( input:AssignGiftToInvitationInput ,  giftId:number , assignedBy:number )=>{
+	try{
+		const gift = await Model.findGiftbyId(giftId) ;
+		if(!gift){
+			return throwNotFoundError("Unable to Find Gift with the given ID");
+		}
+		const isAuthorized  = await EventService.checkAuthorized(gift.eventId,assignedBy) ;
+		if(!isAuthorized ) {
+			throwUnauthorizedError("You do not have permisssion to assign Gifts")
+		}
+
+		const assignment = await Model.assignGiftToInvitation(input,giftId ,  assignedBy) ;
+
+		return assignment ;
+
+	}catch(err){
+		throw err ;
+	}
+}
+
+const updateAssignedGift = async (
+	input: UpdateAssignGiftToInvitationInput,
+	giftId: number,
+	userId: number,
+) => {
+	try {
+		const gift = await Model.findGiftbyId(giftId);
+		if (!gift) {
+			return throwNotFoundError("Unable to Find Gift with the given ID");
+		}
+		const isAuthorized = await EventService.checkAuthorized(gift.eventId, userId);
+		if (!isAuthorized) {
+			return throwUnauthorizedError("You do not have permisssion to update assigned Gifts");
+		}
+		if (!input.invitationId) {
+			return throwErrorOnValidation("Invitation ID is required to update assignment");
+		}
+
+		const { invitationId, totalCount } = input;
+		if (totalCount === undefined) {
+			return throwErrorOnValidation("Nothing to update for assignment");
+		}
+
+		const data = await Model.updateGiftAssignment(giftId, invitationId, {
+			totalCount,
+		});
+		if (!data) return throwNotFoundError("Gift Assignment");
+
+		return data;
+	} catch (err) {
+		throw err;
+	}
+};
+
+const removeAssignGift = async (assignmentId: number, userId: number) => {
+	try {
+		const assignment = await Model.findGiftAssignmentById(assignmentId);
+		if (!assignment) throwNotFoundError("Gift Assignment");
+		const assignmentData = assignment as NonNullable<typeof assignment>;
+		const gift = await Model.findGiftbyId(assignmentData.giftId);
+		if (!gift) throwNotFoundError("Gift");
+		const giftData = gift as NonNullable<typeof gift>;
+
+		const isAuthorized = await EventService.checkAuthorized(giftData.eventId, userId);
+		if (!isAuthorized) {
+			throwUnauthorizedError("You do not have permisssion to remove assigned Gifts");
+		}
+
+		const data = await Model.removeGiftAssignment(assignmentId);
+		return data;
+	} catch (err) {
+		throw err;
+	}
+};
+
 export default {
-  createGiftcategory , 
+  createGiftcategory ,
 	listCategories,
 	listCategoriesWithGifts,
 	listGifts,
 	updateCategory,
 	deleteCategory,
-  createGift , 
-  findGift , 
-  updateGift , 
+  createGift ,
+  findGift ,
+  updateGift ,
+	assignGiftToInvitation,
+	updateAssignedGift,
+	removeAssignGift,
 };
