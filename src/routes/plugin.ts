@@ -18,6 +18,7 @@ export const routeConfig = [
   "family",
   "invitation",
   "todo",
+  "packages",
   "budget",
   "general-category",
   "logistics",
