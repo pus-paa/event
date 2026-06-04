@@ -15,9 +15,10 @@ import event from "@/modules/event/schema";
 import { assignedVehicle, vehicleSchema } from "@/modules/logistics/schema"
 import rsvp, { guest_category_schema } from "@/modules/invitation/schema";
 //import { vwEventDetails, vw_event_user } from "./view";
-import {gift , giftCategory , giftAssignmentTable} from "@/modules/gift/schema";
+import { gift, giftCategory, giftAssignmentTable } from "@/modules/gift/schema";
 import catering, { menuSchema } from "@/modules/catering/schema";
 import review from "@/modules/review/schema"
+import vendorPackage, { packageItem, eventPackageTable } from "@/modules/packages/schema";
 import {
   budgetCategory,
   expense,
@@ -33,7 +34,7 @@ export {
   vehicleSchema,
   assignedVehicle,
   //vw_event_user,
-  gift , 
+  gift,
   giftCategory,
   giftAssignmentTable,
   guest_category_schema,
@@ -57,6 +58,9 @@ export {
   generalCategory,
   catering,
   menuSchema,
-  review
+  review,
+  vendorPackage,
+  packageItem,
+  eventPackageTable,
 };
 export { default as favourites } from "@/modules/favourites/schema";
