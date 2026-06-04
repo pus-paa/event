@@ -23,14 +23,35 @@ class PackageModel {
     if (!pkg) return null;
 
     const items = await this.getItemsByPackageId(id);
+    console.log('This is the item ', items, pkg);
     return { ...pkg, items };
   }
 
   static async findByBusinessId(businessId: number) {
-    return db
-      .select(Repository.vendorPackageSelectQuery)
+    const result =await  db
+      .select()
       .from(schema)
+      .leftJoin(packageItem, eq(packageItem.packageId, schema.id))
       .where(eq(schema.vendorId, businessId));
+    const packagesMap: Record<number, any> = {};
+    for( const row of result) {
+      if(row.package_item?.id) {
+        if(!packagesMap[row.vendor_package.id]) {
+          packagesMap[row.vendor_package.id] = { ...row.vendor_package, items: [] };
+        }
+        packagesMap[row.vendor_package.id].items.push(row.package_item);
+      } else {
+        if(!packagesMap[row.vendor_package.id]) {
+          packagesMap[row.vendor_package.id] = { ...row.vendor_package, items: [] };
+        }
+      }
+    }
+
+   
+    const groupedValue =  Object.values(packagesMap);
+    console.log('this is the grouped value ', groupedValue);
+    return groupedValue; 
+
   }
 
   static async update(params: Partial<PackageInsert>, id: number) {
@@ -180,6 +201,8 @@ class PackageModel {
       };
     });
   }
+
+
 }
 
 export default PackageModel;

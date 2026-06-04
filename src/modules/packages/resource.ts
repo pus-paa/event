@@ -16,7 +16,7 @@ export interface PackageItemColumn {
   quantity: string | null;
   rate: string | null;
   amount: string | null;
-  remark: number | null;
+  remark: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

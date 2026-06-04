@@ -34,6 +34,7 @@ const getByBusinessId = async (req: IAuthRequest) => {
       throwErrorOnValidation("Business ID is required");
     }
     const data = await Service.getByBusinessId(businessId);
+    console.log("business with the get pakage by businessIdw id", data);
     return data;
   } catch (err: any) {
     throw err;

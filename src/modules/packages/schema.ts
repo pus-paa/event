@@ -13,7 +13,7 @@ export const packageItem = pgTable("package_item", {
   quantity: numeric("quantity"),
   rate: numeric("rate"),
   amount: numeric("amount"),
-  remark: integer("remark"),
+  remark: varchar("remark", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdateFn(() => new Date()).notNull()
 })

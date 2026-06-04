@@ -3,12 +3,12 @@ import z from "zod";
 // Package item validation schema - using string for numeric fields (Drizzle numeric type)
 const packageItemSchema = z.object({
   id: z.number().optional(),
-  group: z.string().min(1, "Group is required"),
   title: z.string().min(1, "Title is required"),
   quantity: z.string().min(1, "Quantity is required"),
   rate: z.string().min(1, "Rate is required"),
+  group: z.string().optional(),
   amount: z.string().min(1, "Amount is required"),
-  remark: z.number().optional(),
+  remark: z.string().optional(),
 });
 
 // Create package validation with nested items
@@ -25,12 +25,12 @@ const createPackageValidation = z.object({
 // Update package item schema - allows partial updates
 const updatePackageItemSchema = z.object({
   id: z.number().optional(),
-  group: z.string().min(1, "Group is required").optional(),
+  group: z.string().optional(),
   title: z.string().min(1, "Title is required").optional(),
   quantity: z.string().optional(),
   rate: z.string().optional(),
   amount: z.string().optional(),
-  remark: z.number().optional(),
+  remark: z.string().optional(),
 });
 
 const updatePackageValidation = z.object({

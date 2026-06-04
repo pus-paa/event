@@ -28,7 +28,7 @@ const create = async (input: CreatePackageValidation["body"], _userId: number) =
       quantity: item.quantity,
       rate: item.rate,
       amount: item.amount,
-      remark: item.remark ?? null,
+      remark: item.remark ?? undefined,
     })) || [];
 
     const result = await Model.createPackageWithItems(pkgData, itemsData);
@@ -57,7 +57,7 @@ const get = async (id: number) => {
 const getByBusinessId = async (businessId: number) => {
   try {
     const result = await Model.findByBusinessId(businessId);
-    return Resource.collection(result);
+    return result ; 
   } catch (err: any) {
     logger.error("Error in fetching packages by business:", err);
     throw err;
