@@ -57,7 +57,8 @@ export enum VendorBusinessCategoryTypes {
   BridalWear = "Bridal Wear",
   JewelryAccessories = "Jewelry & Accessories",
   SecurityGuard = "Security Guard",
-  Baraat = "Baraat"
+  Baraat = "Baraat",
+  EssentialItems = "Essential Items"
 }
 export const photos = [
   {
