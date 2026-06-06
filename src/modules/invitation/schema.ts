@@ -1,7 +1,11 @@
-import { integer, pgTable, serial, varchar, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, varchar, timestamp, unique } from "drizzle-orm/pg-core";
 import { attributes, tableName } from "./attributes";
 import event from "../event/schema";
-const schema = pgTable(tableName, attributes);
+const schema = pgTable(tableName, attributes,
+  (table) => [
+    unique("event_invitation").on(table.eventId, table.userId)
+  ]
+);
 export const guest_category_schema = pgTable("guest_category", {
   id: serial(),
   category_title: varchar("category_title", { length: 100 }),
