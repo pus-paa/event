@@ -253,6 +253,7 @@ const postEventVendor = async (
       acquired_by: userId,
       status: data.status,
       notes: data.notes,
+      estimated_guest: data.estimatedGuest,
     });
 
     if (!result) {

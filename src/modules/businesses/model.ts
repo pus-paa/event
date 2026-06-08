@@ -175,6 +175,7 @@ class BusinessModel {
     acquired_by?: number;
     status?: string;
     notes?: string;
+    estimated_guest?: number;
   }) {
     const result = await db
       .insert(event_vendorTable)
@@ -184,6 +185,7 @@ class BusinessModel {
         acquiredBy: params.acquired_by,
         status: params.status,
         notes: params.notes,
+        estimatedGuest: params.estimated_guest,
       })
       .returning();
 

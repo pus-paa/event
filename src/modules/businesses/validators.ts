@@ -64,6 +64,7 @@ export const PostEventVendorSchema = z.object({
   vendorId: z.number().int().positive(),
   notes: z.string().max(200).optional(),
   status: z.string().max(15).optional(),
+  estimatedGuest: z.number().int().nonnegative().optional(),
 });
 export const UpdateVendorSchema = z.object({
   notes: z.string().optional(),
