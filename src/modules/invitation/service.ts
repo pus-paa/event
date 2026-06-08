@@ -1,5 +1,6 @@
 import logger from "@/config/logger";
 import { invitationStatus } from "@/constant";
+import { InvitationColumn } from "@/modules/invitation/resource"
 import Model from "./model";
 import Resource from "./resource";
 import EventService from "@/modules/event/service";
@@ -105,11 +106,11 @@ const setResponce = async (
 ) => {
   try {
     const isOrganizer = await EventService.checkAuthorized(eventId, userId);
-    if (isOrganizer) {
-      return await OrganizerResponceSet(body, userId, eventId);
+    if (!isOrganizer) {
+      return await setResponceForGuest(body, userId, familyId, eventId);
     }
+    return await OrganizerResponceSet(body, userId, eventId);
 
-    return await setResponceForGuest(body, userId, familyId, eventId);
   } catch (err) {
     throw err;
   }
@@ -121,45 +122,54 @@ const OrganizerResponceSet = async (
   eventId: number,
 ) => {
   try {
-    //Validation for the organizer related Resopnce 
-    logger.debug({
-      text: "This is the organizer responce set handler",
-      eventId: eventId,
-      guestId: body.userId,
-      userId: userId,
-      params: body,
-    });
+    let familyInvitation = undefined;
     let invitation = await Model.find({
       eventId: eventId,
       userId: body.userId,
     });
 
+    logger.debug({
+      invitation: invitation,
+      locaction: "invitation  for the organizer user to set respnoce"
+    })
+
     if (!invitation && body.familyId) {
-      invitation = await Model.find({
+      // Making the invitation and the family with the id
+      familyInvitation = await Model.find({
         eventId: eventId,
         familyId: body.familyId,
       });
+
+      logger.debug({
+        location: "family invitaion checked",
+        invitation: familyInvitation
+      })
     }
 
-    if (!invitation) {
+    if (!invitation && !familyInvitation) {
       throwNotFoundError("Invitation was not found for the user");
       return;
     }
-
+    // If ths is the invitation for the family
     const params =
-      invitation && body.userId !== invitation.userId && invitation.familyId
+      familyInvitation
         ? {
           ...body,
-          category: invitation.category,
-          invitationName: invitation.invitationName ?? undefined,
+          category: familyInvitation.category,
+          invitationName: familyInvitation.invitationName ?? undefined,
         }
         : body;
 
+    logger.debug({
+      params: params,
+      invitation,
+      familyInvitation
+    })
     return await upsertInvitationResponse({
       invitation,
       eventId,
       invitedBy: userId,
-      familyId: invitation.familyId ? invitation.familyId : undefined,
+      familyId: familyInvitation?.familyId ? familyInvitation.familyId : undefined,
       params,
     });
   } catch (err) {
@@ -247,7 +257,7 @@ const upsertInvitationResponse = async ({
   familyId,
   params,
 }: {
-  invitation: any;
+  invitation: Partial<InvitationColumn> | null | undefined;
   eventId: number;
   invitedBy: number;
   familyId?: number;
@@ -260,7 +270,7 @@ const upsertInvitationResponse = async ({
     familyId: familyId,
   };
 
-  if (invitation?.id) {
+  if (invitation && invitation.id != undefined) {
     const nextStatus = params.status;
     const shouldClearResponseDetails =
       nextStatus === invitationStatus.rejected;
@@ -281,6 +291,11 @@ const upsertInvitationResponse = async ({
         respondedAt: null,
       }
       : {};
+    logger.debug({
+      invitation: invitation,
+      update: "this is the method invokedi "
+
+    })
 
     return await Model.update(
       {
@@ -294,7 +309,7 @@ const upsertInvitationResponse = async ({
 
   return await Model.create({
     ...baseData,
-    category: params.category as string,
+    category: params.category,
     eventId: eventId,
     invitedBy: invitedBy,
   });

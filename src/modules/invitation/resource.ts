@@ -16,7 +16,7 @@ export interface InvitationColumn {
   category: string;
   isArrivalPickupRequired: boolean | null;
   isDeparturePickupRequired: boolean | null;
-  unInvitedSubevent: number[] ;
+  unInvitedSubevent: number[] | null;
   organizerNote: string | null;
   arrivalDatetime: Date | null;
   departureDatetime: Date | null;
@@ -26,7 +26,7 @@ export interface InvitationColumn {
   arrivalInfo: string | null;
   departureInfo: string | null;
   updatedAt: Date | null;
-  createdAt: Date;
+  createdAt: Date | null;
 }
 
 export interface FamilyInvitationResponseColumn {
