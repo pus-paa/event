@@ -208,6 +208,22 @@ const getVendorEvents = async (req: IAuthRequest) => {
   }
 };
 
+const getVendorEventsForMember = async (req: IAuthRequest) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const userId = req.user?.id;
+    if (isNaN(Number(vendorId))) {
+      throwErrorOnValidation("invalid vendorId");
+    }
+    if (!userId) {
+      throwErrorOnValidation("User not authenticated");
+    }
+    return await Service.getVendorEventsForMember(Number(vendorId), userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 const getEventOfMyBusiness = async (req: IAuthRequest) => {
   try {
     const { businessIds } = req.params;
@@ -264,6 +280,7 @@ export default {
   AddEventVendor,
   getEventVendor,
   getVendorEvents,
+  getVendorEventsForMember,
   getEventVendorDetails,
   getEventOfMyBusiness,
   getMyBusinesses,

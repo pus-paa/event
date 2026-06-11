@@ -208,6 +208,15 @@ const getVendorEvent = async (vendorId: number, userId: number) => {
     throw err;
   }
 };
+
+const getVendorEventsForMember = async (vendorId: number, userId: number) => {
+  try {
+    return await Model.findVendorEventsForMember(vendorId, userId);
+  } catch (err) {
+    throw err;
+  }
+};
+
 const findEventVendorDetails = async ({
   eventId,
   businessId,
@@ -430,6 +439,7 @@ export default {
   remove,
   findOne,
   getVendorEvent,
+  getVendorEventsForMember,
   list,
   listEventOfMyBusiness,
   getMyBusinesses,

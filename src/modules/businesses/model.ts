@@ -1,6 +1,6 @@
 import db from "@/config/db";
 import businessSchema from "@/modules/businesses/schema";
-import eventSchema from "@/modules/event/schema";
+import eventSchema, { event_member_schema } from "@/modules/event/schema";
 import { eq, and, sql, inArray } from "drizzle-orm";
 import EventRepository from "@/modules/event/repository";
 import schema, {
@@ -234,6 +234,24 @@ class BusinessModel {
     }
     return result;
   }
+  static async findVendorEventsForMember(vendorId: number, userId: number) {
+    const result = await db
+      .select({ ...EventRepository.baseSelectQuery, enquiryStatus: event_vendorTable.status })
+      .from(event_vendorTable)
+      .innerJoin(eventSchema, eq(event_vendorTable.eventId, eventSchema.id))
+      .innerJoin(event_member_schema, eq(event_member_schema.eventId, eventSchema.id))
+      .where(
+        and(
+          eq(event_vendorTable.vendorBusinessid, vendorId),
+          eq(event_member_schema.userId, userId),
+        ),
+      );
+    if (!result || result.length == 0) {
+      return null;
+    }
+    return result;
+  }
+  
 
   static async getEventOfMyBusiness(businessIds: number[], status: string) {
     const whereCondition = [];
